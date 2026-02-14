@@ -3,8 +3,7 @@ const cheerio = require('cheerio');
 const cron = require('node-cron');
 const db = require('../config/database');
 
-// Base URL for PetHarbor LA County euthanasia list  
-const BASE_URL = 'https://petharbor.com/results.asp?WHERE=type_DOG&searchtype=ALL&friends=1&samaritans=1&nosuccess=0&rows=100&imght=120&imgres=thumb&view=sysadm.v_lact_alert_euth&bgcolor=white&text=blue&alink=000000&vlink=FF6600&fontface=arial&fontsize=10&start=3&col_hdr_bg=e6e6e6&col_bg2=e6e6e6&col_bg=white&SBG=e6e6e6&SHELTERLIST=%27LACT%27,%27LACT1%27,%27LACT4%27,%27LACT3%27,%27LACT2%27,%27LACT5%27,%27LACT6%27&OrderBy=shelter';
+const BASE_URL = 'https://petharbor.com/results.asp?WHERE=type_DOG&searchtype=ALL&friends=1&samaritans=1&nosuccess=0&rows=100&imght=120&imgres=Detail&tWidth=200&view=sysadm.v_lact_alert_euth&bgcolor=white&text=blue&alink=000000&vlink=FF6600&fontface=arial&fontsize=10&col_hdr_bg=e6e6e6&col_bg=white&col_bg2=e6e6e6&SBG=e6e6e6&SHELTERLIST=%27LACT%27,%27LACT1%27,%27LACT4%27,%27LACT3%27,%27LACT2%27,%27LACT5%27,%27LACT6%27&OrderBy=shelter';
 
 async function scrapePetHarbor() {
   try {
@@ -12,7 +11,6 @@ async function scrapePetHarbor() {
     
     const dogs = [];
     
-    // Scrape multiple pages (up to 5 pages or 500 dogs max)
     for (let page = 1; page <= 5; page++) {
       const pageUrl = `${BASE_URL}&PAGE=${page}`;
       
@@ -21,90 +19,93 @@ async function scrapePetHarbor() {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
           },
-          timeout: 10000
+          timeout: 15000
         });
 
         const $ = cheerio.load(response.data);
         let foundOnPage = 0;
         
-        // PetHarbor uses tables with bgcolor="white" for each dog
-        $('table[bgcolor="white"]').each((i, table) => {
+        // Dogs are in BOTH TableContent1 AND TableContent2 (they alternate)
+        $('td.TableContent1, td.TableContent2').each((i, element) => {
           try {
-            const $table = $(table);
-            const text = $table.text();
+            const $td = $(element);
+            const text = $td.text();
+            const html = $td.html();
             
-            // Skip if not an animal entry
-            if (!text.includes('Age:') || !text.includes('Shelter:')) return;
-            
-            // Extract ID (A followed by 7 digits)
+            // Must contain animal ID
             const idMatch = text.match(/A\d{7}/);
             if (!idMatch) return;
             const animalId = idMatch[0];
             
             // Extract photo
-            const img = $table.find('img[src*="petharbor"]').first();
+            const img = $td.prev('td').find('img').first();
             let photoUrl = img.attr('src');
-            if (photoUrl && !photoUrl.startsWith('http')) {
-              photoUrl = 'https://petharbor.com' + photoUrl;
+            if (photoUrl) {
+              if (photoUrl.startsWith('get_image.asp')) {
+                photoUrl = `https://petharbor.com/${photoUrl}`;
+              } else if (!photoUrl.startsWith('http')) {
+                photoUrl = `https://petharbor.com${photoUrl}`;
+              }
             }
             
-            // Extract name
-            let name = 'Unknown';
-            const nameMatch = text.match(/([A-Z][A-Z\s]+)\s*A\d{7}/);
+            // Extract name from <strong><u>NAME</u></strong>
+            let name = animalId;
+            const nameMatch = html.match(/<strong><u>([^<]+)<\/u><\/strong>/i);
             if (nameMatch) {
               name = nameMatch[1].trim();
-              if (name.length > 20 || name.includes('NEUTERED') || name.includes('SPAYED')) {
-                name = animalId;
-              }
-            } else {
-              name = animalId;
             }
             
-            // Extract breed  
+            // Extract breed - between ID and shelter
             let breed = 'Mixed Breed';
-            const breedMatch = text.match(/([A-Z\s,]+)\s*BREED/i);
+            const breedMatch = text.match(/A\d{7}\s*-\s*(?:NEUTERED|SPAYED)?\s*(?:MALE|FEMALE),?\s*([^\n\.]+?)(?:Shelter:|$)/is);
             if (breedMatch) {
-              breed = breedMatch[1].trim();
-            }
-            
-            // Extract age
-            let age = 'Unknown';
-            const ageMatch = text.match(/Age:\s*([^\n\r]+)/);
-            if (ageMatch) {
-              age = ageMatch[1].trim();
+              breed = breedMatch[1].trim().replace(/\s+/g, ' ');
+              breed = breed.replace(/\s+AND\s+/gi, ' / ');
             }
             
             // Extract gender
             let gender = 'Unknown';
-            if (text.match(/NEUTERED\s*MALE/i) || text.match(/MALE/i)) {
+            if (text.match(/NEUTERED\s*MALE/i)) {
               gender = 'Male';
-            } else if (text.match(/SPAYED\s*FEMALE/i) || text.match(/FEMALE/i)) {
+            } else if (text.match(/SPAYED\s*FEMALE/i)) {
+              gender = 'Female';  
+            } else if (text.match(/(?<!NEUTERED\s)MALE/i)) {
+              gender = 'Male';
+            } else if (text.match(/(?<!SPAYED\s)FEMALE/i)) {
               gender = 'Female';
             }
             
+            // Extract age
+            let age = 'Unknown';
+            const ageMatch = text.match(/Age:\s*([^\n]+?)(?:Weight:|$)/i);
+            if (ageMatch) {
+              age = ageMatch[1].trim();
+            }
+            
             // Extract shelter
-            let shelter = 'LA County Shelter';
-            const shelterMatch = text.match(/Shelter:\s*([^\n\r\.]+)/);
+            let shelter = 'LA County';
+            const shelterMatch = text.match(/Shelter:\s*([A-Z\s\.]+?)(?:\s+Age:)/i);
             if (shelterMatch) {
               shelter = shelterMatch[1].trim();
             }
             
-            // Extract euthanasia date
+            // Extract deadline
             let deadline = null;
-            const euthMatch = text.match(/(?:Scheduled\s*)?Euthanasia\s*Date:\s*(\d{1,2})\/(\d{1,2})\/(\d{4})/i);
+            const euthMatch = text.match(/Scheduled\s+Euthanasia\s+Date:\s*(\d{1,2})\/(\d{1,2})\/(\d{2,4})/i);
             if (euthMatch) {
-              const [, month, day, year] = euthMatch;
+              let [, month, day, year] = euthMatch;
+              if (year.length === 2) year = '20' + year;
               deadline = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
             }
             
-            // Default deadline if not found
+            // Fallback deadline
             if (!deadline) {
               const futureDate = new Date();
               futureDate.setDate(futureDate.getDate() + 3);
               deadline = futureDate.toISOString().split('T')[0];
             }
             
-            // Calculate urgency for sorting
+            // Calculate urgency
             const daysUntil = Math.ceil((new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24));
             
             dogs.push({
@@ -117,7 +118,7 @@ async function scrapePetHarbor() {
               deadline,
               daysUntil,
               photo_url: photoUrl || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400',
-              petharbor_url: `https://petharbor.com/pet.asp?uaid=${animalId.replace('A', '')}`,
+              petharbor_url: `https://petharbor.com/pet.asp?uaid=${animalId.substring(1)}`,
               description: `${name} is on the euthanasia list at ${shelter}. Urgent rescue needed by ${deadline}.`,
               source: 'petharbor',
               category: 'general',
@@ -125,6 +126,7 @@ async function scrapePetHarbor() {
             });
             
             foundOnPage++;
+            
           } catch (err) {
             console.error('Error parsing entry:', err.message);
           }
@@ -141,9 +143,9 @@ async function scrapePetHarbor() {
       }
     }
 
-    console.log(`✅ Total: ${dogs.length} urgent dogs`);
+    console.log(`✅ Total found: ${dogs.length} urgent dogs`);
 
-    // SORT BY URGENCY - most urgent first
+    // Sort by urgency
     dogs.sort((a, b) => a.daysUntil - b.daysUntil);
 
     // Add to database
@@ -180,11 +182,11 @@ async function scrapePetHarbor() {
       }
     }
 
-    console.log(`✨ Added ${addedCount} new dogs`);
+    console.log(`✨ Added ${addedCount} new dogs to database`);
     return dogs;
     
   } catch (error) {
-    console.error('❌ Scraping error:', error.message);
+    console.error('❌ PetHarbor scraping error:', error.message);
     return [];
   }
 }
@@ -192,17 +194,15 @@ async function scrapePetHarbor() {
 function startScraper() {
   const intervalMinutes = process.env.PETHARBOR_SCRAPE_INTERVAL || 60;
   
-  // Run 5 seconds after startup
   setTimeout(() => {
     scrapePetHarbor();
   }, 5000);
   
-  // Then every hour
   cron.schedule(`*/${intervalMinutes} * * * *`, () => {
     scrapePetHarbor();
   });
   
-  console.log(`⏰ Scraper runs every ${intervalMinutes} minutes`);
+  console.log(`⏰ PetHarbor scraper scheduled to run every ${intervalMinutes} minutes`);
 }
 
 module.exports = {
