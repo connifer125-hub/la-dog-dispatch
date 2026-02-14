@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LA Dog Dispatch - Urgent Dog Rescue Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .dog-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dog-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+        .urgent-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .thermometer {
+            width: 60px;
+            height: 200px;
+            background: #e5e7eb;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #9ca3af;
+        }
+        .thermometer-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #10b981, #34d399);
+            transition: height 0.5s ease;
+            border-radius: 0 0 27px 27px;
+        }
+        .thermometer-bulb {
+            width: 80px;
+            height: 80px;
+            background: #e5e7eb;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 3px solid #9ca3af;
+            overflow: hidden;
+        }
+        .thermometer-bulb-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #10b981, #34d399);
+            transition: height 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-red-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold">🐕 LA Dog Dispatch</h1>
+                    <p class="text-red-100 mt-1">Urgent Rescue & Fundraising Network</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="showGeneralDonation()" class="bg-white text-red-600 px-6 py-2 rounded-lg font-semibold hover:bg-red-50">
+                        💝 Donate to Rescue Fund
+                    </button>
+                    <button onclick="showAdminLogin()" class="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800">
+                        Admin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        
+        <!-- Stats Banner -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow text-center">
+                <div class="text-4xl font-bold text-red-600" id="urgentCount">0</div>
+                <div class="text-gray-600 mt-2">Urgent Dogs</div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow text-center">
+                <div class="text-4xl font-bold text-green-600" id="savedCount">0</div>
+                <div class="text-gray-600 mt-2">Dogs Saved</div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow text-center">
+                <div class="text-4xl font-bold text-blue-600" id="totalRaised">$0</div>
+                <div class="text-gray-600 mt-2">Total Raised</div>
+            </div>
+        </div>
+
+        <!-- Add Manual Dog Button -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">🚨 Urgent Dogs Needing Help</h2>
+                <button onclick="showAddDogForm()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                    + Add Manual Dog
+                </button>
+            </div>
+            
+            <!-- Category Filter Tabs -->
+            <div class="flex flex-wrap gap-2">
+                <button onclick="filterByCategory('all')" id="filter-all" class="category-filter bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-semibold">
+                    All Dogs
+                </button>
+                <button onclick="filterByCategory('medical')" id="filter-medical" class="category-filter bg-white text-gray-700 px-4 py-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50">
+                    🏥 Medical Rescue
+                </button>
+                <button onclick="filterByCategory('ice')" id="filter-ice" class="category-filter bg-white text-gray-700 px-4 py-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50">
+                    🚨 ICE Detainment Rescue
+                </button>
+                <button onclick="filterByCategory('death')" id="filter-death" class="category-filter bg-white text-gray-700 px-4 py-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50">
+                    💔 Dog Parent Death Rescue
+                </button>
+                <button onclick="filterByCategory('general')" id="filter-general" class="category-filter bg-white text-gray-700 px-4 py-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50">
+                    🐕 General Rescue
+                </button>
+            </div>
+        </div>
+
+        <!-- Dogs Grid -->
+        <div id="dogsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dogs will be loaded here -->
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+            <p class="mt-4 text-gray-600">Loading urgent dogs from PetHarbor...</p>
+        </div>
+    </div>
+
+    <!-- Modal Overlays -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeModals()"></div>
+
+    <!-- General Donation Modal -->
+    <div id="generalDonationModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-8 w-full max-w-md hidden z-50">
+        <h3 class="text-2xl font-bold mb-4">💝 Support LA Dog Dispatch</h3>
+        <p class="text-gray-600 mb-6">Your recurring donation helps us rescue dogs across LA County shelters.</p>
+        
+        <div class="space-y-4">
+            <button onclick="window.open('YOUR_GIVEBUTTER_RECURRING_LINK', '_blank')" class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600">
+                🎁 Give via GiveButter (Recurring)
+            </button>
+            
+            <div class="border-t pt-4">
+                <p class="text-sm text-gray-500 mb-3 text-center">Or donate directly:</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button class="border-2 border-blue-500 text-blue-500 py-2 rounded-lg hover:bg-blue-50">
+                        💙 Venmo
+                    </button>
+                    <button class="border-2 border-blue-600 text-blue-600 py-2 rounded-lg hover:bg-blue-50">
+                        💰 PayPal
+                    </button>
+                    <button class="border-2 border-purple-500 text-purple-500 py-2 rounded-lg hover:bg-purple-50">
+                        💜 Zelle
+                    </button>
+                    <button class="border-2 border-green-500 text-green-500 py-2 rounded-lg hover:bg-green-50">
+                        💚 Cash App
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="closeModals()" class="mt-6 w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300">Close</button>
+    </div>
+
+    <!-- Dog Donation Modal -->
+    <div id="dogDonationModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-8 w-full max-w-md hidden z-50 max-h-[90vh] overflow-y-auto">
+        <div id="dogDonationContent"></div>
+    </div>
+
+    <!-- Add Dog Form Modal -->
+    <div id="addDogModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-8 w-full max-w-md hidden z-50 max-h-[90vh] overflow-y-auto">
+        <h3 class="text-2xl font-bold mb-4">Add Manual Urgent Dog</h3>
+        <form id="addDogForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Dog Name</label>
+                <input type="text" name="name" required class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Rescue Category</label>
+                <select name="category" required class="w-full border rounded-lg px-3 py-2">
+                    <option value="general">🐕 General Rescue</option>
+                    <option value="medical">🏥 Medical Rescue</option>
+                    <option value="ice">🚨 ICE Detainment Rescue</option>
+                    <option value="death">💔 Dog Parent Death Rescue</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Breed</label>
+                <input type="text" name="breed" required class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Age</label>
+                    <input type="text" name="age" required class="w-full border rounded-lg px-3 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Gender</label>
+                    <select name="gender" required class="w-full border rounded-lg px-3 py-2">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Shelter/Location</label>
+                <input type="text" name="shelter" required class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Deadline Date</label>
+                <input type="date" name="deadline" required class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Photo URL</label>
+                <input type="url" name="photo" class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Description</label>
+                <textarea name="description" rows="3" class="w-full border rounded-lg px-3 py-2"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Fundraising Goal ($)</label>
+                <input type="number" name="goal" required class="w-full border rounded-lg px-3 py-2" placeholder="500" value="500">
+                <p class="text-xs text-gray-500 mt-1">Default is $500. Increase for medical cases or special needs.</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">GiveButter Link (optional)</label>
+                <input type="url" name="givebutter" class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">
+                Add Dog
+            </button>
+            <button type="button" onclick="closeModals()" class="w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300">
+                Cancel
+            </button>
+        </form>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-8 w-full max-w-md hidden z-50">
+        <h3 class="text-2xl font-bold mb-4">🔐 Admin Login</h3>
+        <form id="adminLoginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Email</label>
+                <input type="email" name="email" required class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input type="password" name="password" required class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
+                Login
+            </button>
+            <button type="button" onclick="closeModals()" class="w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300">
+                Cancel
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_URL = window.location.origin + '/api';
+        
+        // Sample data structure - will be loaded from API
+        let dogs = [];
+        let stats = {
+            urgent: 0,
+            saved: 0,
+            totalRaised: 0
+        };
+        let currentUser = null;
+
+        // Check if user is logged in
+        async function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const response = await fetch(`${API_URL}/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        currentUser = data.user;
+                        updateHeaderForUser();
+                    } else {
+                        localStorage.removeItem('token');
+                    }
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                }
+            }
+        }
+
+        function updateHeaderForUser() {
+            if (currentUser) {
+                const adminBtn = document.querySelector('button[onclick="showAdminLogin()"]');
+                if (adminBtn) {
+                    adminBtn.textContent = currentUser.name;
+                    adminBtn.onclick = () => showUserMenu();
+                }
+            }
+        }
+
+        // Initialize the app
+        async function init() {
+            await checkAuth();
+            await loadDogsFromAPI();
+            await loadStats();
+            renderDogs();
+        }
+
+        // Load dogs from API
+        async function loadDogsFromAPI() {
+            try {
+                const response = await fetch(`${API_URL}/dogs`);
+                const data = await response.json();
+                dogs = data.dogs;
+                document.getElementById('loadingState').classList.add('hidden');
+            } catch (error) {
+                console.error('Error loading dogs:', error);
+                // Fallback to sample data if API fails
+                loadSampleData();
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/dogs/stats/overview`);
+                const data = await response.json();
+                stats = data;
+                updateStats();
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Fallback sample data
+        function loadSampleData() {
+            const samplePetHarborDogs = [
+                {
+                    id: 'PH001',
+                    name: 'Bella',
+                    breed: 'Pit Bull Mix',
+                    age: '3 years',
+                    gender: 'Female',
+                    shelter: 'LA County - Baldwin Park',
+                    deadline: '2026-02-10',
+                    photo: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400',
+                    description: 'Sweet girl who loves cuddles. Great with kids.',
+                    source: 'petharbor',
+                    category: 'general',
+                    goal: 500,
+                    raised: 150
+                },
+                {
+                    id: 'PH002',
+                    name: 'Max',
+                    breed: 'German Shepherd',
+                    age: '5 years',
+                    gender: 'Male',
+                    shelter: 'LA County - Lancaster',
+                    deadline: '2026-02-09',
+                    photo: 'https://images.unsplash.com/photo-1568572933382-74d440642117?w=400',
+                    description: 'Loyal and protective. Needs experienced owner.',
+                    source: 'petharbor',
+                    category: 'general',
+                    goal: 750,
+                    raised: 320
+                },
+                {
+                    id: 'PH003',
+                    name: 'Luna',
+                    breed: 'Labrador Mix',
+                    age: '2 years',
+                    gender: 'Female',
+                    shelter: 'LA County - Downey',
+                    deadline: '2026-02-11',
+                    photo: 'https://images.unsplash.com/photo-1558788353-f76d92427f16?w=400',
+                    description: 'Needs urgent surgery for broken leg. Otherwise healthy and playful.',
+                    source: 'petharbor',
+                    category: 'medical',
+                    goal: 1500,
+                    raised: 650
+                },
+                {
+                    id: 'PH004',
+                    name: 'Rocky',
+                    breed: 'Husky Mix',
+                    age: '4 years',
+                    gender: 'Male',
+                    shelter: 'LA County - Carson',
+                    deadline: '2026-02-12',
+                    photo: 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=400',
+                    description: 'Owner detained by ICE. Family devastated. Rocky needs immediate placement.',
+                    source: 'petharbor',
+                    category: 'ice',
+                    goal: 500,
+                    raised: 200
+                },
+                {
+                    id: 'PH005',
+                    name: 'Charlie',
+                    breed: 'Beagle',
+                    age: '7 years',
+                    gender: 'Male',
+                    shelter: 'LA County - Baldwin Park',
+                    deadline: '2026-02-13',
+                    photo: 'https://images.unsplash.com/photo-1505628346881-b72b27e84530?w=400',
+                    description: 'Senior dog whose owner passed away. Grieving and confused. Needs gentle home.',
+                    source: 'petharbor',
+                    category: 'death',
+                    goal: 500,
+                    raised: 425
+                }
+            ];
+
+            dogs = [...samplePetHarborDogs];
+            document.getElementById('loadingState').classList.add('hidden');
+        }
+
+        // Load manually added dogs from localStorage
+        function loadManualDogs() {
+            const manual = localStorage.getItem('manualDogs');
+            if (manual) {
+                const manualDogs = JSON.parse(manual);
+                dogs = [...dogs, ...manualDogs];
+            }
+        }
+
+        // Render all dogs
+        function renderDogs(filterCategory = 'all') {
+            const grid = document.getElementById('dogsGrid');
+            grid.innerHTML = '';
+
+            // Filter dogs by category
+            const filteredDogs = filterCategory === 'all' 
+                ? dogs 
+                : dogs.filter(dog => dog.category === filterCategory);
+
+            if (filteredDogs.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">No dogs in this category yet.</div>';
+                return;
+            }
+
+            filteredDogs.forEach(dog => {
+                const deadline = new Date(dog.deadline);
+                const today = new Date();
+                const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+                const urgency = daysLeft <= 1 ? 'CRITICAL' : daysLeft <= 3 ? 'URGENT' : 'AT RISK';
+                const urgencyColor = daysLeft <= 1 ? 'bg-red-600' : daysLeft <= 3 ? 'bg-orange-500' : 'bg-yellow-500';
+                const progress = Math.min((dog.raised / dog.goal) * 100, 100);
+                const thermometerHeight = Math.min((dog.raised / dog.goal) * 100, 100);
+
+                // Category labels and colors
+                const categoryLabels = {
+                    medical: '🏥 Medical',
+                    ice: '🚨 ICE Detainment',
+                    death: '💔 Parent Death',
+                    general: '🐕 General'
+                };
+                const categoryColors = {
+                    medical: 'bg-purple-600',
+                    ice: 'bg-blue-600',
+                    death: 'bg-gray-600',
+                    general: 'bg-green-600'
+                };
+
+                const card = `
+                    <div class="dog-card bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div class="relative">
+                            <img src="${dog.photo}" alt="${dog.name}" class="w-full h-48 object-cover">
+                            <div class="absolute top-2 right-2 ${urgencyColor} text-white px-3 py-1 rounded-full text-sm font-bold urgent-badge">
+                                ${urgency}
+                            </div>
+                            <div class="absolute top-2 left-2 ${categoryColors[dog.category]} text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                ${categoryLabels[dog.category]}
+                            </div>
+                            ${dog.source === 'manual' ? '<div class="absolute bottom-2 left-2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs">Manual Add</div>' : ''}
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold mb-1">${dog.name}</h3>
+                            <p class="text-gray-600 text-sm mb-2">${dog.breed} • ${dog.age} • ${dog.gender}</p>
+                            <p class="text-gray-700 text-sm mb-3">${dog.description}</p>
+                            
+                            <div class="bg-gray-100 p-2 rounded mb-3 text-sm">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-gray-600">📍 ${dog.shelter}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">⏰ Deadline:</span>
+                                    <span class="font-semibold ${daysLeft <= 1 ? 'text-red-600' : 'text-gray-800'}">${dog.deadline} (${daysLeft} days)</span>
+                                </div>
+                            </div>
+
+                            <!-- Fundraising Thermometer -->
+                            <div class="flex items-center justify-center gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                                <div class="relative">
+                                    <div class="thermometer">
+                                        <div class="thermometer-fill" style="height: ${thermometerHeight}%"></div>
+                                    </div>
+                                    <div class="thermometer-bulb">
+                                        <div class="thermometer-bulb-fill" style="height: 100%"></div>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-2xl font-bold text-green-600">$${dog.raised}</div>
+                                    <div class="text-sm text-gray-500">of $${dog.goal} goal</div>
+                                    <div class="mt-2">
+                                        <div class="w-full bg-gray-200 rounded-full h-3">
+                                            <div class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: ${progress}%"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-600 mt-1 text-center">${Math.round(progress)}% funded</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="showDogDonation('${dog.id}')" class="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700">
+                                💝 Help Save ${dog.name}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+        }
+
+        // Filter by category
+        let currentFilter = 'all';
+        function filterByCategory(category) {
+            currentFilter = category;
+            
+            // Update button styles
+            document.querySelectorAll('.category-filter').forEach(btn => {
+                btn.classList.remove('bg-red-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700', 'border-2', 'border-gray-300');
+            });
+            
+            const activeBtn = document.getElementById(`filter-${category}`);
+            activeBtn.classList.remove('bg-white', 'text-gray-700', 'border-2', 'border-gray-300');
+            activeBtn.classList.add('bg-red-600', 'text-white');
+            
+            renderDogs(category);
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('urgentCount').textContent = dogs.length;
+            document.getElementById('savedCount').textContent = stats.saved;
+            document.getElementById('totalRaised').textContent = '$' + stats.totalRaised.toLocaleString();
+        }
+
+        // Show general donation modal
+        function showGeneralDonation() {
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.getElementById('generalDonationModal').classList.remove('hidden');
+        }
+
+        // Show dog-specific donation modal
+        function showDogDonation(dogId) {
+            const dog = dogs.find(d => d.id === dogId);
+            if (!dog) return;
+
+            const content = `
+                <h3 class="text-2xl font-bold mb-2">Help Save ${dog.name}</h3>
+                <img src="${dog.photo}" alt="${dog.name}" class="w-full h-48 object-cover rounded-lg mb-4">
+                <p class="text-gray-700 mb-4">${dog.description}</p>
+                
+                <div class="bg-gray-100 p-3 rounded-lg mb-4">
+                    <div class="text-sm space-y-1">
+                        <div><strong>Shelter:</strong> ${dog.shelter}</div>
+                        <div><strong>Deadline:</strong> ${dog.deadline}</div>
+                        <div><strong>Goal:</strong> $${dog.goal}</div>
+                        <div><strong>Raised:</strong> $${dog.raised}</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    ${dog.givebutter ? `
+                    <button onclick="window.open('${dog.givebutter}', '_blank')" class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600">
+                        🎁 Donate via GiveButter
+                    </button>
+                    ` : ''}
+                    
+                    <div class="border-t pt-3">
+                        <p class="text-sm text-gray-500 mb-2 text-center">Or use these payment methods:</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="copyPaymentInfo('venmo', '${dog.name}')" class="border-2 border-blue-500 text-blue-500 py-2 rounded-lg hover:bg-blue-50 text-sm">
+                                💙 Venmo
+                            </button>
+                            <button onclick="copyPaymentInfo('paypal', '${dog.name}')" class="border-2 border-blue-600 text-blue-600 py-2 rounded-lg hover:bg-blue-50 text-sm">
+                                💰 PayPal
+                            </button>
+                            <button onclick="copyPaymentInfo('zelle', '${dog.name}')" class="border-2 border-purple-500 text-purple-500 py-2 rounded-lg hover:bg-purple-50 text-sm">
+                                💜 Zelle
+                            </button>
+                            <button onclick="copyPaymentInfo('cashapp', '${dog.name}')" class="border-2 border-green-500 text-green-500 py-2 rounded-lg hover:bg-green-50 text-sm">
+                                💚 Cash App
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2 text-center">Note: "${dog.name}" in memo</p>
+                    </div>
+                </div>
+
+                <button onclick="closeModals()" class="mt-4 w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300">
+                    Close
+                </button>
+            `;
+
+            document.getElementById('dogDonationContent').innerHTML = content;
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.getElementById('dogDonationModal').classList.remove('hidden');
+        }
+
+        // Show add dog form
+        function showAddDogForm() {
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.getElementById('addDogModal').classList.remove('hidden');
+        }
+
+        // Show admin login
+        function showAdminLogin() {
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+        }
+
+        // Close all modals
+        function closeModals() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            document.getElementById('generalDonationModal').classList.add('hidden');
+            document.getElementById('dogDonationModal').classList.add('hidden');
+            document.getElementById('addDogModal').classList.add('hidden');
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        // Copy payment info
+        function copyPaymentInfo(type, dogName) {
+            // In production, replace these with actual payment handles
+            const handles = {
+                venmo: '@LADogDispatch',
+                paypal: 'donate@ladogdispatch.org',
+                zelle: 'rescue@ladogdispatch.org',
+                cashapp: '$LADogDispatch'
+            };
+
+            const text = `${handles[type]} (Note: ${dogName})`;
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`Copied! Send to: ${text}`);
+            });
+        }
+
+        // Handle add dog form submission
+        document.getElementById('addDogForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You must be logged in to add a dog');
+                showAdminLogin();
+                return;
+            }
+
+            const formData = new FormData(e.target);
+            
+            const dogData = {
+                name: formData.get('name'),
+                category: formData.get('category'),
+                breed: formData.get('breed'),
+                age: formData.get('age'),
+                gender: formData.get('gender'),
+                shelter: formData.get('shelter'),
+                deadline: formData.get('deadline'),
+                photo_url: formData.get('photo') || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400',
+                description: formData.get('description'),
+                goal_amount: parseInt(formData.get('goal'))
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/dogs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(dogData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`${dogData.name} has been added to urgent dogs!`);
+                    closeModals();
+                    e.target.reset();
+                    await loadDogsFromAPI();
+                    renderDogs();
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.error || 'Failed to add dog'));
+                }
+            } catch (error) {
+                console.error('Error adding dog:', error);
+                alert('Failed to add dog. Please try again.');
+            }
+        });
+
+        // Handle admin login
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // In production, this would validate credentials with a backend
+            alert('Admin panel coming soon! This will allow vetted rescues to request fund transfers.');
+            closeModals();
+        });
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>
