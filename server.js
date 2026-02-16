@@ -18,19 +18,30 @@ app.use(express.static('public'));
 // Database connection
 const db = require('./config/database');
 
-// Run migration to fix photo_url length
+// Run migration to fix photo_url length AND update existing URLs
 const runMigrations = async () => {
   try {
     console.log('🔧 Running database migrations...');
     
     // Fix photo_url field length
     await db.query('ALTER TABLE dogs ALTER COLUMN photo_url TYPE TEXT');
-    console.log('✅ Migration complete: photo_url can now hold longer URLs');
-  } catch (error) {
-    // Ignore error if column already correct type
-    if (!error.message.includes('cannot be cast automatically')) {
-      console.log('ℹ️ Migration skipped (already applied or not needed)');
+    console.log('✅ Migration 1: photo_url can now hold longer URLs');
+    
+    // Update all existing dog photos to use local URLs
+    const result = await db.query('SELECT id, shelter_id FROM dogs');
+    console.log(`Found ${result.rows.length} dogs to update`);
+    
+    for (const dog of result.rows) {
+      const newPhotoUrl = `/dog-images/${dog.shelter_id}.jpg`;
+      await db.query(
+        'UPDATE dogs SET photo_url = $1 WHERE id = $2',
+        [newPhotoUrl, dog.id]
+      );
     }
+    console.log(`✅ Migration 2: Updated ${result.rows.length} dog photo URLs to local paths`);
+    
+  } catch (error) {
+    console.log('ℹ️ Migration error (may be already applied):', error.message);
   }
 };
 
