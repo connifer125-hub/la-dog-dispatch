@@ -18,6 +18,22 @@ app.use(express.static('public'));
 // Database connection
 const db = require('./config/database');
 
+// Run migration to fix photo_url length
+const runMigrations = async () => {
+  try {
+    console.log('🔧 Running database migrations...');
+    
+    // Fix photo_url field length
+    await db.query('ALTER TABLE dogs ALTER COLUMN photo_url TYPE TEXT');
+    console.log('✅ Migration complete: photo_url can now hold longer URLs');
+  } catch (error) {
+    // Ignore error if column already correct type
+    if (!error.message.includes('cannot be cast automatically')) {
+      console.log('ℹ️ Migration skipped (already applied or not needed)');
+    }
+  }
+};
+
 // Initialize database tables
 const initDB = async () => {
   try {
@@ -25,6 +41,9 @@ const initDB = async () => {
     const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
     await db.query(schema);
     console.log('✅ Database tables initialized');
+    
+    // Run migrations after schema
+    await runMigrations();
   } catch (error) {
     console.error('❌ Database initialization error:', error);
   }
@@ -54,19 +73,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const startServer = async () => {
-  await initDB();
-  
+// Initialize DB and start server
+initDB().then(() => {
   // Start PetHarbor scraper
-  require('./services/petharborScraper').startScraper();
+  const { startScraper } = require('./services/petharborScraper');
+  startScraper();
   
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 LA Dog Dispatch server running on port ${PORT}`);
-    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
-};
-
-startServer();
-
-module.exports = app;
+});
