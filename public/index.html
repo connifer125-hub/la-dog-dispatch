@@ -482,7 +482,7 @@
                 const card = `
                     <div class="dog-card bg-white rounded-lg shadow-lg overflow-hidden">
                         <div class="relative">
-                            <img src="${dog.photo}" alt="${dog.name}" class="w-full h-48 object-cover">
+                            <img src="${dog.photo_url}" alt="${dog.name}" class="w-full h-48 object-cover">
                             <div class="absolute top-2 right-2 ${urgencyColor} text-white px-3 py-1 rounded-full text-sm font-bold urgent-badge">
                                 ${urgency}
                             </div>
@@ -576,7 +576,7 @@
 
             const content = `
                 <h3 class="text-2xl font-bold mb-2">Help Save ${dog.name}</h3>
-                <img src="${dog.photo}" alt="${dog.name}" class="w-full h-48 object-cover rounded-lg mb-4">
+                <img src="${dog.photo_url}" alt="${dog.name}" class="w-full h-48 object-cover rounded-lg mb-4">
                 <p class="text-gray-700 mb-4">${dog.description}</p>
                 
                 <div class="bg-gray-100 p-3 rounded-lg mb-4">
