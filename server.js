@@ -69,6 +69,7 @@ app.use('/api/fosters', require('./routes/fosters'));
 app.use('/api/transport', require('./routes/transport'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api', require('../routes/fix-photos'));
 
 // Serve frontend
 app.get('*', (req, res) => {
