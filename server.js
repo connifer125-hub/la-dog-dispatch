@@ -70,6 +70,7 @@ app.use('/api/transport', require('./routes/transport'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api', require('./routes/fix-photos'));
+app.use('/api', require('./routes/diagnose-photos'));
 
 // Serve frontend
 app.get('*', (req, res) => {
