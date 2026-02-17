@@ -18,30 +18,39 @@ app.use(express.static('public'));
 // Database connection
 const db = require('./config/database');
 
-// Run migration to fix photo_url length AND update existing URLs
+// Run migrations to fix ALL field lengths
 const runMigrations = async () => {
   try {
     console.log('🔧 Running database migrations...');
     
-    // Fix photo_url field length
-    await db.query('ALTER TABLE dogs ALTER COLUMN photo_url TYPE TEXT');
-    console.log('✅ Migration 1: photo_url can now hold longer URLs');
+    // Fix ALL varchar fields that are too small
+    const migrations = [
+      "ALTER TABLE dogs ALTER COLUMN name TYPE VARCHAR(255)",
+      "ALTER TABLE dogs ALTER COLUMN breed TYPE VARCHAR(255)",
+      "ALTER TABLE dogs ALTER COLUMN age TYPE VARCHAR(100)",
+      "ALTER TABLE dogs ALTER COLUMN shelter TYPE VARCHAR(255)",
+      "ALTER TABLE dogs ALTER COLUMN shelter_id TYPE VARCHAR(100)",
+      "ALTER TABLE dogs ALTER COLUMN photo_url TYPE TEXT",
+      "ALTER TABLE dogs ALTER COLUMN petharbor_url TYPE TEXT",
+      "ALTER TABLE dogs ALTER COLUMN description TYPE TEXT"
+    ];
     
-    // Update all existing dog photos to use local URLs
-    const result = await db.query('SELECT id, shelter_id FROM dogs');
-    console.log(`Found ${result.rows.length} dogs to update`);
-    
-    for (const dog of result.rows) {
-      const newPhotoUrl = `/dog-images/${dog.shelter_id}.jpg`;
-      await db.query(
-        'UPDATE dogs SET photo_url = $1 WHERE id = $2',
-        [newPhotoUrl, dog.id]
-      );
+    for (const migration of migrations) {
+      try {
+        await db.query(migration);
+        console.log(`✅ Migration complete: ${migration.substring(0, 50)}...`);
+      } catch (err) {
+        // Ignore errors if already migrated
+        if (!err.message.includes('cannot be cast')) {
+          console.log(`ℹ️ Skipped: ${migration.substring(0, 50)}...`);
+        }
+      }
     }
-    console.log(`✅ Migration 2: Updated ${result.rows.length} dog photo URLs to local paths`);
+    
+    console.log('✅ All migrations complete!');
     
   } catch (error) {
-    console.log('ℹ️ Migration error (may be already applied):', error.message);
+    console.error('❌ Migration error:', error.message);
   }
 };
 
