@@ -28,7 +28,7 @@
         .btn-secondary { background: transparent; color: var(--color-dark); padding: 0.8rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; border: 2px solid var(--color-dark); transition: all 0.3s; display: inline-block; cursor: pointer; }
         .btn-secondary:hover { background: var(--color-dark); color: white; }
         .hero { max-width: 1400px; margin: 0 auto; padding: 5rem 3rem 4rem; text-align: center; max-height: 55vh; display: flex; flex-direction: column; justify-content: center; }
-        .hero h1 { font-family: 'Playfair Display', serif; font-size: 4rem; line-height: 1.15; color: var(--color-dark); margin-bottom: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.7rem; line-height: 1.15; color: var(--color-dark); margin-bottom: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
         .hero .subheadline { font-size: 1.3rem; color: var(--color-text-light); max-width: 820px; margin: 0 auto 2.5rem; line-height: 1.75; }
         .proof-points { display: flex; justify-content: center; gap: 3.5rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
         .proof-point { display: flex; align-items: center; gap: 0.6rem; color: var(--color-text); font-weight: 500; }
@@ -183,9 +183,11 @@
         let currentCategory = 'all';
 
         function formatDate(dateString) {
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
+    const date = new Date(dateString);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear().toString().slice(-2);
+    return `${month}/${day}/${year}`;
         }
 
         function getDaysUntil(deadline) {
@@ -203,13 +205,15 @@
         }
 
         function createDogCard(dog) {
-            const daysUntil = getDaysUntil(dog.deadline);
-            if (daysUntil < 0) return '';
-            const urgencyBadge = getUrgencyBadge(daysUntil);
-            const formattedDeadline = formatDate(dog.deadline);
-            const percentage = dog.goal_amount > 0 ? Math.round(((Number(dog.raised_amount) || 0) / dog.goal_amount) * 100) : 0;
-            const categoryIcons = { medical: '🏥', ice: '🚨', death: '💔', general: '🐕' };
-            const daysText = daysUntil === 1 ? '1 day' : `${daysUntil} days`;
+    const raisedAmount = 0;
+    const goalAmount = parseFloat(dog.goal_amount) || 500;
+    const daysUntil = getDaysUntil(dog.deadline);
+    if (daysUntil < 0) return '';
+    const urgencyBadge = getUrgencyBadge(daysUntil);
+    const formattedDeadline = formatDate(dog.deadline);
+    const percentage = goalAmount > 0 ? Math.round((raisedAmount / goalAmount) * 100) : 0;
+    const categoryIcons = { medical: '🏥', ice: '🚨', death: '💔', general: '🐕' };
+    const daysText = daysUntil === 1 ? '1 day' : `${daysUntil} days`;
             return `
                 <div class="dog-card">
                     <img src="${dog.photo_url || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'}" 
@@ -225,8 +229,8 @@
                         <div class="dog-location">📍 ${dog.shelter}</div>
                         <div class="dog-deadline">⏰ <span>${formattedDeadline} (${daysText})</span></div>
                         <div class="funding-progress">
-                            <div class="funding-amount">$${(Number(dog.raised_amount) || 0).toFixed(2)}</div>
-                            <div class="funding-goal">of $${dog.goal_amount.toFixed(2)} goal</div>
+                            <div class="funding-amount">$${raisedAmount.toFixed(2)}</div>
+                            <div class="funding-goal">of $${goalAmount.toFixed(2)} goal</div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
                             </div>
