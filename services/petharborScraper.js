@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const cron = require('node-cron');
 const db = require('../config/database');
-const { downloadAndSaveImage } = require('../services/imageDownloader');
+const { downloadAndSaveImage } = require('./imageDownloader');
 
 const BASE_URL = 'https://petharbor.com/results.asp?WHERE=type_DOG&searchtype=ALL&friends=1&samaritans=1&nosuccess=0&rows=100&imght=120&imgres=Detail&tWidth=200&view=sysadm.v_lact_alert_euth&bgcolor=white&text=blue&alink=000000&vlink=FF6600&fontface=arial&fontsize=10&col_hdr_bg=e6e6e6&col_bg=white&col_bg2=e6e6e6&SBG=e6e6e6&SHELTERLIST=%27LACT%27,%27LACT1%27,%27LACT4%27,%27LACT3%27,%27LACT2%27,%27LACT5%27,%27LACT6%27&OrderBy=shelter';
 
@@ -18,6 +18,36 @@ const SHELTER_PRIORITY = {
   'WEST VALLEY': 5,
   'HARBOR': 6
 };
+
+// Helper function to truncate text safely
+function truncateText(text, maxLength) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + '...';
+}
+
+// Helper function to shorten breed names
+function shortenBreed(breed) {
+  if (!breed) return 'Mixed Breed';
+  
+  // Common abbreviations
+  const abbreviations = {
+    'AMERICAN STAFFORDSHIRE TERRIER': 'Am. Staff',
+    'STAFFORDSHIRE': 'Staff',
+    'TERRIER': 'Terrier',
+    'SHEPHERD': 'Shepherd',
+    'RETRIEVER': 'Retriever',
+    'AND': '/',
+    '  ': ' '
+  };
+  
+  let shortened = breed;
+  Object.keys(abbreviations).forEach(key => {
+    shortened = shortened.replace(new RegExp(key, 'gi'), abbreviations[key]);
+  });
+  
+  return truncateText(shortened, 200);
+}
 
 async function scrapePetHarbor() {
   try {
@@ -60,14 +90,14 @@ async function scrapePetHarbor() {
             let shelter = 'LA County';
             const shelterMatch = text.match(/Shelter:\s*([A-Z\s\.]+?)(?:\s+Age:)/i);
             if (shelterMatch) {
-              shelter = shelterMatch[1].trim();
+              shelter = truncateText(shelterMatch[1].trim(), 100);
             }
             
             if (SOUTH_LA_ONLY && !shelter.includes('SOUTH')) {
               return;
             }
             
-            // Get photo URL from PetHarbor
+            // Get photo from PetHarbor
             const $photoCell = $cells.eq(0);
             const img = $photoCell.find('img').first();
             let petharborPhotoUrl = null;
@@ -85,19 +115,22 @@ async function scrapePetHarbor() {
               }
             }
             
-            let name = animalId;
+            // Extract name - truncate to 100 chars
+            let name = truncateText(animalId, 100);
             const nameMatch = html.match(/<strong><u>([^<]+)<\/u><\/strong>/i);
             if (nameMatch) {
-              name = nameMatch[1].trim();
+              name = truncateText(nameMatch[1].trim(), 100);
             }
             
+            // Extract and shorten breed
             let breed = 'Mixed Breed';
             const breedMatch = text.match(/A\d{7}\s*-\s*(?:NEUTERED|SPAYED)?\s*(?:MALE|FEMALE),?\s*([^\n\.]+?)(?:Shelter:|$)/is);
             if (breedMatch) {
               breed = breedMatch[1].trim().replace(/\s+/g, ' ');
-              breed = breed.replace(/\s+AND\s+/gi, ' / ');
+              breed = shortenBreed(breed);
             }
             
+            // Extract gender
             let gender = 'Unknown';
             if (text.match(/NEUTERED\s*MALE/i)) {
               gender = 'Male';
@@ -109,12 +142,14 @@ async function scrapePetHarbor() {
               gender = 'Female';
             }
             
+            // Extract age - truncate to 50 chars
             let age = 'Unknown';
             const ageMatch = text.match(/Age:\s*([^\n]+?)(?:Weight:|$)/i);
             if (ageMatch) {
-              age = ageMatch[1].trim();
+              age = truncateText(ageMatch[1].trim(), 50);
             }
             
+            // Extract deadline
             let deadline = null;
             const euthMatch = text.match(/Scheduled\s+Euthanasia\s+Date:\s*(\d{1,2})\/(\d{1,2})\/(\d{2,4})/i);
             if (euthMatch) {
@@ -129,6 +164,12 @@ async function scrapePetHarbor() {
               deadline = futureDate.toISOString().split('T')[0];
             }
             
+            // Create concise description - max 200 chars
+            const description = truncateText(
+              `${name} is on the euthanasia list at ${shelter}. Urgent rescue needed by ${deadline}.`,
+              200
+            );
+            
             const daysUntil = Math.ceil((new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24));
             const shelterPriority = SHELTER_PRIORITY[shelter.toUpperCase()] || 99;
             
@@ -142,9 +183,9 @@ async function scrapePetHarbor() {
               deadline,
               daysUntil,
               shelterPriority,
-              petharborPhotoUrl, // Store for later download
+              petharborPhotoUrl,
               petharbor_url: `https://petharbor.com/pet.asp?uaid=${animalId.substring(1)}`,
-              description: `${name} is on the euthanasia list at ${shelter}. Urgent rescue needed by ${deadline}.`,
+              description,
               source: 'petharbor',
               category: 'general',
               goal_amount: 500.00
