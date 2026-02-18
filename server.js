@@ -32,7 +32,8 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ALTER COLUMN shelter_id TYPE VARCHAR(100)",
       "ALTER TABLE dogs ALTER COLUMN photo_url TYPE TEXT",
       "ALTER TABLE dogs ALTER COLUMN petharbor_url TYPE TEXT",
-      "ALTER TABLE dogs ALTER COLUMN description TYPE TEXT"
+      "ALTER TABLE dogs ALTER COLUMN description TYPE TEXT",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS shelter_priority INTEGER DEFAULT 99"
     ];
     
     for (const migration of migrations) {
@@ -46,6 +47,13 @@ const runMigrations = async () => {
         }
       }
     }
+    await db.query("UPDATE dogs SET shelter_priority = 1 WHERE shelter ILIKE '%SOUTH L.A%' OR shelter ILIKE '%SOUTH LA%'");
+    await db.query("UPDATE dogs SET shelter_priority = 2 WHERE shelter ILIKE '%WEST L.A%' OR shelter ILIKE '%WEST LA%'");
+    await db.query("UPDATE dogs SET shelter_priority = 3 WHERE shelter ILIKE '%NORTH CENTRAL%'");
+    await db.query("UPDATE dogs SET shelter_priority = 4 WHERE shelter ILIKE '%EAST VALLEY%'");
+    await db.query("UPDATE dogs SET shelter_priority = 5 WHERE shelter ILIKE '%WEST VALLEY%'");
+    await db.query("UPDATE dogs SET shelter_priority = 6 WHERE shelter ILIKE '%HARBOR%'");
+    console.log('✅ Updated shelter priorities');
     
     console.log('✅ All migrations complete!');
     
