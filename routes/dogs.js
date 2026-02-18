@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
       paramIndex++;
     }
 
-    query += ' ORDER BY deadline ASC, created_at DESC';
+    query += ' ORDER BY shelter ASC, deadline ASC, created_at DESC';
 
     const result = await db.query(query, params);
     res.json({ dogs: result.rows });
