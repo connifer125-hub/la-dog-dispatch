@@ -73,7 +73,7 @@ async function scrapePetHarbor() {
             if (!idMatch) return;
             const animalId = idMatch[0];
             let shelter = 'LA County';
-            const shelterMatch = text.match(/Shelter:\s*([A-Z\s\.]+?)(?:\s+Age:)/i);
+            const shelterMatch = text.match(/Shelter:\s*([A-Z\s\.]+?)\s+Age:/i);
             if (shelterMatch) {
               shelter = truncateText(shelterMatch[1].trim(), 100);
             }
