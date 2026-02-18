@@ -207,7 +207,7 @@
             if (daysUntil < 0) return '';
             const urgencyBadge = getUrgencyBadge(daysUntil);
             const formattedDeadline = formatDate(dog.deadline);
-            const percentage = dog.goal_amount > 0 ? Math.round(((dog.raised_amount || 0) / dog.goal_amount) * 100) : 0;
+            const percentage = dog.goal_amount > 0 ? Math.round(((Number(dog.raised_amount) || 0) / dog.goal_amount) * 100) : 0;
             const categoryIcons = { medical: '🏥', ice: '🚨', death: '💔', general: '🐕' };
             const daysText = daysUntil === 1 ? '1 day' : `${daysUntil} days`;
             return `
@@ -225,7 +225,7 @@
                         <div class="dog-location">📍 ${dog.shelter}</div>
                         <div class="dog-deadline">⏰ <span>${formattedDeadline} (${daysText})</span></div>
                         <div class="funding-progress">
-                            <div class="funding-amount">$${(dog.raised_amount || 0).toFixed(2)}</div>
+                            <div class="funding-amount">$${(Number(dog.raised_amount) || 0).toFixed(2)}</div>
                             <div class="funding-goal">of $${dog.goal_amount.toFixed(2)} goal</div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
