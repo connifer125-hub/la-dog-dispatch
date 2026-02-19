@@ -27,13 +27,13 @@
         .btn-primary:hover { background: #9d1f16; transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .btn-secondary { background: transparent; color: var(--color-dark); padding: 0.8rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; border: 2px solid var(--color-dark); transition: all 0.3s; display: inline-block; cursor: pointer; }
         .btn-secondary:hover { background: var(--color-dark); color: white; }
-        .hero { max-width: 1400px; margin: 0 auto; padding: 1.5rem 3rem 1rem; text-align: center; max-height: 40vh; display: flex; flex-direction: column; justify-content: center; }
-        .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.3rem; line-height: 1.1; color: var(--color-dark); margin-bottom: .5rem; font-weight: 700; letter-spacing: -0.03em; padding: 0; }
-        .hero .subheadline { font-size: 1.3rem; color: var(--color-text-light); max-width: 820px; margin: 0 auto .8rem; line-height: 1.75; }
-        .proof-points { display: flex; justify-content: center; gap: 3.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .hero { max-width: 1400px; margin: 0 auto; padding: 0.6rem 3rem 0.4rem; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; line-height: 1.1; color: var(--color-dark); margin-bottom: .3rem; font-weight: 700; letter-spacing: -0.03em; padding: 0; }
+        .hero .subheadline { font-size: 1.05rem; color: var(--color-text-light); max-width: 820px; margin: 0 auto .4rem; line-height: 1.65; }
+        .proof-points { display: flex; justify-content: center; gap: 3.5rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
         .proof-point { display: flex; align-items: center; gap: 0.6rem; color: var(--color-text); font-weight: 500; }
         .proof-point::before { content: "✓"; color: var(--color-red); font-weight: bold; font-size: 1.3rem; }
-        .hero-buttons { display: flex; gap: 1.2rem; justify-content: center; margin-bottom: 0; }
+        .hero-buttons { display: flex; gap: 1rem; justify-content: center; margin-bottom: 0.4rem; }
         section { max-width: 1400px; margin: 0 auto; padding: 2rem 3rem; }
         .section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; text-align: center; margin-bottom: 1.5rem; color: var(--color-dark); font-weight: 600; }
         #dogs-section { padding-top: .8rem; padding-bottom: 2rem; }
@@ -51,6 +51,9 @@
         .badge-critical { background: #ffe5e5; color: #b91c1c; }
         .badge-urgent { background: #fff7ed; color: #c2410c; }
         .badge-category { background: #ecfdf5; color: #059669; }
+        .badge-rescue-only { background: #fef3c7; color: #92400e; }
+        .shelter-duration { font-size: 0.82rem; color: var(--color-text-light); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem; }
+        .shelter-duration strong { color: var(--color-text); }
         .dog-name { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 0.3rem; color: var(--color-dark); font-weight: 600; }
         .dog-details { color: var(--color-text-light); font-size: 0.95rem; margin-bottom: 0.4rem; }
         .dog-location { display: flex; align-items: center; gap: 0.5rem; color: var(--color-text-light); font-size: 0.9rem; margin-bottom: 0.4rem; }
@@ -519,6 +522,26 @@
         let allDogs = [];
         let currentCategory = 'all';
 
+        function formatShelterDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            return `${d.getMonth()+1}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+        }
+
+        function getShelterDuration(intakeDateStr) {
+            if (!intakeDateStr) return '';
+            const intake = new Date(intakeDateStr);
+            const now = new Date();
+            const diffDays = Math.floor((now - intake) / (1000 * 60 * 60 * 24));
+            if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+            if (diffDays < 30) {
+                const weeks = Math.floor(diffDays / 7);
+                return `${weeks} week${weeks !== 1 ? 's' : ''}`;
+            }
+            const months = Math.floor(diffDays / 30);
+            return `${months} month${months !== 1 ? 's' : ''}`;
+        }
+
         function formatDate(dateString) {
             const date = new Date(dateString);
             const month = date.getMonth() + 1;
@@ -559,11 +582,13 @@
                     <div class="dog-content">
                         <div class="dog-badges">
                             ${urgencyBadge ? `<span class="badge ${urgencyBadge === 'CRITICAL' ? 'badge-critical' : 'badge-urgent'}">${urgencyBadge}</span>` : ''}
+                            ${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only</span>` : ''}
                             <span class="badge badge-category">${categoryIcons[dog.category] || '🐕'} ${dog.category.replace('-', ' ')}</span>
                         </div>
                         <h3 class="dog-name">${dog.name}</h3>
                         <p class="dog-details">${dog.breed} • ${dog.age} • ${dog.gender}</p>
                         <div class="dog-location">📍 ${dog.shelter}</div>
+                        ${dog.intake_date ? `<div class="shelter-duration">🏠 <span>At shelter: <strong>${formatShelterDate(dog.intake_date)}</strong>${dog.list_date ? ` · Listed: <strong>${formatShelterDate(dog.list_date)}</strong>` : ''} · <strong>${getShelterDuration(dog.intake_date)}</strong></span></div>` : ''}
                         <div class="dog-deadline">⏰ <span>${formattedDeadline} (${daysText})</span></div>
                         <div class="funding-progress">
                             <div class="funding-amount">$${raisedAmount.toFixed(2)}</div>
