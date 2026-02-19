@@ -80,6 +80,17 @@ app.use('/api/dogs', require('./routes/dogs'));
 app.use('/api', require('./routes/fix-photos'));
 app.use('/api', require('./routes/diagnose-photos'));
 
+// Manual scraper trigger (for testing/refreshing data)
+app.get('/api/scrape-now', async (req, res) => {
+  try {
+    const { scrapePetHarbor } = require('./services/petharborScraper');
+    res.json({ message: 'Scrape started' });
+    scrapePetHarbor();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── ROUTES NOT YET BUILT (uncomment as each page is built) ──
 // app.use('/api/auth', require('./routes/auth'));
 // app.use('/api/donations', require('./routes/donations'));
