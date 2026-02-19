@@ -77,6 +77,22 @@
         .final-cta .btn-secondary:hover { background: white; color: var(--color-dark); }
         @media (max-width: 1024px) { .nav-links { display: none; } .hero h1 { font-size: 3rem; } }
         @media (max-width: 768px) { .hero h1 { font-size: 2.5rem; } .dogs-grid { grid-template-columns: 1fr; } }
+        .timeline-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin: 3rem 0; }
+.timeline-side { padding: 2rem; border-radius: 8px; }
+.timeline-side.old { background: #fff5f5; border: 2px solid #fca5a5; }
+.timeline-side.new { background: #f0fdf4; border: 2px solid #86efac; }
+.timeline-step { padding: 1rem; margin: 1rem 0; background: white; border-radius: 6px; opacity: 0; animation: fadeInStep 0.6s forwards; }
+.timeline-step:nth-child(1) { animation-delay: 0.2s; }
+.timeline-step:nth-child(2) { animation-delay: 0.8s; }
+.timeline-step:nth-child(3) { animation-delay: 1.4s; }
+.timeline-step:nth-child(4) { animation-delay: 2s; }
+.timeline-step:nth-child(5) { animation-delay: 2.6s; }
+.day-counter { display: inline-block; background: #fee2e2; color: #991b1b; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 600; font-size: 0.85rem; }
+.outcome { font-size: 1.5rem; font-weight: 700; text-align: center; padding: 1.5rem; margin-top: 2rem; border-radius: 8px; }
+.outcome.bad { background: #fca5a5; color: #991b1b; }
+.outcome.good { background: #86efac; color: #166534; }
+@keyframes fadeInStep { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(20px); } }
+@media (max-width: 768px) { .timeline-comparison { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -118,29 +134,31 @@
         <div class="dogs-grid" id="dogs-grid"></div>
     </section>
     <section id="how-it-works" class="bg-light">
-        <div>
-            <h2 class="section-title">How LA Dog Dispatch Changes the Timeline</h2>
-            <div class="section-body">
-                <p>Today, many urgent dogs receive visibility only after:</p>
-                <ul>
-                    <li>A volunteer films them</li>
-                    <li>A post circulates</li>
-                    <li>Algorithms surface it</li>
-                    <li>Pledges appear in comments</li>
-                </ul>
-                <p><strong>By then, days may have passed.</strong></p>
-                <p>LA Dog Dispatch starts visibility immediately.</p>
-                <p>The moment a dog appears on the euth list:</p>
-                <ul>
-                    <li>A funding page is created</li>
-                    <li>The dog is shared across the network</li>
-                    <li>Donors can act right away</li>
-                    <li>Rescues can see confirmed support</li>
-                </ul>
-                <p><strong>Every dog gets a chance. Not just the ones who happen to be filmed.</strong></p>
+    <div>
+        <h2 class="section-title">How LA Dog Dispatch Changes the Timeline</h2>
+        <div class="timeline-comparison">
+            <div class="timeline-side old">
+                <h3 style="text-align:center; margin-bottom:1.5rem; font-size:1.3rem;">❌ Traditional Process</h3>
+                <div class="timeline-step">Day 1: Dog added to euth list <span class="day-counter">+0 days</span></div>
+                <div class="timeline-step">Volunteer shows up to shelter <span class="day-counter">+2 days</span></div>
+                <div class="timeline-step">Films dog, post created <span class="day-counter">+3 days</span></div>
+                <div class="timeline-step">Algorithm surfaces post <span class="day-counter">+4 days</span></div>
+                <div class="timeline-step">Pledges appear in comments <span class="day-counter">+5 days</span></div>
+                <div class="outcome bad">TOO LATE ⏰</div>
+            </div>
+            <div class="timeline-side new">
+                <h3 style="text-align:center; margin-bottom:1.5rem; font-size:1.3rem;">✅ LA Dog Dispatch</h3>
+                <div class="timeline-step">Dog added to euth list <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
+                <div class="timeline-step">Funding page created INSTANTLY <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
+                <div class="timeline-step">Shared across donor network <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
+                <div class="timeline-step">Donors see & act immediately <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
+                <div class="timeline-step">Rescues see confirmed support <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
+                <div class="outcome good">DOG SAVED ✨</div>
             </div>
         </div>
-    </section>
+        <p style="text-align:center; margin-top:2rem; font-size:1.1rem;"><strong>Every dog gets a chance. Not just the ones who happen to be filmed.</strong></p>
+    </div>
+</section>
     <section id="impact">
         <h2 class="section-title">Your Impact</h2>
         <div class="section-body">
