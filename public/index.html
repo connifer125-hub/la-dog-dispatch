@@ -143,6 +143,7 @@
             margin-bottom: 1rem;
             display: block;
         }
+        .network-card:hover .network-card-icon { animation: walkerBounce 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
         .network-card-title {
             font-family: 'Playfair Display', serif;
             font-size: 1.25rem;
@@ -314,6 +315,11 @@
         .more-link:active { background: var(--color-tan); }
         .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
         .more-link-arrow { margin-left: auto; color: #ccc; }
+            .walker-pair { display: flex; align-items: flex-end; gap: 0.05em; line-height: 1; }
+        .walker-woman { display: inline-block; transform: scaleX(-1); font-size: 2rem; }
+        .walker-dog { display: inline-block; transform: scaleX(-1); font-size: 1.2rem; position: relative; top: 0.15em; }
+        .network-card:hover .walker-pair { animation: walkerBounce 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+        @keyframes walkerBounce { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-6px)} 75%{transform:translateY(-3px)} }
     </style>
 </head>
 <body>
@@ -389,14 +395,14 @@
                 </a>
 
                 <a href="/volunteer.html" class="network-card" style="--card-accent: #8b5cf6;">
-                    <span class="network-card-icon">🚶</span>
+                    <span class="network-card-icon walker-pair"><span class="walker-woman">🚶‍♀️</span><span class="walker-dog">🦮</span></span>
                     <div class="network-card-title">Dog Walker or Transporter</div>
                     <p class="network-card-desc">Walk dogs at the shelter to reduce stress and increase visibility. Or offer transport — getting dogs from shelters to fosters and rescues is critical.</p>
                     <span class="network-card-cta">Volunteer your time</span>
                 </a>
 
                 <a href="/share.html" class="network-card" style="--card-accent: #06b6d4;">
-                    <span class="network-card-icon">📢</span>
+                    <span class="network-card-icon"><span style="display:inline-block; transform:scaleX(-1);">📢</span></span>
                     <div class="network-card-title">Social Media Sharer</div>
                     <p class="network-card-desc">Every share is a lifeline. Get ready-to-post content for urgent dogs delivered to you. No shelter visit required — just a phone and a following.</p>
                     <span class="network-card-cta">Start sharing</span>
