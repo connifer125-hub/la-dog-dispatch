@@ -34,17 +34,9 @@
         .proof-point { display: flex; align-items: center; gap: 0.6rem; color: var(--color-text); font-weight: 500; }
         .proof-point::before { content: "✓"; color: var(--color-red); font-weight: bold; font-size: 1.3rem; }
         .hero-buttons { display: flex; gap: 1.2rem; justify-content: center; margin-bottom: 0; }
-        section { max-width: 1400px; margin: 0 auto; padding: 6rem 3rem; }
-        section.bg-light { background: white; max-width: 100%; padding: 6rem 0; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
-        section.bg-light > div { max-width: 1400px; margin: 0 auto; padding: 0 3rem; }
+        section { max-width: 1400px; margin: 0 auto; padding: 2rem 3rem; }
         .section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; text-align: center; margin-bottom: 1.5rem; color: var(--color-dark); font-weight: 600; }
-        .section-body { max-width: 750px; margin: 0 auto; font-size: 1.15rem; line-height: 1.9; color: var(--color-text-light); }
-        .section-body p { margin-bottom: 1.5rem; }
-        .section-body strong { color: var(--color-dark); font-weight: 600; }
-        .section-body ul { list-style: none; margin: 1.5rem 0; }
-        .section-body li { margin-bottom: 0.9rem; padding-left: 1.8rem; position: relative; }
-        .section-body li::before { content: "•"; position: absolute; left: 0; color: var(--color-red); font-weight: bold; }
-        #dogs-section { padding-top: .8rem; }
+        #dogs-section { padding-top: .8rem; padding-bottom: 2rem; }
         .category-filters { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
         .category-btn { padding: 0.85rem 1.7rem; border: 2px solid var(--color-border); background: white; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s; font-size: 0.95rem; }
         .category-btn:hover { border-color: var(--color-red); color: var(--color-red); transform: translateY(-2px); }
@@ -70,29 +62,258 @@
         .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 10px; transition: width 0.5s; }
         .progress-text { font-size: 0.85rem; color: var(--color-text-light); }
         .dog-card .btn-primary { width: 100%; text-align: center; margin-top: 1.2rem; }
-        .final-cta { background: var(--color-dark); color: white; text-align: center; padding: 6rem 3rem; border-top: 3px solid var(--color-red); }
-        .final-cta .section-title { color: white; margin-bottom: 1.8rem; }
-        .final-cta .section-body { color: rgba(255,255,255,0.85); margin-bottom: 3rem; }
-        .final-cta .btn-secondary { border-color: white; color: white; }
-        .final-cta .btn-secondary:hover { background: white; color: var(--color-dark); }
-        @media (max-width: 1024px) { .nav-links { display: none; } .hero h1 { font-size: 3rem; } }
-        @media (max-width: 768px) { .hero h1 { font-size: 2.5rem; } .dogs-grid { grid-template-columns: 1fr; } }
-        .timeline-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin: 3rem 0; }
-.timeline-side { padding: 2rem; border-radius: 8px; }
-.timeline-side.old { background: #fff5f5; border: 2px solid #fca5a5; }
-.timeline-side.new { background: #f0fdf4; border: 2px solid #86efac; }
-.timeline-step { padding: 1rem; margin: 1rem 0; background: white; border-radius: 6px; opacity: 0; animation: fadeInStep 0.6s forwards; }
-.timeline-step:nth-child(1) { animation-delay: 0.2s; }
-.timeline-step:nth-child(2) { animation-delay: 0.8s; }
-.timeline-step:nth-child(3) { animation-delay: 1.4s; }
-.timeline-step:nth-child(4) { animation-delay: 2s; }
-.timeline-step:nth-child(5) { animation-delay: 2.6s; }
-.day-counter { display: inline-block; background: #fee2e2; color: #991b1b; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 600; font-size: 0.85rem; }
-.outcome { font-size: 1.5rem; font-weight: 700; text-align: center; padding: 1.5rem; margin-top: 2rem; border-radius: 8px; }
-.outcome.bad { background: #fca5a5; color: #991b1b; }
-.outcome.good { background: #86efac; color: #166534; }
-@keyframes fadeInStep { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(20px); } }
-@media (max-width: 768px) { .timeline-comparison { grid-template-columns: 1fr; } }
+
+        /* ── JOIN THE NETWORK SECTION ── */
+        .network-section {
+            background: var(--color-dark);
+            max-width: 100%;
+            padding: 3rem 0 0;
+            border-top: 3px solid var(--color-red);
+            margin-top: 2rem;
+        }
+        .network-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem 2.5rem;
+        }
+        .network-eyebrow {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-red);
+            margin-bottom: 0.5rem;
+        }
+        .network-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: white;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .network-subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 1rem;
+            max-width: 580px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+        .network-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        .network-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 1.5rem 1.5rem;
+            text-decoration: none;
+            transition: all 0.35s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .network-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--card-accent, var(--color-red));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.35s ease;
+        }
+        .network-card:hover {
+            background: rgba(255,255,255,0.09);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .network-card:hover::before {
+            transform: scaleX(1);
+        }
+        .network-card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .network-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+        .network-card-desc {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.9rem;
+            line-height: 1.65;
+            flex: 1;
+            margin-bottom: 1.4rem;
+        }
+        .network-card-cta {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: gap 0.2s;
+        }
+        .network-card:hover .network-card-cta { gap: 0.7rem; }
+        .network-card-cta::after { content: '→'; }
+
+        /* ── FINAL CTA STRIP ── */
+        .final-strip {
+            background: var(--color-dark);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 2rem 3rem;
+            text-align: center;
+        }
+        .final-strip p {
+            color: rgba(255,255,255,0.6);
+            font-size: 1rem;
+            margin-bottom: 1.8rem;
+            line-height: 1.8;
+        }
+        .final-strip p strong { color: white; }
+        .final-strip-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn-outline-white {
+            background: transparent;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid rgba(255,255,255,0.35);
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        .btn-outline-white:hover { border-color: white; background: rgba(255,255,255,0.08); }
+
+        @media (max-width: 1024px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2rem; }
+            .network-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .hero { padding: 1.2rem 1.2rem 0.8rem; max-height: none; }
+            .hero h1 { font-size: 1.55rem; }
+            .hero .subheadline { font-size: 0.95rem; margin-bottom: 0.6rem; }
+            .proof-points { gap: 0.8rem; flex-direction: column; align-items: flex-start; padding: 0 0.5rem; margin-bottom: 0.8rem; }
+            .hero-buttons { flex-direction: column; align-items: stretch; padding: 0 1rem; }
+            .hero-buttons .btn-primary, .hero-buttons .btn-secondary { text-align: center; }
+            section { padding: 1rem 1rem; }
+            #dogs-section { padding-top: 0.5rem; padding-bottom: 1.5rem; }
+            .section-title { font-size: 1.3rem; }
+            .category-filters { gap: 0.5rem; }
+            .category-btn { padding: 0.55rem 0.9rem; font-size: 0.8rem; }
+            .dogs-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+            .network-grid { grid-template-columns: 1fr; }
+            .network-title { font-size: 1.6rem; }
+            .network-section { padding: 2rem 0 0; margin-top: 1rem; }
+            .network-inner { padding: 0 1rem 1.5rem; }
+            .network-subtitle { font-size: 0.9rem; }
+            .final-strip { padding: 1.5rem 1rem; }
+            .final-strip-buttons { flex-direction: column; align-items: stretch; }
+            body { padding-bottom: 64px; }
+        }
+
+        /* ── BOTTOM TAB BAR (mobile only) ── */
+        .bottom-tab-bar { display: none; }
+        @media (max-width: 768px) {
+            .bottom-tab-bar {
+                display: flex;
+                position: fixed;
+                bottom: 0; left: 0; right: 0;
+                height: 64px;
+                background: white;
+                border-top: 1px solid var(--color-border);
+                z-index: 200;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+                align-items: center;
+            }
+        }
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 0.3rem 0;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            height: 100%;
+        }
+        .tab-item:active { opacity: 0.7; }
+        .tab-icon { font-size: 1.3rem; line-height: 1; }
+        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; letter-spacing: 0.02em; }
+        .tab-item.active .tab-icon { filter: none; }
+        .tab-item.active .tab-label { color: var(--color-red); }
+        .tab-item.tab-fund {
+            flex: 1.4;
+            background: var(--color-red);
+            margin: 0.4rem 0.3rem;
+            border-radius: 10px;
+            height: calc(100% - 0.8rem);
+            box-shadow: 0 4px 12px rgba(196,40,28,0.35);
+        }
+        .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
+        .tab-item.tab-fund .tab-icon { font-size: 1.15rem; }
+        .tab-item.tab-fund:active { transform: scale(0.96); opacity: 1; }
+
+        /* ── MORE SLIDE-UP DRAWER ── */
+        .more-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 190;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .more-overlay.active { display: block; }
+        .more-overlay.visible { opacity: 1; }
+        .more-drawer {
+            position: fixed;
+            bottom: 64px; left: 0; right: 0;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            z-index: 195;
+            padding: 1rem 0 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
+        }
+        .more-drawer.open { transform: translateY(0); }
+        .more-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 1rem; }
+        .more-title { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: var(--color-text-light); padding: 0 1.2rem 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .more-link {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.85rem 1.4rem;
+            text-decoration: none;
+            color: var(--color-dark);
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-top: 1px solid var(--color-border);
+            transition: background 0.15s;
+        }
+        .more-link:active { background: var(--color-tan); }
+        .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
+        .more-link-arrow { margin-left: auto; color: #ccc; }
     </style>
 </head>
 <body>
@@ -101,14 +322,15 @@
             <a href="/" class="logo">LA Dog Dispatch</a>
             <ul class="nav-links">
                 <li><a href="#dogs-section">Urgent Dogs</a></li>
-                <li><a href="#how-it-works">How It Works</a></li>
-                <li><a href="#impact">Impact</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#membership">Become a Member</a></li>
+                <li><a href="/how-it-works.html">How It Works</a></li>
+                <li><a href="/about.html">About</a></li>
+                <li><a href="#network-section">Join the Network</a></li>
                 <li><a href="#dogs-section" class="btn-primary">Fund a Dog</a></li>
             </ul>
         </div>
     </nav>
+
+    <!-- ═══ HERO (UNCHANGED) ═══ -->
     <section class="hero">
         <h1>Every Urgent Dog Deserves Visibility — Immediately.</h1>
         <p class="subheadline">LA Dog Dispatch automatically creates funding pages the moment a dog is euth-listed — giving rescues and donors a coordinated head start before time runs out.</p>
@@ -119,10 +341,12 @@
         </div>
         <div class="hero-buttons">
             <a href="#dogs-section" class="btn-primary">Fund a Dog</a>
-            <a href="#membership" class="btn-secondary">Become a Member</a>
+            <a href="/donate.html" class="btn-secondary">Become a Member</a>
         </div>
     </section>
-<section id="dogs-section">
+
+    <!-- ═══ DOGS GRID (UNCHANGED) ═══ -->
+    <section id="dogs-section">
         <h2 class="section-title">Dogs Needing Funding Now</h2>
         <div class="category-filters">
             <button class="category-btn active" data-category="all">All Dogs</button>
@@ -133,79 +357,168 @@
         </div>
         <div class="dogs-grid" id="dogs-grid"></div>
     </section>
-    <section id="how-it-works" class="bg-light">
-    <div>
-        <h2 class="section-title">How LA Dog Dispatch Changes the Timeline</h2>
-        <div class="timeline-comparison">
-            <div class="timeline-side old">
-                <h3 style="text-align:center; margin-bottom:1.5rem; font-size:1.3rem;">❌ Traditional Process</h3>
-                <div class="timeline-step">Day 1: Dog added to euth list <span class="day-counter">+0 days</span></div>
-                <div class="timeline-step">Volunteer shows up to shelter <span class="day-counter">+2 days</span></div>
-                <div class="timeline-step">Films dog, post created <span class="day-counter">+3 days</span></div>
-                <div class="timeline-step">Algorithm surfaces post <span class="day-counter">+4 days</span></div>
-                <div class="timeline-step">Pledges appear in comments <span class="day-counter">+5 days</span></div>
-                <div class="outcome bad">TOO LATE ⏰</div>
-            </div>
-            <div class="timeline-side new">
-                <h3 style="text-align:center; margin-bottom:1.5rem; font-size:1.3rem;">✅ LA Dog Dispatch</h3>
-                <div class="timeline-step">Dog added to euth list <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
-                <div class="timeline-step">Funding page created INSTANTLY <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
-                <div class="timeline-step">Shared across donor network <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
-                <div class="timeline-step">Donors see & act immediately <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
-                <div class="timeline-step">Rescues see confirmed support <span class="day-counter" style="background:#dcfce7; color:#166534;">+0 days</span></div>
-                <div class="outcome good">DOG SAVED ✨</div>
+
+    <!-- ═══ JOIN THE NETWORK HUB ═══ -->
+    <div class="network-section" id="network-section">
+        <div class="network-inner">
+            <p class="network-eyebrow">The LA Dog Dispatch Network</p>
+            <h2 class="network-title">Every Role Matters</h2>
+            <p class="network-subtitle">Dogs are saved when the right people move together. Find where you fit.</p>
+
+            <div class="network-grid">
+
+                <a href="/foster.html" class="network-card" style="--card-accent: #f59e0b;">
+                    <span class="network-card-icon">🏠</span>
+                    <div class="network-card-title">Become a Foster</div>
+                    <p class="network-card-desc">Open your home temporarily while a rescue is secured. Tell us your preferences — dog size, age, needs — and we'll match you when the right dog comes in.</p>
+                    <span class="network-card-cta">Apply to foster</span>
+                </a>
+
+                <a href="/donate.html" class="network-card" style="--card-accent: #10b981;">
+                    <span class="network-card-icon">💛</span>
+                    <div class="network-card-title">Donate or Become a Member</div>
+                    <p class="network-card-desc">Fund specific dogs or support the whole system with a monthly membership. Your donation goes directly to the rescue that pulls the dog you funded.</p>
+                    <span class="network-card-cta">Support the mission</span>
+                </a>
+
+                <a href="/rescue.html" class="network-card" style="--card-accent: #c4281c;">
+                    <span class="network-card-icon">🐾</span>
+                    <div class="network-card-title">Vetted Rescue Partner</div>
+                    <p class="network-card-desc">Apply to become a verified rescue partner. Claim dogs from the urgent list, receive confirmed donor funds, and coordinate transport — all in one place.</p>
+                    <span class="network-card-cta">Apply as a rescue</span>
+                </a>
+
+                <a href="/volunteer.html" class="network-card" style="--card-accent: #8b5cf6;">
+                    <span class="network-card-icon">🚶</span>
+                    <div class="network-card-title">Dog Walker or Transporter</div>
+                    <p class="network-card-desc">Walk dogs at the shelter to reduce stress and increase visibility. Or offer transport — getting dogs from shelters to fosters and rescues is critical.</p>
+                    <span class="network-card-cta">Volunteer your time</span>
+                </a>
+
+                <a href="/share.html" class="network-card" style="--card-accent: #06b6d4;">
+                    <span class="network-card-icon">📢</span>
+                    <div class="network-card-title">Social Media Sharer</div>
+                    <p class="network-card-desc">Every share is a lifeline. Get ready-to-post content for urgent dogs delivered to you. No shelter visit required — just a phone and a following.</p>
+                    <span class="network-card-cta">Start sharing</span>
+                </a>
+
+                <a href="/vet.html" class="network-card" style="--card-accent: #f43f5e;">
+                    <span class="network-card-icon">🏥</span>
+                    <div class="network-card-title">Discount Vet Partner</div>
+                    <p class="network-card-desc">Medical costs are often the barrier between a dog living and dying. Partner with us to offer discounted care for rescued dogs and be listed in our network directory.</p>
+                    <span class="network-card-cta">Partner with us</span>
+                </a>
+
             </div>
         </div>
-        <p style="text-align:center; margin-top:2rem; font-size:1.1rem;"><strong>Every dog gets a chance. Not just the ones who happen to be filmed.</strong></p>
+
+        <!-- Final strip inside the dark section -->
+        <div class="final-strip">
+            <p>Dogs don't run out of time because people don't care.<br>
+            They run out of time because <strong>visibility starts too late.</strong><br>
+            We start it earlier.</p>
+            <div class="final-strip-buttons">
+                <a href="#dogs-section" class="btn-primary">Fund a Dog</a>
+                <a href="/donate.html" class="btn-outline-white">Become a Member</a>
+            </div>
+        </div>
     </div>
-</section>
-    <section id="impact">
-        <h2 class="section-title">Your Impact</h2>
-        <div class="section-body">
-            <p><strong>When you fund a specific dog:</strong></p>
-            <ul>
-                <li>Your per-dog donation is distributed directly to the rescue that commits to pull.</li>
-                <li>You receive confirmation when the dog is safe.</li>
-                <li>You know exactly who you helped.</li>
-            </ul>
-            <p>Monthly membership donations support operational costs that keep the platform running — including hosting, automation, and coordination tools.</p>
-            <p><strong>Per-dog donations go to rescues. Membership sustains the system.</strong></p>
-            <p style="margin-top: 2rem; font-style: italic;">This breakthrough coordination platform is powered by the nonprofit Hot Girls Care, which supports multiple community initiatives beyond LA Dog Dispatch.</p>
-        </div>
-    </section>
-    <section id="membership" class="bg-light">
-        <div>
-            <h2 class="section-title">Sustain the System</h2>
-            <div class="section-body" style="text-align: center;">
-                <p>Monthly members ensure urgent dogs are visible and funded earlier by supporting the technology and coordination infrastructure behind LA Dog Dispatch.</p>
-                <div style="margin-top: 2.5rem;">
-                    <a href="#membership-form" class="btn-primary">Become a Member</a>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="final-cta">
-        <h2 class="section-title">Join the Network</h2>
-        <div class="section-body">
-            <p>Dogs don't run out of time because people don't care.</p>
-            <p>They run out of time because visibility starts too late.</p>
-            <p><strong>We start it earlier.</strong></p>
-        </div>
-        <div class="hero-buttons">
-            <a href="#dogs-section" class="btn-primary">Fund a Dog</a>
-            <a href="#membership" class="btn-secondary">Become a Member</a>
-        </div>
-    </section>
-<script>
+
+    <!-- ═══ BOTTOM TAB BAR (mobile only) ═══ -->
+    <nav class="bottom-tab-bar">
+        <a href="#dogs-section" class="tab-item active" onclick="setActiveTab(this)">
+            <span class="tab-icon">🐕</span>
+            <span class="tab-label">Dogs</span>
+        </a>
+        <a href="/foster.html" class="tab-item" onclick="setActiveTab(this)">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label">Foster</span>
+        </a>
+        <a href="https://givebutter.com/ladogdispatch" target="_blank" class="tab-item tab-fund">
+            <span class="tab-icon">💛</span>
+            <span class="tab-label">Fund a Dog</span>
+        </a>
+        <a href="/rescue.html" class="tab-item" onclick="setActiveTab(this)">
+            <span class="tab-icon">🐾</span>
+            <span class="tab-label">Rescue</span>
+        </a>
+        <button class="tab-item" onclick="toggleMore()">
+            <span class="tab-icon">☰</span>
+            <span class="tab-label">More</span>
+        </button>
+    </nav>
+
+    <!-- ═══ MORE SLIDE-UP DRAWER ═══ -->
+    <div class="more-overlay" id="more-overlay" onclick="closeMore()"></div>
+    <div class="more-drawer" id="more-drawer">
+        <div class="more-handle"></div>
+        <div class="more-title">More</div>
+        <a href="/donate.html" class="more-link">
+            <span class="more-link-icon">💛</span> Donate / Become a Member
+            <span class="more-link-arrow">›</span>
+        </a>
+        <a href="/how-it-works.html" class="more-link">
+            <span class="more-link-icon">💡</span> How It Works
+            <span class="more-link-arrow">›</span>
+        </a>
+        <a href="/volunteer.html" class="more-link">
+            <span class="more-link-icon">🚶</span> Volunteer / Walker
+            <span class="more-link-arrow">›</span>
+        </a>
+        <a href="/share.html" class="more-link">
+            <span class="more-link-icon">📢</span> Share on Social Media
+            <span class="more-link-arrow">›</span>
+        </a>
+        <a href="/vet.html" class="more-link">
+            <span class="more-link-icon">🏥</span> Discount Vet Partner
+            <span class="more-link-arrow">›</span>
+        </a>
+        <a href="/about.html" class="more-link">
+            <span class="more-link-icon">ℹ️</span> About LA Dog Dispatch
+            <span class="more-link-arrow">›</span>
+        </a>
+    </div>
+
+    <script>
+        // ── More drawer ──
+        function toggleMore() {
+            const overlay = document.getElementById('more-overlay');
+            const drawer = document.getElementById('more-drawer');
+            const isOpen = drawer.classList.contains('open');
+            if (isOpen) {
+                closeMore();
+            } else {
+                overlay.classList.add('active');
+                requestAnimationFrame(() => {
+                    overlay.classList.add('visible');
+                    drawer.classList.add('open');
+                });
+            }
+        }
+        function closeMore() {
+            const overlay = document.getElementById('more-overlay');
+            const drawer = document.getElementById('more-drawer');
+            overlay.classList.remove('visible');
+            drawer.classList.remove('open');
+            setTimeout(() => overlay.classList.remove('active'), 250);
+        }
+
+        // ── Active tab highlight ──
+        function setActiveTab(el) {
+            document.querySelectorAll('.bottom-tab-bar .tab-item').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+
         let allDogs = [];
         let currentCategory = 'all';
 
         function formatDate(dateString) {
-    const date = new Date(dateString);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const year = date.getFullYear().toString().slice(-2);
-    return `${month}/${day}/${year}`;
+            const date = new Date(dateString);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const year = date.getFullYear().toString().slice(-2);
+            return `${month}/${day}/${year}`;
         }
 
         function getDaysUntil(deadline) {
@@ -223,15 +536,15 @@
         }
 
         function createDogCard(dog) {
-    const raisedAmount = 0;
-    const goalAmount = parseFloat(dog.goal_amount) || 500;
-    const daysUntil = getDaysUntil(dog.deadline);
-    if (daysUntil < 0) return '';
-    const urgencyBadge = getUrgencyBadge(daysUntil);
-    const formattedDeadline = formatDate(dog.deadline);
-    const percentage = goalAmount > 0 ? Math.round((raisedAmount / goalAmount) * 100) : 0;
-    const categoryIcons = { medical: '🏥', ice: '🚨', death: '💔', general: '🐕' };
-    const daysText = daysUntil === 1 ? '1 day' : `${daysUntil} days`;
+            const raisedAmount = 0;
+            const goalAmount = parseFloat(dog.goal_amount) || 500;
+            const daysUntil = getDaysUntil(dog.deadline);
+            if (daysUntil < 0) return '';
+            const urgencyBadge = getUrgencyBadge(daysUntil);
+            const formattedDeadline = formatDate(dog.deadline);
+            const percentage = goalAmount > 0 ? Math.round((raisedAmount / goalAmount) * 100) : 0;
+            const categoryIcons = { medical: '🏥', ice: '🚨', death: '💔', general: '🐕' };
+            const daysText = daysUntil === 1 ? '1 day' : `${daysUntil} days`;
             return `
                 <div class="dog-card">
                     <img src="${dog.photo_url || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'}" 
@@ -254,7 +567,9 @@
                             </div>
                             <div class="progress-text">${percentage}% funded</div>
                         </div>
-                        <a href="/dog/${dog.shelter_id}" class="btn-primary">Fund This Dog</a>
+                        <a href="${dog.givebutter_url || 'https://givebutter.com/ladogdispatch'}" 
+                           target="_blank" rel="noopener" class="btn-primary" 
+                           onclick="event.stopPropagation()">💛 Fund This Dog</a>
                     </div>
                 </div>
             `;
