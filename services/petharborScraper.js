@@ -208,8 +208,8 @@ console.log(`✅ Total found: ${dogs.length} urgent dogs`);
           console.log(`➕ ${dog.name} (${dog.shelter_id}) - ${dog.shelter} - ${dog.daysUntil} days`);
         } else {
           await db.query(
-  'UPDATE dogs SET name = $1, breed = $2, age = $3, gender = $4, deadline = $5, photo_url = $6, description = $7 WHERE shelter_id = $8',
-  [dog.name, dog.breed, dog.age, dog.gender, dog.deadline, localPhotoUrl, dog.description, dog.shelter_id]
+  'UPDATE dogs SET name = $1, breed = $2, age = $3, gender = $4, shelter = $5, deadline = $6, photo_url = $7, description = $8 WHERE shelter_id = $9',
+  [dog.name, dog.breed, dog.age, dog.gender, dog.shelter, dog.deadline, localPhotoUrl, dog.description, dog.shelter_id]
 );
         }
       } catch (err) {
