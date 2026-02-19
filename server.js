@@ -80,6 +80,18 @@ app.use('/api/dogs', require('./routes/dogs'));
 app.use('/api', require('./routes/fix-photos'));
 app.use('/api', require('./routes/diagnose-photos'));
 
+// Force migration endpoint - adds new columns if they don't exist
+app.get('/api/run-migrations', async (req, res) => {
+  try {
+    await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE");
+    await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE");
+    await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE");
+    res.json({ message: 'Migrations complete - columns added' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Manual scraper trigger (for testing/refreshing data)
 app.get('/api/scrape-now', async (req, res) => {
   try {
