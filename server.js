@@ -32,7 +32,10 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ALTER COLUMN photo_url TYPE TEXT",
       "ALTER TABLE dogs ALTER COLUMN petharbor_url TYPE TEXT",
       "ALTER TABLE dogs ALTER COLUMN description TYPE TEXT",
-      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS shelter_priority INTEGER DEFAULT 99"
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS shelter_priority INTEGER DEFAULT 99",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE"
     ];
     
     for (const migration of migrations) {
