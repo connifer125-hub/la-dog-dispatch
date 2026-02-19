@@ -217,6 +217,17 @@ console.log(`✅ Total found: ${dogs.length} urgent dogs`);
       }
     }
     console.log(`✨ Added ${addedCount} new dogs to database`);
+    const scrapedIds = dogs.map(d => d.shelter_id);
+    if (scrapedIds.length > 0) {
+      const placeholders = scrapedIds.map((_, i) => `$${i + 1}`).join(',');
+      const deleteResult = await db.query(
+        `DELETE FROM dogs WHERE source = 'petharbor' AND shelter_id NOT IN (${placeholders})`,
+        scrapedIds
+      );
+      if (deleteResult.rowCount > 0) {
+        console.log(`🗑️ Removed ${deleteResult.rowCount} dogs no longer on euth list`);
+      }
+    }
     return dogs;
   } catch (error) {
     console.error('❌ PetHarbor scraping error:', error.message);
