@@ -43,6 +43,28 @@ function shortenBreed(breed) {
   return truncateText(shortened, 200);
 }
 
+// Calculate human-readable duration between two dates
+function formatDuration(startDate, endDate) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffMs = end - start;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+  if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks} week${weeks !== 1 ? 's' : ''}`;
+  }
+  const months = Math.floor(diffDays / 30);
+  return `${months} month${months !== 1 ? 's' : ''}`;
+}
+
+// Format date as M/DD/YY
+function formatShortDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return `${d.getMonth() + 1}/${String(d.getDate()).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`;
+}
+
 async function scrapePetHarbor() {
   try {
     console.log('🔍 Scraping PetHarbor for urgent dogs...');
@@ -110,7 +132,7 @@ async function scrapePetHarbor() {
             if (text.match(/NEUTERED\s*MALE/i)) {
               gender = 'Male';
             } else if (text.match(/SPAYED\s*FEMALE/i)) {
-              gender = 'Female';  
+              gender = 'Female';
             } else if (text.match(/(?<!NEUTERED\s)MALE/i)) {
               gender = 'Male';
             } else if (text.match(/(?<!SPAYED\s)FEMALE/i)) {
@@ -133,12 +155,38 @@ async function scrapePetHarbor() {
               futureDate.setDate(futureDate.getDate() + 3);
               deadline = futureDate.toISOString().split('T')[0];
             }
+
+            // ── RESCUE ONLY ──
+            // "This animal is only available to a rescue: Yes"
+            let rescue_only = false;
+            const rescueMatch = text.match(/only available to a rescue[:\s]+(\w+)/i);
+            if (rescueMatch) {
+              const val = rescueMatch[1].trim().toLowerCase();
+              rescue_only = (val === 'yes' || val === 'y');
+            }
+
+            // ── INTAKE DATE ──
+            // "This animal has been at the shelter since 01/24/2026 and on this list since 02/13/2026"
+            let intake_date = null;
+            let list_date = null;
+            const intakeMatch = text.match(/at the shelter since\s+(\d{1,2})\/(\d{1,2})\/(\d{4})/i);
+            if (intakeMatch) {
+              const [, m, d, y] = intakeMatch;
+              intake_date = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+            }
+            const listMatch = text.match(/on this list since\s+(\d{1,2})\/(\d{1,2})\/(\d{4})/i);
+            if (listMatch) {
+              const [, m, d, y] = listMatch;
+              list_date = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+            }
+
             const description = truncateText(
               `${name} is on the euthanasia list at ${shelter}. Urgent rescue needed by ${deadline}.`,
               200
             );
             const daysUntil = Math.ceil((new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24));
             const shelterPriority = SHELTER_PRIORITY[shelter.toUpperCase()] || 99;
+
             dogs.push({
               name,
               breed,
@@ -154,7 +202,10 @@ async function scrapePetHarbor() {
               description,
               source: 'petharbor',
               category: 'general',
-              goal_amount: 500.00
+              goal_amount: 500.00,
+              rescue_only,
+              intake_date,
+              list_date
             });
             foundOnPage++;
           } catch (err) {
@@ -169,18 +220,19 @@ async function scrapePetHarbor() {
         break;
       }
     }
-console.log(`✅ Total found: ${dogs.length} urgent dogs`);
+
+    console.log(`✅ Total found: ${dogs.length} urgent dogs`);
     dogs.sort((a, b) => {
-      if (a.shelterPriority !== b.shelterPriority) {
-        return a.shelterPriority - b.shelterPriority;
-      }
+      if (a.shelterPriority !== b.shelterPriority) return a.shelterPriority - b.shelterPriority;
       return a.daysUntil - b.daysUntil;
     });
+
     const shelterCounts = {};
     dogs.forEach(dog => {
       shelterCounts[dog.shelter] = (shelterCounts[dog.shelter] || 0) + 1;
     });
     console.log('📊 Dogs by shelter:', shelterCounts);
+
     let addedCount = 0;
     for (const dog of dogs) {
       try {
@@ -196,27 +248,40 @@ console.log(`✅ Total found: ${dogs.length} urgent dogs`);
           await db.query(
             `INSERT INTO dogs (
               name, breed, age, gender, shelter, shelter_id, deadline,
-              photo_url, petharbor_url, description, source, category, goal_amount
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+              photo_url, petharbor_url, description, source, category, goal_amount,
+              rescue_only, intake_date, list_date
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
             [
               dog.name, dog.breed, dog.age, dog.gender, dog.shelter,
               dog.shelter_id, dog.deadline, localPhotoUrl, dog.petharbor_url,
-              dog.description, dog.source, dog.category, dog.goal_amount
+              dog.description, dog.source, dog.category, dog.goal_amount,
+              dog.rescue_only, dog.intake_date, dog.list_date
             ]
           );
           addedCount++;
-          console.log(`➕ ${dog.name} (${dog.shelter_id}) - ${dog.shelter} - ${dog.daysUntil} days`);
+          console.log(`➕ ${dog.name} (${dog.shelter_id}) - ${dog.shelter} - ${dog.daysUntil} days${dog.rescue_only ? ' - RESCUE ONLY' : ''}`);
         } else {
           await db.query(
-  'UPDATE dogs SET name = $1, breed = $2, age = $3, gender = $4, shelter = $5, deadline = $6, photo_url = $7, description = $8 WHERE shelter_id = $9',
-  [dog.name, dog.breed, dog.age, dog.gender, dog.shelter, dog.deadline, localPhotoUrl, dog.description, dog.shelter_id]
-);
+            `UPDATE dogs SET 
+              name = $1, breed = $2, age = $3, gender = $4, shelter = $5,
+              deadline = $6, photo_url = $7, description = $8,
+              rescue_only = $9, intake_date = $10, list_date = $11
+            WHERE shelter_id = $12`,
+            [
+              dog.name, dog.breed, dog.age, dog.gender, dog.shelter,
+              dog.deadline, localPhotoUrl, dog.description,
+              dog.rescue_only, dog.intake_date, dog.list_date,
+              dog.shelter_id
+            ]
+          );
         }
       } catch (err) {
         console.error(`❌ Error adding ${dog.name}:`, err.message);
       }
     }
     console.log(`✨ Added ${addedCount} new dogs to database`);
+
+    // Remove dogs no longer on euth list
     const scrapedIds = dogs.map(d => d.shelter_id);
     if (scrapedIds.length > 0) {
       const placeholders = scrapedIds.map((_, i) => `$${i + 1}`).join(',');
