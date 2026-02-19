@@ -23,7 +23,6 @@ const runMigrations = async () => {
   try {
     console.log('🔧 Running database migrations...');
     
-    // Fix ALL varchar fields that are too small
     const migrations = [
       "ALTER TABLE dogs ALTER COLUMN name TYPE VARCHAR(255)",
       "ALTER TABLE dogs ALTER COLUMN breed TYPE VARCHAR(255)",
@@ -41,7 +40,6 @@ const runMigrations = async () => {
         await db.query(migration);
         console.log(`✅ Migration complete: ${migration.substring(0, 50)}...`);
       } catch (err) {
-        // Ignore errors if already migrated
         if (!err.message.includes('cannot be cast')) {
           console.log(`ℹ️ Skipped: ${migration.substring(0, 50)}...`);
         }
@@ -54,7 +52,6 @@ const runMigrations = async () => {
     await db.query("UPDATE dogs SET shelter_priority = 5 WHERE shelter ILIKE '%WEST VALLEY%'");
     await db.query("UPDATE dogs SET shelter_priority = 6 WHERE shelter ILIKE '%HARBOR%'");
     console.log('✅ Updated shelter priorities');
-    
     console.log('✅ All migrations complete!');
     
   } catch (error) {
@@ -69,25 +66,25 @@ const initDB = async () => {
     const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
     await db.query(schema);
     console.log('✅ Database tables initialized');
-    
-    // Run migrations after schema
     await runMigrations();
   } catch (error) {
     console.error('❌ Database initialization error:', error);
   }
 };
 
-// Routes
-app.use('/api/auth', require('./routes/auth'));
+// ── ACTIVE ROUTES ──
 app.use('/api/dogs', require('./routes/dogs'));
-app.use('/api/donations', require('./routes/donations'));
-app.use('/api/rescues', require('./routes/rescues'));
-app.use('/api/fosters', require('./routes/fosters'));
-app.use('/api/transport', require('./routes/transport'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api', require('./routes/fix-photos'));
 app.use('/api', require('./routes/diagnose-photos'));
+
+// ── ROUTES NOT YET BUILT (uncomment as each page is built) ──
+// app.use('/api/auth', require('./routes/auth'));
+// app.use('/api/donations', require('./routes/donations'));
+// app.use('/api/rescues', require('./routes/rescues'));
+// app.use('/api/fosters', require('./routes/fosters'));
+// app.use('/api/transport', require('./routes/transport'));
+// app.use('/api/admin', require('./routes/admin'));
+// app.use('/api/notifications', require('./routes/notifications'));
 
 // Serve frontend
 app.get('*', (req, res) => {
@@ -105,7 +102,6 @@ app.use((err, req, res, next) => {
 
 // Initialize DB and start server
 initDB().then(() => {
-  // Start PetHarbor scraper
   const { startScraper } = require('./services/petharborScraper');
   startScraper();
   
