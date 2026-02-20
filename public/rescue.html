@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rescue Portal — LA Dog Dispatch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --red: #c4281c; --dark: #1a1614; --cream: #f8f6f3;
+            --tan: #e8e4dd; --text: #3a3632; --muted: #6b6560;
+            --border: #d4cfc7;
+        }
+        body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
+
+        /* NAV */
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; }
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.92rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--red); }
+        .btn-red { background: var(--red); color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
+
+        /* HERO */
+        .hero { background: var(--dark); padding: 2rem 3rem 1.8rem; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 50%, rgba(196,40,28,0.15) 0%, transparent 55%); }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
+        .hero-left { flex: 1; min-width: 280px; }
+        .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin-bottom: 0.6rem; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: white; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+        .hero-sub { font-size: 0.95rem; color: rgba(255,255,255,0.55); line-height: 1.6; max-width: 500px; }
+        .hero-right { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-end; }
+        .hero-stat { text-align: right; }
+        .stat-n { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: white; font-weight: 700; line-height: 1; }
+        .stat-l { font-size: 0.72rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+
+        /* TABS */
+        .tabs-bar { background: white; border-bottom: 1px solid var(--border); sticky; top: 68px; z-index: 90; }
+        .tabs-inner { max-width: 1200px; margin: 0 auto; padding: 0 3rem; display: flex; gap: 0; }
+        .tab-btn { padding: 0.9rem 1.5rem; font-size: 0.88rem; font-weight: 600; color: var(--muted); background: none; border: none; border-bottom: 2.5px solid transparent; cursor: pointer; transition: all 0.2s; font-family: 'Source Sans 3', sans-serif; }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active { color: var(--red); border-bottom-color: var(--red); }
+
+        /* MAIN CONTENT */
+        .main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 3rem; }
+
+        /* DOG GRID */
+        .grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.8rem; }
+        .grid-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--dark); font-weight: 600; }
+        .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .filter-chip { padding: 0.35rem 0.85rem; border: 1.5px solid var(--border); border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: white; cursor: pointer; transition: all 0.18s; color: var(--text); }
+        .filter-chip:hover, .filter-chip.active { border-color: var(--red); color: var(--red); background: #fff5f5; }
+
+        .dogs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+        .dog-card { background: white; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; transition: box-shadow 0.25s, transform 0.25s; }
+        .dog-card:hover { box-shadow: 0 8px 24px rgba(26,22,20,0.1); transform: translateY(-2px); }
+        .dog-img { width: 100%; height: 180px; object-fit: cover; background: var(--tan); }
+        .dog-img-placeholder { width: 100%; height: 180px; background: var(--tan); display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+        .dog-body { padding: 0.9rem; }
+        .dog-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+        .badge { font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge-critical { background: #fee2e2; color: #b91c1c; }
+        .badge-urgent { background: #fef3c7; color: #92400e; }
+        .badge-shelter { background: #ede9fe; color: #5b21b6; font-size: 0.65rem; }
+        .badge-rescue-only { background: #fef3c7; color: #92400e; }
+        .dog-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--dark); margin-bottom: 0.2rem; }
+        .dog-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .dog-deadline { font-size: 0.78rem; color: var(--red); font-weight: 600; margin-bottom: 0.7rem; }
+        .dog-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .btn-commit { background: var(--red); color: white; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; font-family: 'Source Sans 3', sans-serif; }
+        .btn-commit:hover { background: #9d1f16; }
+        .btn-commit.committed { background: #166534; cursor: default; }
+        .btn-share-ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; transition: opacity 0.2s; font-family: 'Source Sans 3', sans-serif; }
+        .btn-share-ig:hover { opacity: 0.85; }
+        .btn-outline-sm { background: transparent; color: var(--text); padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: 1.5px solid var(--border); cursor: pointer; transition: all 0.2s; font-family: 'Source Sans 3', sans-serif; }
+        .btn-outline-sm:hover { border-color: var(--text); }
+
+        /* FOSTERS TAB */
+        .foster-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .foster-card { background: white; border-radius: 10px; border: 1px solid var(--border); padding: 1.1rem; }
+        .foster-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--dark); margin-bottom: 0.3rem; }
+        .foster-meta { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+        .foster-pref { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; }
+        .pref-tag { font-size: 0.72rem; font-weight: 600; padding: 0.18rem 0.5rem; background: var(--tan); border-radius: 20px; color: var(--text); }
+        .foster-contact { margin-top: 0.8rem; display: flex; gap: 0.5rem; }
+        .btn-contact { font-size: 0.78rem; font-weight: 600; padding: 0.35rem 0.8rem; border-radius: 6px; border: 1.5px solid var(--border); background: white; cursor: pointer; color: var(--text); text-decoration: none; transition: all 0.2s; font-family: 'Source Sans 3', sans-serif; }
+        .btn-contact:hover { border-color: var(--red); color: var(--red); }
+
+        /* INSTAGRAM SHARE MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: white; border-radius: 14px; padding: 1.5rem; width: 90%; max-width: 420px; }
+        .modal h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 0.4rem; }
+        .modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.6; }
+        .ig-card-preview {
+            width: 100%; aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+            background: var(--dark); position: relative; margin-bottom: 1rem;
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .ig-card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+        .ig-card-content { position: relative; z-index: 1; padding: 1rem; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); }
+        .ig-card-tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); margin-bottom: 0.3rem; }
+        .ig-card-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: white; font-weight: 700; margin-bottom: 0.2rem; }
+        .ig-card-meta { font-size: 0.78rem; color: rgba(255,255,255,0.7); margin-bottom: 0.4rem; }
+        .ig-card-cta { font-size: 0.72rem; color: rgba(255,255,255,0.5); }
+        .modal-actions { display: flex; gap: 0.6rem; }
+        .btn-download { background: var(--dark); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; border: none; cursor: pointer; font-family: 'Source Sans 3', sans-serif; flex: 1; }
+        .btn-close-modal { background: transparent; color: var(--muted); padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; border: 1.5px solid var(--border); cursor: pointer; font-family: 'Source Sans 3', sans-serif; }
+
+        /* COMMIT MODAL */
+        .commit-modal { background: white; border-radius: 14px; padding: 1.8rem; width: 90%; max-width: 460px; }
+        .commit-modal h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .commit-modal p { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
+        .commit-form { display: flex; flex-direction: column; gap: 0.8rem; }
+        .commit-form label { font-size: 0.8rem; font-weight: 600; color: var(--dark); }
+        .commit-form input, .commit-form select, .commit-form textarea { padding: 0.6rem 0.8rem; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.88rem; font-family: 'Source Sans 3', sans-serif; width: 100%; background: var(--cream); }
+        .commit-form input:focus, .commit-form select:focus, .commit-form textarea:focus { outline: none; border-color: var(--red); background: white; }
+        .commit-form textarea { min-height: 70px; resize: vertical; }
+        .commit-actions { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
+
+        /* NOT YET VETTED / CTA */
+        .contact-bar { background: var(--dark); padding: 1.5rem 3rem; border-top: 2px solid var(--red); }
+        .contact-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .contact-bar p { color: rgba(255,255,255,0.65); font-size: 0.88rem; }
+        .contact-bar strong { color: white; }
+        .btn-contact-us { background: white; color: var(--dark); padding: 0.5rem 1.3rem; border-radius: 6px; font-weight: 700; font-size: 0.88rem; border: none; cursor: pointer; text-decoration: none; font-family: 'Source Sans 3', sans-serif; transition: opacity 0.2s; }
+        .btn-contact-us:hover { opacity: 0.85; }
+
+        /* TABS content */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* EMPTY STATE */
+        .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+        .empty p { font-size: 0.9rem; margin-top: 0.5rem; }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero { padding: 1.5rem; }
+            .hero-inner { flex-direction: column; align-items: flex-start; }
+            .hero-right { align-items: flex-start; flex-direction: row; gap: 1.5rem; }
+            .hero-stat { text-align: left; }
+            .main { padding: 1rem 1rem; }
+            .tabs-inner { padding: 0 1rem; overflow-x: auto; }
+            .dogs-grid { grid-template-columns: 1fr; }
+            .foster-grid { grid-template-columns: 1fr; }
+            .contact-bar { padding: 1.2rem 1rem; }
+            body { padding-bottom: 64px; }
+        }
+
+        /* BOTTOM TAB BAR */
+        .bottom-tab-bar { display: none; }
+        @media (max-width: 768px) {
+            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
+        }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
+        .tab-icon { font-size: 1.3rem; line-height: 1; }
+        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
+        .tab-item.active .tab-label { color: var(--red); }
+        .tab-item.tab-fund { flex: 1.4; background: var(--red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
+        .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <div class="nav-inner">
+        <a href="/" class="logo">LA Dog Dispatch</a>
+        <ul class="nav-links">
+            <li><a href="/#dogs-section">Urgent Dogs</a></li>
+            <li><a href="/how-it-works.html">How It Works</a></li>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/#network-section">Join the Network</a></li>
+            <li><a href="/#dogs-section" class="btn-red">Fund a Dog</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-inner">
+        <div class="hero-left">
+            <p class="eyebrow">Rescue Partner Portal</p>
+            <h1>Your dashboard.<br>Their second chance.</h1>
+            <p class="hero-sub">View urgent dogs, browse available fosters, and commit to a pull — all in one place. Dogs are sorted by shelter priority and days remaining.</p>
+        </div>
+        <div class="hero-right">
+            <div class="hero-stat">
+                <div class="stat-n" id="dog-count">—</div>
+                <div class="stat-l">Dogs on urgent list</div>
+            </div>
+            <div class="hero-stat">
+                <div class="stat-n" id="foster-count">—</div>
+                <div class="stat-l">Available fosters</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+    <div class="tabs-inner">
+        <button class="tab-btn active" onclick="switchTab('dogs', this)">🐕 Urgent Dogs</button>
+        <button class="tab-btn" onclick="switchTab('fosters', this)">🏠 Available Fosters</button>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- DOGS TAB -->
+    <div class="tab-content active" id="tab-dogs">
+        <div class="grid-header">
+            <div class="grid-title">Dogs Needing Rescue</div>
+            <div class="filter-row">
+                <button class="filter-chip active" onclick="filterDogs('all', this)">All</button>
+                <button class="filter-chip" onclick="filterDogs('SOUTH L.A.', this)">South LA</button>
+                <button class="filter-chip" onclick="filterDogs('WEST L.A.', this)">West LA</button>
+                <button class="filter-chip" onclick="filterDogs('NORTH CENTRAL', this)">North Central</button>
+                <button class="filter-chip" onclick="filterDogs('EAST VALLEY', this)">East Valley</button>
+                <button class="filter-chip" onclick="filterDogs('WEST VALLEY', this)">West Valley</button>
+            </div>
+        </div>
+        <div class="dogs-grid" id="dogs-grid">
+            <div class="empty"><div style="font-size:2rem">🐕</div><p>Loading urgent dogs...</p></div>
+        </div>
+    </div>
+
+    <!-- FOSTERS TAB -->
+    <div class="tab-content" id="tab-fosters">
+        <div class="grid-header">
+            <div class="grid-title">Volunteers Ready to Foster</div>
+        </div>
+        <div class="foster-grid" id="foster-grid">
+            <div class="empty"><div style="font-size:2rem">🏠</div><p>Loading available fosters...</p></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- CONTACT BAR -->
+<div class="contact-bar">
+    <div class="contact-bar-inner">
+        <p><strong>Not yet a verified partner?</strong> We work with rescues directly to build trust before sharing funds and fosters.</p>
+        <a href="mailto:hello@ladogdispatch.org?subject=Rescue Partner Inquiry&body=Hi, I'd like to learn more about becoming a verified rescue partner with LA Dog Dispatch." class="btn-contact-us">Get in Touch →</a>
+    </div>
+</div>
+
+<!-- INSTAGRAM SHARE MODAL -->
+<div class="modal-overlay" id="ig-modal" onclick="closeIgModal(event)">
+    <div class="modal">
+        <h3>Share to Instagram</h3>
+        <p>Screenshot or download this card and post it to your Instagram story or feed. Tag <strong>@ladogdispatch</strong> so we can reshare.</p>
+        <div class="ig-card-preview" id="ig-preview">
+            <img class="ig-card-img" id="ig-card-img" src="" alt="">
+            <div class="ig-card-content">
+                <div class="ig-card-tag">🚨 Urgent — LA Dog Dispatch</div>
+                <div class="ig-card-name" id="ig-card-name"></div>
+                <div class="ig-card-meta" id="ig-card-meta"></div>
+                <div class="ig-card-cta">ladogdispatch.org · Link in bio to fund or rescue</div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-download" onclick="downloadIgCard()">⬇ Save Image</button>
+            <button class="btn-close-modal" onclick="document.getElementById('ig-modal').classList.remove('open')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- COMMIT MODAL -->
+<div class="modal-overlay" id="commit-modal" onclick="closeCommitModal(event)">
+    <div class="commit-modal">
+        <h3>Commit to Pull <span id="commit-dog-name"></span></h3>
+        <p>Once you commit, we'll hold any donated funds for this dog for your rescue and notify the foster network. Please only commit if you can follow through.</p>
+        <div class="commit-form">
+            <div>
+                <label>Your rescue organization</label>
+                <input type="text" id="commit-org" placeholder="Rescue name">
+            </div>
+            <div>
+                <label>Contact name</label>
+                <input type="text" id="commit-contact" placeholder="Your name">
+            </div>
+            <div>
+                <label>Email</label>
+                <input type="email" id="commit-email" placeholder="rescue@email.com">
+            </div>
+            <div>
+                <label>Do you have a foster lined up?</label>
+                <select id="commit-foster">
+                    <option value="">Select...</option>
+                    <option value="yes">Yes — we have a foster ready</option>
+                    <option value="need_foster">No — we need a foster from this list</option>
+                    <option value="shelter">We'll hold at a shelter placement</option>
+                </select>
+            </div>
+            <div>
+                <label>Notes (optional)</label>
+                <textarea id="commit-notes" placeholder="Timeline, transport needs, anything we should know..."></textarea>
+            </div>
+        </div>
+        <div class="commit-actions">
+            <button class="btn-commit" onclick="submitCommit()" style="padding: 0.6rem 1.4rem; font-size: 0.9rem;">Confirm Commitment →</button>
+            <button class="btn-close-modal" onclick="document.getElementById('commit-modal').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="bottom-tab-bar">
+    <a href="/#dogs-section" class="tab-item"><span class="tab-icon">🐕</span><span class="tab-label">Dogs</span></a>
+    <a href="/foster.html" class="tab-item"><span class="tab-icon">🏠</span><span class="tab-label">Foster</span></a>
+    <a href="https://givebutter.com/ladogdispatch" target="_blank" class="tab-item tab-fund"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
+    <a href="/rescue.html" class="tab-item active"><span class="tab-icon">🐾</span><span class="tab-label">Rescue</span></a>
+    <button class="tab-item"><span class="tab-icon">☰</span><span class="tab-label">More</span></button>
+</nav>
+
+<script>
+    let allDogs = [];
+    let currentDog = null;
+    let currentFilter = 'all';
+
+    // Load dogs
+    async function loadDogs() {
+        try {
+            const res = await fetch('/api/dogs');
+            const data = await res.json();
+            allDogs = data.dogs || data || [];
+            document.getElementById('dog-count').textContent = allDogs.length;
+            renderDogs(allDogs);
+        } catch (err) {
+            document.getElementById('dogs-grid').innerHTML = '<div class="empty"><p>Unable to load dogs. Please refresh.</p></div>';
+        }
+    }
+
+    // Load fosters
+    async function loadFosters() {
+        try {
+            const res = await fetch('/api/fosters');
+            const data = await res.json();
+            const fosters = data.fosters || data || [];
+            document.getElementById('foster-count').textContent = fosters.length;
+            renderFosters(fosters);
+        } catch (err) {
+            document.getElementById('foster-grid').innerHTML = '<div class="empty"><p>No foster volunteers yet.</p></div>';
+        }
+    }
+
+    function renderDogs(dogs) {
+        const grid = document.getElementById('dogs-grid');
+        if (!dogs.length) {
+            grid.innerHTML = '<div class="empty"><div style="font-size:2rem">🐕</div><p>No dogs match this filter.</p></div>';
+            return;
+        }
+        grid.innerHTML = dogs.map(dog => {
+            const deadline = new Date(dog.deadline);
+            const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
+            const urgency = daysLeft <= 1 ? 'CRITICAL' : daysLeft <= 3 ? 'URGENT' : null;
+            const photo = dog.photo_url || '';
+            return `
+            <div class="dog-card" data-shelter="${dog.shelter || ''}">
+                ${photo
+                    ? `<img class="dog-img" src="${photo}" alt="${dog.name}" onerror="this.parentElement.querySelector('.dog-img-placeholder') && (this.style.display='none')">`
+                    : `<div class="dog-img-placeholder">🐕</div>`}
+                <div class="dog-body">
+                    <div class="dog-badges">
+                        ${urgency ? `<span class="badge badge-${urgency.toLowerCase()}">${urgency}</span>` : ''}
+                        ${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only</span>` : ''}
+                        ${dog.shelter ? `<span class="badge badge-shelter">${dog.shelter}</span>` : ''}
+                    </div>
+                    <div class="dog-name">${dog.name || dog.shelter_id}</div>
+                    <div class="dog-meta">${dog.breed || 'Mixed'} · ${dog.gender || ''} · ${dog.age || ''}</div>
+                    <div class="dog-deadline">⏰ Deadline: ${deadline.toLocaleDateString('en-US', {month:'short', day:'numeric'})} (${daysLeft <= 0 ? 'TODAY' : daysLeft + ' day' + (daysLeft !== 1 ? 's' : '')})</div>
+                    <div class="dog-actions">
+                        <button class="btn-commit" onclick="openCommitModal(${JSON.stringify(dog).replace(/"/g, '&quot;')})">Commit to Pull</button>
+                        <button class="btn-share-ig" onclick="openIgModal(${JSON.stringify(dog).replace(/"/g, '&quot;')})">📸 IG Share</button>
+                        ${dog.petharbor_url ? `<a href="${dog.petharbor_url}" target="_blank" class="btn-outline-sm">View Profile</a>` : ''}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderFosters(fosters) {
+        const grid = document.getElementById('foster-grid');
+        if (!fosters.length) {
+            grid.innerHTML = '<div class="empty"><div style="font-size:2rem">🏠</div><p>No foster volunteers signed up yet. Share the foster page to grow this list.</p></div>';
+            return;
+        }
+        grid.innerHTML = fosters.map(f => `
+            <div class="foster-card">
+                <div class="foster-name">${f.first_name} ${f.last_name ? f.last_name[0] + '.' : ''}</div>
+                <div class="foster-meta">
+                    📍 ${f.city || 'Los Angeles'} ${f.zip || ''}<br>
+                    📅 Available: ${f.available_date ? new Date(f.available_date).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : 'Now'}<br>
+                    ⏱ Duration: ${f.duration ? f.duration.replace(/_/g,' ') : 'Flexible'}
+                    ${f.specific_dog ? `<br>🐕 <strong>Requested: ${f.specific_dog}</strong>` : ''}
+                </div>
+                <div class="foster-pref">
+                    ${(f.sizes || '').split(',').filter(Boolean).map(s => `<span class="pref-tag">${s.trim()}</span>`).join('')}
+                    ${(f.other_pets || '').split(',').filter(Boolean).map(p => `<span class="pref-tag">${p.trim()}</span>`).join('')}
+                    ${(f.kids || '').split(',').filter(Boolean).map(k => `<span class="pref-tag">${k.trim()}</span>`).join('')}
+                </div>
+                <div class="foster-contact">
+                    ${f.contact_pref && f.contact_pref.includes('email_ok')
+                        ? `<a href="mailto:${f.email}" class="btn-contact">✉ Email</a>` : ''}
+                    ${f.contact_pref && f.contact_pref.includes('text_ok')
+                        ? `<a href="sms:${f.phone}" class="btn-contact">📱 Text</a>` : ''}
+                    ${(!f.contact_pref || (!f.contact_pref.includes('email_ok') && !f.contact_pref.includes('text_ok')))
+                        ? `<a href="mailto:${f.email}" class="btn-contact">Contact</a>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function filterDogs(shelter, btn) {
+        currentFilter = shelter;
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const filtered = shelter === 'all' ? allDogs : allDogs.filter(d => d.shelter && d.shelter.toUpperCase().includes(shelter.toUpperCase().replace('.','')));
+        renderDogs(filtered);
+    }
+
+    // Tab switching
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    // IG Modal
+    function openIgModal(dog) {
+        currentDog = dog;
+        document.getElementById('ig-card-name').textContent = dog.name || dog.shelter_id;
+        document.getElementById('ig-card-meta').textContent = `${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'} · Urgent`;
+        if (dog.photo_url) document.getElementById('ig-card-img').src = dog.photo_url;
+        document.getElementById('ig-modal').classList.add('open');
+    }
+    function closeIgModal(e) {
+        if (e.target === document.getElementById('ig-modal')) document.getElementById('ig-modal').classList.remove('open');
+    }
+    function downloadIgCard() {
+        // For now, instruct to screenshot — canvas-based download can be added later
+        alert('Screenshot this card and post to your Instagram story or feed. Tag @ladogdispatch!');
+    }
+
+    // Commit Modal
+    function openCommitModal(dog) {
+        currentDog = dog;
+        document.getElementById('commit-dog-name').textContent = '— ' + (dog.name || dog.shelter_id);
+        document.getElementById('commit-modal').classList.add('open');
+    }
+    function closeCommitModal(e) {
+        if (e.target === document.getElementById('commit-modal')) document.getElementById('commit-modal').classList.remove('open');
+    }
+    async function submitCommit() {
+        const org = document.getElementById('commit-org').value;
+        const contact = document.getElementById('commit-contact').value;
+        const email = document.getElementById('commit-email').value;
+        const foster = document.getElementById('commit-foster').value;
+        const notes = document.getElementById('commit-notes').value;
+        if (!org || !contact || !email) { alert('Please fill in your organization, name, and email.'); return; }
+        try {
+            const res = await fetch('/api/rescues/commit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dog_id: currentDog.id, shelter_id: currentDog.shelter_id, dog_name: currentDog.name, org, contact, email, foster_status: foster, notes })
+            });
+            if (res.ok) {
+                document.getElementById('commit-modal').classList.remove('open');
+                alert(`✅ Commitment recorded for ${currentDog.name || currentDog.shelter_id}. We'll follow up shortly.`);
+            } else { throw new Error(); }
+        } catch { alert('Something went wrong. Please email us directly at hello@ladogdispatch.org'); }
+    }
+
+    // Init
+    loadDogs();
+    loadFosters();
+</script>
+
+</body>
+</html>
