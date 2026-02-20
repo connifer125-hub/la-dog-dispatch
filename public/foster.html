@@ -19,8 +19,8 @@
         nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
         .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 72px; }
         .logo { font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--color-dark); text-decoration: none; font-weight: 600; }
-        .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--color-text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--color-text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
         .nav-links a:hover { color: var(--color-red); }
         .btn-nav { background: var(--color-red); color: white !important; padding: 0.45rem 1.4rem; border-radius: 6px; font-weight: 600 !important; }
         .btn-nav:hover { background: #9d1f16; }
@@ -135,7 +135,7 @@
         .btn-ghost:hover { border-color: white; }
 
         /* ── MOBILE ── */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .nav-links { display: none; }
             .hero { padding: 2.5rem 1.5rem 2rem; }
             .hero h1 { font-size: 2rem; }
@@ -156,7 +156,7 @@
             .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--color-border); z-index: 200; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); align-items: center; }
         }
         .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; -webkit-tap-highlight-color: transparent; height: 100%; }
-        .tab-icon { font-size: 1.3rem; line-height: 1; }
+        .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
         .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
         .tab-item.active .tab-label { color: var(--color-red); }
         .tab-item.tab-fund { flex: 1.4; background: var(--color-red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
@@ -214,7 +214,7 @@
         <div class="form-inner">
             <p class="section-eyebrow">Foster Sign-Up</p>
             <h2 class="section-title">Volunteer as a Foster</h2>
-            <p class="section-sub" style="margin-bottom: 1rem;">Share your preferences and we'll connect you with a rescue partner who'll take it from there. If you saw a specific dog on Instagram, mention them below.</p>
+            <p class="section-sub" style="margin-bottom: 2rem;">Share your preferences and we'll connect you with a rescue partner who'll take it from there. If you saw a specific dog on Instagram, mention them below.</p>
 
             <form id="foster-form">
                 <div class="form-grid">
@@ -381,11 +381,11 @@
             <span class="tab-label">Foster</span>
         </a>
         <a href="https://givebutter.com/ladogdispatch" target="_blank" class="tab-item tab-fund">
-            <span class="tab-icon">💛</span>
+            <span class="tab-icon">$</span>
             <span class="tab-label">Fund a Dog</span>
         </a>
         <a href="/rescue.html" class="tab-item">
-            <span class="tab-icon">🐾</span>
+            <span class="tab-icon">★</span>
             <span class="tab-label">Rescue</span>
         </a>
         <button class="tab-item">
