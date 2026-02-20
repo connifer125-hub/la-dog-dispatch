@@ -377,10 +377,7 @@
         <h2 class="section-title">Dogs Needing Funding Now</h2>
         <div class="category-filters">
             <button class="category-btn active" data-category="all">All Dogs</button>
-            <button class="category-btn" data-category="medical">🏥 Medical Rescue</button>
-            <button class="category-btn" data-category="ice">🚨 ICE Detainment Rescue</button>
-            <button class="category-btn" data-category="death">💔 Dog Parent Death Rescue</button>
-            <button class="category-btn" data-category="general">🐕 General Rescue</button>
+            <button class="category-btn" data-category="rescue_only">🔒 Rescue Only</button>
         </div>
         <div class="dogs-grid" id="dogs-grid"></div>
     </section>
@@ -629,9 +626,7 @@
                          onerror="this.src='https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'">
                     <div class="dog-content">
                         <div class="dog-badges">
-                            ${urgencyBadge ? `<span class="badge ${urgencyBadge === 'CRITICAL' ? 'badge-critical' : 'badge-urgent'}">${urgencyBadge}</span>` : ''}
-                            ${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only</span>` : ''}
-                            <span class="badge badge-category">${categoryIcons[dog.category] || '🐕'} ${dog.category.replace('-', ' ')}</span>
+                            ${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only — Must be pulled by a rescue organization</span>` : ''}
                         </div>
                         <h3 class="dog-name">${dog.name}</h3>
                         <p class="dog-details">${dog.breed} • ${dog.age} • ${dog.gender}</p>
@@ -677,11 +672,11 @@
         function renderDogs() {
             const grid = document.getElementById('dogs-grid');
             let filteredDogs = allDogs;
-            if (currentCategory !== 'all') {
-                filteredDogs = allDogs.filter(dog => dog.category === currentCategory);
+            if (currentCategory === 'rescue_only') {
+                filteredDogs = allDogs.filter(dog => dog.rescue_only);
             }
             if (filteredDogs.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; color: #6b6560; grid-column: 1/-1; padding: 3rem;">No dogs in this category yet.</p>';
+                grid.innerHTML = '<p style="text-align: center; color: #6b6560; grid-column: 1/-1; padding: 3rem;">No rescue-only dogs listed right now.</p>';
                 return;
             }
             grid.innerHTML = filteredDogs.map(createDogCard).filter(Boolean).join('');
