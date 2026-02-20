@@ -6,6 +6,7 @@
     <title>LA Dog Dispatch - Every Urgent Dog Deserves Visibility</title>
     <meta name="description" content="LA Dog Dispatch automatically creates funding pages the moment a dog is euth-listed — giving rescues and donors a coordinated head start.">
     
+    <link rel="icon" type="image/png" href="/logo-icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -331,12 +332,15 @@
         .walker-dog { display: inline-block; transform: scaleX(-1); font-size: 1.2rem; position: relative; top: 0.15em; }
         .network-card:hover .walker-pair { animation: walkerBounce 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
         @keyframes walkerBounce { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-6px)} 75%{transform:translateY(-3px)} }
+
+        .logo-img { height: 38px; width: auto; display: block; }
+        @media (max-width: 900px) { .logo-img { height: 30px; } }
     </style>
 </head>
 <body>
     <nav>
         <div class="nav-container">
-            <a href="/" class="logo">LA Dog Dispatch</a>
+            <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
             <ul class="nav-links">
                 <li><a href="#dogs-section">Urgent Dogs</a></li>
                 <li><a href="/how-it-works.html">How It Works</a></li>
