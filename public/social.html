@@ -309,73 +309,128 @@ async function generateCard(dog) {
     const W = 1080, H = 1080;
     c.width = W; c.height = H;
 
-    // Clear canvas completely first
+    // Clear first
     ctx.clearRect(0, 0, W, H);
-    // Dark bg
-    ctx.fillStyle = '#1a1614'; ctx.fillRect(0, 0, W, H);
 
-    // Dog photo
-    if (dog.photo_url) {
-        try {
-            const img = await loadImg(dog.photo_url);
-            const ph = H * 0.62;
-            const scale = Math.max(W / img.width, ph / img.height);
-            ctx.drawImage(img, (W - img.width*scale)/2, 0, img.width*scale, img.height*scale);
-            const g = ctx.createLinearGradient(0, ph*0.35, 0, ph);
-            g.addColorStop(0, 'rgba(26,22,20,0)'); g.addColorStop(1, '#1a1614');
-            ctx.fillStyle = g; ctx.fillRect(0, 0, W, ph);
-        } catch(e) {}
+    const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+    const isCritical = daysLeft <= 1;
+
+    // ── BACKGROUND: dark with textured gradient ──
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#1a1614');
+    bgGrad.addColorStop(0.5, '#231e1b');
+    bgGrad.addColorStop(1, '#1a1614');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // ── ACCENT: large diagonal red slash ──
+    ctx.save();
+    ctx.globalAlpha = 0.07;
+    ctx.fillStyle = '#c4281c';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.4, 0); ctx.lineTo(W, 0); ctx.lineTo(W * 0.6, H); ctx.lineTo(0, H);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+
+    // ── TOP BAR: red ──
+    ctx.fillStyle = '#c4281c';
+    ctx.fillRect(0, 0, W, 12);
+
+    // ── URGENCY BADGE ──
+    const badgeText = isCritical ? '🚨 CRITICAL' : '⚠️ URGENT';
+    const badgeW = 220, badgeH = 52, badgeX = 50, badgeY = 36;
+    ctx.fillStyle = '#c4281c';
+    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 26); ctx.fill();
+    ctx.fillStyle = 'white'; ctx.font = 'bold 24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(badgeText, badgeX + badgeW / 2, badgeY + 34);
+
+    // ── LA DOG DISPATCH top right ──
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('LA DOG DISPATCH', W - 50, 72);
+
+    // ── LARGE PAWS WATERMARK (center decorative) ──
+    ctx.save();
+    ctx.globalAlpha = 0.04;
+    ctx.fillStyle = 'white';
+    ctx.font = '600px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🐾', W / 2, H * 0.62);
+    ctx.restore();
+
+    // ── SHELTER TAG ──
+    if (dog.shelter) {
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.textAlign = 'left';
+        const tagText = dog.shelter.toUpperCase();
+        const tagW = ctx.measureText(tagText).width + 40;
+        roundRect(ctx, 50, 160, tagW, 44, 8); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillText(tagText, 70, 188);
     }
 
-    // Red top bar
-    ctx.fillStyle = '#c4281c'; ctx.fillRect(0, 0, W, 10);
+    // ── DOG NAME: very large ──
+    const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'left';
+    // Scale font to fit
+    let fontSize = 160;
+    ctx.font = `bold ${fontSize}px Georgia, serif`;
+    while (ctx.measureText(name).width > W - 100 && fontSize > 60) {
+        fontSize -= 6;
+        ctx.font = `bold ${fontSize}px Georgia, serif`;
+    }
+    ctx.fillText(name, 50, 460);
 
-    // URGENT badge
-    const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
-    const badgeText = daysLeft <= 1 ? '🚨 CRITICAL' : '⚠️ URGENT';
-    ctx.fillStyle = '#c4281c';
-    roundRect(ctx, 40, 28, 210, 46, 23); ctx.fill();
-    ctx.fillStyle = 'white'; ctx.font = 'bold 22px sans-serif';
-    ctx.textAlign = 'center'; ctx.fillText(badgeText, 145, 57);
+    // ── MINT UNDERLINE under name ──
+    ctx.fillStyle = '#4ecdc4';
+    ctx.fillRect(50, 475, Math.min(ctx.measureText(name).width, W - 100), 6);
 
-    // LA Dog Dispatch top right
-    ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.font = 'bold 20px sans-serif';
-    ctx.textAlign = 'right'; ctx.fillText('LA DOG DISPATCH', W-40, 57);
+    // ── BREED · GENDER · AGE ──
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.font = '34px sans-serif';
+    const metaParts = [dog.breed, dog.gender, dog.age].filter(Boolean);
+    ctx.fillText(metaParts.join('  ·  '), 50, 545);
 
-    // Name
-    const nameY = H * 0.66;
-    ctx.fillStyle = 'white'; ctx.font = 'bold 74px Georgia, serif';
-    ctx.textAlign = 'left'; ctx.fillText(dog.name || dog.shelter_id, 50, nameY);
-
-    // Breed · Shelter
-    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '32px sans-serif';
-    ctx.fillText(`${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'}`, 50, nameY + 52);
-
-    // Deadline
+    // ── DEADLINE LINE ──
     const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
-    ctx.fillStyle = '#f87171'; ctx.font = 'bold 30px sans-serif';
-    ctx.fillText(`Deadline: ${dlStr} — ${daysLeft <= 0 ? 'TODAY' : daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + ' left'}`, 50, nameY + 106);
+    const dlText = `Deadline: ${dlStr} — ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`;
+    ctx.fillStyle = isCritical ? '#f87171' : '#fca5a5';
+    ctx.font = 'bold 34px sans-serif';
+    ctx.fillText(dlText, 50, 620);
 
-    // Rescue only
+    // ── RESCUE ONLY BADGE ──
     if (dog.rescue_only) {
         ctx.fillStyle = '#fef3c7';
-        roundRect(ctx, 50, nameY + 124, 270, 38, 19); ctx.fill();
-        ctx.fillStyle = '#92400e'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 185, nameY + 148);
+        roundRect(ctx, 50, 645, 380, 44, 22); ctx.fill();
+        ctx.fillStyle = '#92400e';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 240, 673);
         ctx.textAlign = 'left';
     }
 
-    // Divider
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(50, H*0.84); ctx.lineTo(W-50, H*0.84); ctx.stroke();
+    // ── DIVIDER ──
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(50, 730); ctx.lineTo(W - 50, 730); ctx.stroke();
 
-    // CTA text
-    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '26px sans-serif';
-    ctx.fillText('Fund · Foster · Rescue this dog →', 50, H*0.89);
+    // ── BOTTOM CTA ──
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '28px sans-serif';
+    ctx.fillText('Fund · Foster · Rescue this dog  →', 50, 800);
 
-    // URL
-    ctx.fillStyle = 'white'; ctx.font = 'bold 30px sans-serif';
-    ctx.fillText('ladogdispatch.org', 50, H*0.89 + 48);
+    // ── URL ──
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 36px sans-serif';
+    ctx.fillText('ladogdispatch.org', 50, 858);
+
+    // ── BOTTOM MINT BAR ──
+    ctx.fillStyle = '#4ecdc4';
+    ctx.fillRect(0, H - 14, W, 14);
 
     return c;
 }
