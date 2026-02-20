@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — LA Dog Dispatch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --red: #c4281c; --dark: #1a1614; --cream: #f8f6f3;
+            --tan: #e8e4dd; --text: #3a3632; --muted: #6b6560;
+            --border: #d4cfc7;
+        }
+        body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
+
+        /* NAV */
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; }
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.92rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--red); }
+        .btn-red-nav { background: var(--red); color: white !important; 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
+
+        /* HERO - editorial dark with big italic pull */
+        .hero { background: var(--dark); 0.8rem 3rem 3rem; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 80% 20%, rgba(196,40,28,0.12) 0%, transparent 55%),
+                        radial-gradient(ellipse at 10% 80%, rgba(196,40,28,0.08) 0%, transparent 50%); }
+        .hero-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+        .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin-bottom: 0.8rem; }
+        .hero-kicker { font-family: 'Playfair Display', serif; font-size: 1rem; color: rgba(255,255,255,0.45); font-style: italic; margin-bottom: 0.5rem; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 3rem; color: white; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 0.8rem; }
+        .hero h1 em { font-style: italic; color: rgba(255,255,255,0.55); }
+        .hero-quote { border-left: 3px solid var(--red); 0.6rem 1.4rem; max-width: 680px; }
+        .hero-quote p { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: rgba(255,255,255,0.8); font-style: italic; line-height: 1.65; }
+
+        /* STORY SECTION */
+        .story { max-width: 780px; margin: 0 auto; 0.8rem 3rem; }
+        .story-block { margin-bottom: 0.8rem; }
+        .story-block:last-child { margin-bottom: 0; }
+        .story-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+        .story-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .story-h { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--dark); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.8rem; line-height: 1.2; }
+        .story-p { font-size: 1rem; color: var(--text); line-height: 1.8; margin-bottom: 0.8rem; }
+        .story-p:last-child { margin-bottom: 0; }
+        .story-p strong { color: var(--dark); font-weight: 700; }
+
+        /* FRUSTRATION CALLOUT */
+        .callout { background: #fef2f2; border-left: 4px solid var(--red); border-radius: 0 10px 10px 0; 0.8rem 1.5rem; margin: 0.8rem 0; }
+        .callout p { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--dark); line-height: 1.65; font-style: italic; }
+
+        /* THE BREAKDOWN - visual list */
+        .breakdown { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 0.8rem; margin: 0.8rem 0; }
+        .breakdown-item { display: flex; align-items: flex-start; gap: 0.8rem; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+        .breakdown-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .breakdown-item:first-child { padding-top: 0; }
+        .breakdown-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex-shrink: 0; margin-top: 0.45rem; }
+        .breakdown-text { font-size: 0.92rem; color: var(--text); line-height: 1.6; }
+
+        /* BUILT IT */
+        .built-section { background: var(--dark); 0.8rem 3rem; text-align: center; border-top: 3px solid var(--red); }
+        .built-inner { max-width: 700px; margin: 0 auto; }
+        .built-big { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: white; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.8rem; line-height: 1.15; }
+        .built-big em { font-style: italic; color: rgba(255,255,255,0.5); }
+        .built-sub { font-size: 0.95rem; color: rgba(255,255,255,0.55); line-height: 1.7; max-width: 580px; margin: 0 auto 1.8rem; }
+
+        /* HOT GIRLS CARE */
+        .hgc-section { max-width: 780px; margin: 0 auto; 0.8rem 3rem; }
+        .hgc-card { background: white; border: 1px solid var(--border); border-radius: 12px; 0.8rem 1.8rem; display: flex; gap: 1.2rem; align-items: flex-start; }
+        .hgc-icon { font-size: 2rem; flex-shrink: 0; }
+        .hgc-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--dark); margin-bottom: 0.4rem; }
+        .hgc-text { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+
+        /* CTA */
+        .cta-section { background: var(--cream); border-top: 1px solid var(--border); 0.8rem 3rem; text-align: center; }
+        .cta-h { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); font-weight: 700; margin-bottom: 0.5rem; }
+        .cta-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.8rem; }
+        .cta-btns { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+        .btn-red { background: var(--red); color: white; 0.6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.92rem; transition: all 0.2s; }
+        .btn-red:hover { background: #9d1f16; }
+        .btn-outline { background: transparent; color: var(--text); 0.6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.92rem; border: 1.5px solid var(--border); transition: all 0.2s; }
+        .btn-outline:hover { border-color: var(--text); }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero { 0.8rem 1.2rem 2rem; }
+            .hero h1 { font-size: 2rem; }
+            .hero-quote p { font-size: 1rem; }
+            .story { 0.8rem 1.2rem; }
+            .built-section { 0.8rem 1.2rem; }
+            .built-big { font-size: 1.6rem; }
+            .hgc-section { 0.8rem 1.2rem; }
+            .cta-section { 0.8rem 1.2rem; }
+            body { padding-bottom: 64px; }
+        }
+
+        /* MOBILE TAB BAR */
+        .bottom-tab-bar { display: none; }
+        @media (max-width: 768px) {
+            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
+        }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
+        .tab-icon { font-size: 1.3rem; line-height: 1; }
+        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
+        .tab-item.tab-fund { flex: 1.4; background: var(--red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
+        .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <div class="nav-inner">
+        <a href="/" class="logo">LA Dog Dispatch</a>
+        <ul class="nav-links">
+            <li><a href="/#dogs-section">Urgent Dogs</a></li>
+            <li><a href="/how-it-works.html">How It Works</a></li>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/#network-section">Join the Network</a></li>
+            <li><a href="/donate.html" class="btn-red-nav">Fund a Dog</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Our Story</p>
+        <p class="hero-kicker">Built by someone who got tired of watching the system fail.</p>
+        <h1>No matter how much she donated,<br><em>dogs were still dying.</em></h1>
+        <div class="hero-quote">
+            <p>Not because rescues weren't working hard. Not because donors didn't care. But because the system connecting them was broken — and nobody was fixing it.</p>
+        </div>
+    </div>
+</div>
+
+<!-- STORY -->
+<div class="story">
+
+    <div class="story-block">
+        <div class="story-label">The frustration</div>
+        <h2 class="story-h">A 20-year tech executive who kept asking: why is this still manual?</h2>
+        <p class="story-p">LA Dog Dispatch was built by someone who spent years donating, sharing, and watching. She understood technology. She understood systems. And what she saw in LA's shelter ecosystem made no sense to her.</p>
+        <p class="story-p">City shelter systems were not deploying modern automation or coordination tools — leaving urgent dogs trapped in a <strong>fragmented, manual flow</strong> that was costing lives every single day.</p>
+
+        <div class="callout">
+            <p>"I kept donating and dogs kept dying. I finally realized the problem wasn't funding — it was that the right people couldn't find each other fast enough."</p>
+        </div>
+    </div>
+
+    <div class="story-block">
+        <div class="story-label">The broken chain</div>
+        <h2 class="story-h">The system wasn't failing for lack of heart. It was failing for lack of coordination.</h2>
+        <div class="breakdown">
+            <div class="breakdown-item">
+                <div class="breakdown-dot"></div>
+                <div class="breakdown-text"><strong>Donors</strong> pledge in comment threads — but rescues can't act on informal promises. Money that exists never reaches the dog.</div>
+            </div>
+            <div class="breakdown-item">
+                <div class="breakdown-dot"></div>
+                <div class="breakdown-text"><strong>Rescues</strong> hesitate without confirmed funding. They want to pull — but saying yes without a foster or a dollar is a gamble they can't always take.</div>
+            </div>
+            <div class="breakdown-item">
+                <div class="breakdown-dot"></div>
+                <div class="breakdown-text"><strong>Fosters</strong> don't know where to plug in. There's no centralized place to say "I'm available" and actually get connected to a rescue that needs them.</div>
+            </div>
+            <div class="breakdown-item">
+                <div class="breakdown-dot"></div>
+                <div class="breakdown-text"><strong>The clock</strong> often starts too late. By the time a dog's listing reaches the right people, days of their window are already gone.</div>
+            </div>
+        </div>
+        <p class="story-p">The community couldn't keep waiting for the government to modernize the system. So she built it herself.</p>
+    </div>
+
+</div>
+
+<!-- BUILT IT -->
+<div class="built-section">
+    <div class="built-inner">
+        <p class="eyebrow" style="color: var(--red); margin-bottom: 0.8rem;">The solution</p>
+        <div class="built-big">We built the coordination layer<br><em>the shelter system never had.</em></div>
+        <p class="built-sub">LA Dog Dispatch automatically creates a funding page the moment a dog is euth-listed — activating donors immediately, alerting the foster network, and giving rescues the confirmed resources they need to say yes.</p>
+        <p class="built-sub" style="margin-bottom: 0;">When the system moves faster, more dogs get a real chance. We hope you'll join this network — or donate to help us save more.</p>
+    </div>
+</div>
+
+<!-- NONPROFIT NOTE -->
+<div class="hgc-section">
+    <div class="story-label" style="margin-bottom: 0.8rem;">Fiscal sponsor</div>
+    <div class="hgc-card">
+        <div class="hgc-icon">💚</div>
+        <div>
+            <div class="hgc-title">Powered by Hot Girls Care</div>
+            <div class="hgc-text">LA Dog Dispatch is fiscally sponsored by <strong>Hot Girls Care</strong>, an established nonprofit. All general fund donations are processed through Hot Girls Care, giving donors a legitimate charitable giving path with full accountability. Dog-specific donations are held as pass-throughs and released directly to the rescue that commits to pulling that dog.</div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+    <div class="cta-h">Ready to be part of this?</div>
+    <p class="cta-sub">Every role in this network matters — donor, foster, rescue partner, or sharer. Pick what fits your life right now.</p>
+    <div class="cta-btns">
+        <a href="/donate.html" class="btn-red">Fund a Dog →</a>
+        <a href="/foster.html" class="btn-outline">Sign up to Foster</a>
+        <a href="/how-it-works.html" class="btn-outline">See How It Works</a>
+    </div>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="bottom-tab-bar">
+    <a href="/#dogs-section" class="tab-item"><span class="tab-icon">🐕</span><span class="tab-label">Dogs</span></a>
+    <a href="/foster.html" class="tab-item"><span class="tab-icon">🏠</span><span class="tab-label">Foster</span></a>
+    <a href="/donate.html" class="tab-item tab-fund"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
+    <a href="/rescue.html" class="tab-item"><span class="tab-icon">🐾</span><span class="tab-label">Rescue</span></a>
+    <button class="tab-item"><span class="tab-icon">☰</span><span class="tab-label">More</span></button>
+</nav>
+
+</body>
+</html>
