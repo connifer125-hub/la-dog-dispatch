@@ -250,7 +250,7 @@
 <div class="contact-bar">
     <div class="contact-bar-inner">
         <p><strong>Not yet a verified partner?</strong> We work with rescues directly to build trust before sharing funds and fosters.</p>
-        <a href="mailto:hello@ladogdispatch.org?subject=Rescue Partner Inquiry&body=Hi, I'd like to learn more about becoming a verified rescue partner with LA Dog Dispatch." class="btn-contact-us">Get in Touch →</a>
+        <a href="mailto:hello@la_urgent_dogs_dispatch.org?subject=Rescue Partner Inquiry&body=Hi, I'd like to learn more about becoming a verified rescue partner with LA Dog Dispatch." class="btn-contact-us">Get in Touch →</a>
     </div>
 </div>
 
@@ -258,14 +258,14 @@
 <div class="modal-overlay" id="ig-modal" onclick="closeIgModal(event)">
     <div class="modal">
         <h3>Share to Instagram</h3>
-        <p>Screenshot or download this card and post it to your Instagram story or feed. Tag <strong>@ladogdispatch</strong> so we can reshare.</p>
+        <p>Screenshot or download this card and post it to your Instagram story or feed. Tag <strong>@la_urgent_dogs_dispatch</strong> so we can reshare.</p>
         <div class="ig-card-preview" id="ig-preview">
             <img class="ig-card-img" id="ig-card-img" src="" alt="">
             <div class="ig-card-content">
                 <div class="ig-card-tag">🚨 Urgent — LA Dog Dispatch</div>
                 <div class="ig-card-name" id="ig-card-name"></div>
                 <div class="ig-card-meta" id="ig-card-meta"></div>
-                <div class="ig-card-cta">ladogdispatch.org · Link in bio to fund or rescue</div>
+                <div class="ig-card-cta">la_urgent_dogs_dispatch.org · Link in bio to fund or rescue</div>
             </div>
         </div>
         <div class="modal-actions">
@@ -318,7 +318,7 @@
 <nav class="bottom-tab-bar">
     <a href="/#dogs-section" class="tab-item"><span class="tab-icon">🐕</span><span class="tab-label">Dogs</span></a>
     <a href="/foster.html" class="tab-item"><span class="tab-icon">🏠</span><span class="tab-label">Foster</span></a>
-    <a href="https://givebutter.com/ladogdispatch" target="_blank" class="tab-item tab-fund"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
+    <a href="https://givebutter.com/la_urgent_dogs_dispatch" target="_blank" class="tab-item tab-fund"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
     <a href="/rescue.html" class="tab-item active"><span class="tab-icon">🐾</span><span class="tab-label">Rescue</span></a>
     <button class="tab-item"><span class="tab-icon">☰</span><span class="tab-label">More</span></button>
 </nav>
@@ -450,7 +450,7 @@
     }
     function downloadIgCard() {
         // For now, instruct to screenshot — canvas-based download can be added later
-        alert('Screenshot this card and post to your Instagram story or feed. Tag @ladogdispatch!');
+        alert('Screenshot this card and post to your Instagram story or feed. Tag @la_urgent_dogs_dispatch!');
     }
 
     // Commit Modal
@@ -479,7 +479,7 @@
                 document.getElementById('commit-modal').classList.remove('open');
                 alert(`✅ Commitment recorded for ${currentDog.name || currentDog.shelter_id}. We'll follow up shortly.`);
             } else { throw new Error(); }
-        } catch { alert('Something went wrong. Please email us directly at hello@ladogdispatch.org'); }
+        } catch { alert('Something went wrong. Please email us directly at hello@la_urgent_dogs_dispatch.org'); }
     }
 
     // Init
