@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foster a Dog — LA Dog Dispatch</title>
+    <meta name="description" content="Open your home temporarily and save a life. Foster a dog from LA County's urgent euthanasia list.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --color-dark: #1a1614; --color-red: #c4281c; --color-cream: #f8f6f3;
+            --color-tan: #e8e4dd; --color-text: #3a3632; --color-text-light: #6b6560;
+            --color-border: #d4cfc7; --color-warm: #f5f0e8;
+        }
+        body { font-family: 'Source Sans 3', sans-serif; color: var(--color-text); background: var(--color-cream); line-height: 1.65; }
+
+        /* ── NAV ── */
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 72px; }
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--color-dark); text-decoration: none; font-weight: 600; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--color-text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--color-red); }
+        .btn-nav { background: var(--color-red); color: white !important; padding: 0.45rem 1.4rem; border-radius: 6px; font-weight: 600 !important; }
+        .btn-nav:hover { background: #9d1f16; }
+
+        /* ── HERO ── */
+        .hero {
+            background: var(--color-dark);
+            padding: 2.5rem 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 25% 60%, rgba(196,40,28,0.18) 0%, transparent 55%),
+                        radial-gradient(ellipse at 75% 30%, rgba(196,40,28,0.1) 0%, transparent 50%);
+        }
+        .hero-inner { max-width: 760px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-red); margin-bottom: 1rem; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 3rem; color: white; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.2rem; }
+        .hero h1 em { font-style: italic; color: rgba(255,255,255,0.65); }
+        .hero-sub { font-size: 1.05rem; color: rgba(255,255,255,0.6); line-height: 1.65; max-width: 580px; margin: 0 auto 1.2rem; }
+        .hero-stats { display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap; }
+        .stat { text-align: center; }
+        .stat-number { font-family: 'Playfair Display', serif; font-size: 2rem; color: white; font-weight: 700; }
+        .stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.25rem; max-width: 120px; line-height: 1.4; }
+        .hero-pull { margin-top: 1.2rem; border-left: 3px solid var(--color-red); padding: 0.6rem 1.2rem; text-align: left; max-width: 560px; margin-left: auto; margin-right: auto; }
+        .pull-quote { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: rgba(255,255,255,0.85); line-height: 1.65; font-style: italic; margin-bottom: 0.5rem; }
+        .pull-quote em { color: white; font-style: normal; font-weight: 600; }
+        .pull-attr { font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+
+        /* ── WHAT TO EXPECT ── */
+        .section { max-width: 1100px; margin: 0 auto; padding: 2rem 3rem; }
+        .section-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-red); margin-bottom: 0.5rem; }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: var(--color-dark); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+        .section-sub { color: var(--color-text-light); font-size: 0.95rem; margin-bottom: 2rem; }
+
+        .expect-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; max-width: 760px; }
+        .expect-card { background: white; border-radius: 10px; padding: 1.2rem 1.4rem; border: 1px solid var(--color-border); position: relative; overflow: hidden; transition: box-shadow 0.3s, transform 0.3s; }
+        .expect-card:hover { box-shadow: 0 8px 28px rgba(26,22,20,0.1); transform: translateY(-3px); }
+        .expect-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--color-red); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+        .expect-card:hover::before { transform: scaleX(1); }
+        .expect-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--color-tan); font-weight: 700; line-height: 1; margin-bottom: 0.3rem; }
+        .expect-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; color: var(--color-dark); margin-bottom: 0.3rem; }
+        .expect-desc { color: var(--color-text-light); font-size: 0.84rem; line-height: 1.55; }
+
+        /* ── FORM SECTION ── */
+        .form-wrap { background: white; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+        .form-inner { max-width: 760px; margin: 0 auto; padding: 2rem 3rem; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-section-head { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--color-dark); font-weight: 600; grid-column: 1 / -1; padding-top: 0.2rem; }
+        .form-divider { border: none; border-top: 1px solid var(--color-border); grid-column: 1 / -1; margin: 0.5rem 0; }
+
+        label { font-size: 0.82rem; font-weight: 600; color: var(--color-dark); letter-spacing: 0.02em; }
+        label .req { color: var(--color-red); }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+            padding: 0.7rem 0.9rem;
+            border: 1.5px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-family: 'Source Sans 3', sans-serif;
+            color: var(--color-text);
+            background: var(--color-cream);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-red); box-shadow: 0 0 0 3px rgba(196,40,28,0.08); background: white; }
+        textarea { resize: vertical; min-height: 90px; }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; background-size: 12px; padding-right: 2.5rem; }
+
+        .chip-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .chip { display: inline-flex; align-items: center; gap: 0.4rem; border: 1.5px solid var(--color-border); border-radius: 20px; padding: 0.38rem 0.85rem; cursor: pointer; transition: all 0.18s; background: var(--color-cream); }
+        .chip:hover { border-color: var(--color-red); }
+        .chip input { position: absolute; opacity: 0; pointer-events: none; }
+        .chip span { font-size: 0.84rem; font-weight: 500; color: var(--color-text); pointer-events: none; }
+        .chip.selected { border-color: var(--color-red); background: #fff5f5; }
+        .chip.selected span { color: var(--color-red); }
+
+        .submit-wrap { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .btn-submit { background: var(--color-red); color: white; padding: 0.85rem 2.2rem; border-radius: 8px; font-weight: 700; font-size: 1rem; font-family: 'Source Sans 3', sans-serif; border: none; cursor: pointer; transition: all 0.3s; display: inline-block; width: fit-content; }
+        .btn-submit:hover { background: #9d1f16; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(196,40,28,0.25); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .submit-note { font-size: 0.78rem; color: var(--color-text-light); }
+
+        .success-box { display: none; background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 2rem 2rem; text-align: center; }
+        .success-box h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #166534; margin-bottom: 0.5rem; }
+        .success-box p { color: #166534; font-size: 0.92rem; line-height: 1.6; }
+
+        /* ── FAQ ── */
+        .faq-wrap { max-width: 760px; margin: 0 auto; padding: 3.5rem 3rem; }
+        .faq-item { border-bottom: 1px solid var(--color-border); }
+        .faq-item:first-of-type { border-top: 1px solid var(--color-border); }
+        .faq-q { display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 0; cursor: pointer; font-weight: 600; color: var(--color-dark); font-size: 0.93rem; gap: 1rem; }
+        .faq-q:hover { color: var(--color-red); }
+        .faq-arrow { color: var(--color-red); font-size: 1rem; transition: transform 0.25s; flex-shrink: 0; }
+        .faq-item.open .faq-arrow { transform: rotate(180deg); }
+        .faq-a { font-size: 0.88rem; color: var(--color-text-light); line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+        .faq-item.open .faq-a { max-height: 300px; padding-bottom: 1rem; }
+
+        /* ── BOTTOM CTA ── */
+        .bottom-cta { background: var(--color-dark); padding: 3rem; text-align: center; border-top: 3px solid var(--color-red); }
+        .bottom-cta h2 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: white; margin-bottom: 0.6rem; }
+        .bottom-cta p { color: rgba(255,255,255,0.55); margin-bottom: 1.5rem; font-size: 0.92rem; }
+        .cta-buttons { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+        .btn-red { background: var(--color-red); color: white; padding: 0.5rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
+        .btn-red:hover { background: #9d1f16; }
+        .btn-ghost { background: transparent; color: white; padding: 0.5rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; border: 1.5px solid rgba(255,255,255,0.3); transition: all 0.2s; }
+        .btn-ghost:hover { border-color: white; }
+
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero { padding: 2.5rem 1.5rem 2rem; }
+            .hero h1 { font-size: 2rem; }
+            .hero-stats { gap: 1.5rem; }
+            .section { padding: 2.5rem 1.2rem; }
+            .expect-grid { grid-template-columns: 1fr; }
+            .form-inner { padding: 2rem 1.2rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .faq-wrap { padding: 2.5rem 1.2rem; }
+            .bottom-cta { padding: 2rem 1.2rem; }
+            body { padding-bottom: 64px; }
+        }
+
+        /* ── BOTTOM TAB BAR (mobile) ── */
+        .bottom-tab-bar { display: none; }
+        @media (max-width: 768px) {
+            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--color-border); z-index: 200; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); align-items: center; }
+        }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; -webkit-tap-highlight-color: transparent; height: 100%; }
+        .tab-icon { font-size: 1.3rem; line-height: 1; }
+        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
+        .tab-item.active .tab-label { color: var(--color-red); }
+        .tab-item.tab-fund { flex: 1.4; background: var(--color-red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
+        .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
+    </style>
+</head>
+<body>
+
+    <nav class="topnav">
+        <div class="nav-container">
+            <a href="/" class="logo">LA Dog Dispatch</a>
+            <ul class="nav-links">
+                <li><a href="/#dogs-section">Urgent Dogs</a></li>
+                <li><a href="/how-it-works.html">How It Works</a></li>
+                <li><a href="/about.html">About</a></li>
+                <li><a href="/#network-section">Join the Network</a></li>
+                <li><a href="/#dogs-section" class="btn-nav">Fund a Dog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ═══ HERO ═══ -->
+    <div class="hero">
+        <div class="hero-inner">
+            <p class="hero-eyebrow">Foster Network</p>
+            <h1>Sign up to Foster</h1>
+            <p class="hero-sub">Every dog on LA County's euthanasia list needs one thing before a rescue can commit: a place to go. That place could be your home — temporarily. We'll connect you directly with a vetted rescue who will work with you from there.</p>
+            <div class="hero-pull">
+                <p class="pull-quote">More dogs get saved when more fosters say yes. Open your home temporarily while a rescue finds them a long-term family — and give a dog the chance to <em>decompress, heal, and be seen.</em></p>
+                <p class="pull-attr">Every foster home expands what our rescue partners can do.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ HOW IT WORKS ═══ -->
+    <div class="section">
+<p class="section-eyebrow">How it works</p>
+        <div class="expect-grid">
+            <div class="expect-card">
+                <div class="expect-num">01</div>
+                <div class="expect-title">Tell us about yourself</div>
+                <p class="expect-desc">Share your availability, what size dogs you're open to, your living situation, and whether you have kids or other pets. No commitment — this helps us find the right rescue partner for you.</p>
+            </div>
+            <div class="expect-card">
+                <div class="expect-num">02</div>
+                <div class="expect-title">We connect you to a rescue</div>
+                <p class="expect-desc">We share your preferences with our vetted rescue partners. A rescue will reach out to welcome you into their foster network and guide you through their process from there.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══ APPLICATION FORM ═══ -->
+    <div class="form-wrap">
+        <div class="form-inner">
+            <p class="section-eyebrow">Foster Sign-Up</p>
+            <h2 class="section-title">Volunteer as a Foster</h2>
+            <p class="section-sub" style="margin-bottom: 2rem;">Share your preferences and we'll connect you with a rescue partner who'll take it from there. If you saw a specific dog on Instagram, mention them below.</p>
+
+            <form id="foster-form">
+                <div class="form-grid">
+
+                    <div class="form-section-head">Contact Information</div>
+
+                    <div class="form-group">
+                        <label>First Name <span class="req">*</span></label>
+                        <input type="text" name="first_name" required placeholder="First name">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name <span class="req">*</span></label>
+                        <input type="text" name="last_name" required placeholder="Last name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email <span class="req">*</span></label>
+                        <input type="email" name="email" required placeholder="you@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone <span class="req">*</span></label>
+                        <input type="tel" name="phone" required placeholder="(310) 555-0000">
+                    </div>
+                    <div class="form-group full" style="margin-top: -0.2rem;">
+                        <div class="chip-group">
+                            <label class="chip"><input type="checkbox" name="contact_pref" value="text_ok"><span>📱 OK to text me</span></label>
+                            <label class="chip"><input type="checkbox" name="contact_pref" value="email_ok" checked><span>✉️ OK to email me</span></label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>City / Neighborhood</label>
+                        <input type="text" name="city" placeholder="e.g. Silver Lake, Culver City">
+                    </div>
+                    <div class="form-group">
+                        <label>ZIP Code</label>
+                        <input type="text" name="zip" placeholder="90210">
+                    </div>
+
+                    <hr class="form-divider">
+                    <div class="form-section-head">Dog Preferences</div>
+
+                    <div class="form-group full">
+                        <label>Dog Size (select all you're open to) <span class="req">*</span></label>
+                        <div class="chip-group" id="size-chips">
+                            <label class="chip"><input type="checkbox" name="size" value="small"><span>Small — under 25 lbs</span></label>
+                            <label class="chip"><input type="checkbox" name="size" value="medium"><span>Medium — 25–55 lbs</span></label>
+                            <label class="chip"><input type="checkbox" name="size" value="large"><span>Large — 55+ lbs</span></label>
+                            <label class="chip"><input type="checkbox" name="size" value="any"><span>Any size</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Favorite Breeds (select up to 3)</label>
+                        <div class="chip-group" id="breed-chips">
+                            <label class="chip"><input type="checkbox" name="breed" value="pit_mix"><span>Pit Mix / Am. Staff</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="shepherd"><span>Shepherd Mix</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="lab"><span>Lab Mix</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="chihuahua"><span>Chihuahua</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="hound"><span>Hound Mix</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="husky"><span>Husky / Malamute</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="terrier"><span>Terrier Mix</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="poodle"><span>Poodle Mix</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="senior"><span>Senior Dogs (7+)</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="puppy"><span>Puppies</span></label>
+                            <label class="chip"><input type="checkbox" name="breed" value="any"><span>No preference</span></label>
+                        </div>
+                    </div>
+
+                    <hr class="form-divider">
+                    <div class="form-section-head">Your Space &amp; Availability</div>
+                    <div class="form-group full">
+                        <label>Your Space <span class="req">*</span></label>
+                        <div class="chip-group">
+                            <label class="chip"><input type="checkbox" name="space" value="secure_outdoor"><span>Secure outdoor area (yard, patio, balcony)</span></label>
+                            <label class="chip"><input type="checkbox" name="space" value="can_walk"><span>Can take dog outside multiple times daily</span></label>
+                            <label class="chip"><input type="checkbox" name="space" value="indoor_only"><span>Indoor only — no outdoor space</span></label>
+                        </div>
+                    </div>
+
+                    <hr class="form-divider">
+                    <div class="form-section-head">Children in Your Home</div>
+
+                    <div class="form-group full">
+                        <label>Do you have children at home?</label>
+                        <div class="chip-group">
+                            <label class="chip"><input type="checkbox" name="kids" value="no_kids"><span>No children</span></label>
+                            <label class="chip"><input type="checkbox" name="kids" value="under_5"><span>Under 5</span></label>
+                            <label class="chip"><input type="checkbox" name="kids" value="5_to_10"><span>Ages 5–10</span></label>
+                            <label class="chip"><input type="checkbox" name="kids" value="11_to_17"><span>Ages 11–17</span></label>
+                            <label class="chip"><input type="checkbox" name="kids" value="adults"><span>Adult children (18+)</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Other Pets in Your Home</label>
+                        <div class="chip-group">
+                            <label class="chip"><input type="checkbox" name="other_pets" value="dogs"><span>Dog(s)</span></label>
+                            <label class="chip"><input type="checkbox" name="other_pets" value="cats"><span>Cat(s)</span></label>
+                            <label class="chip"><input type="checkbox" name="other_pets" value="small_animals"><span>Small animals</span></label>
+                            <label class="chip"><input type="checkbox" name="other_pets" value="none"><span>No other pets</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Available to Start <span class="req">*</span></label>
+                        <input type="date" name="available_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>How Long Can You Foster?</label>
+                        <select name="duration">
+                            <option value="">Select...</option>
+                            <option value="1_2_weeks">1–2 weeks</option>
+                            <option value="2_4_weeks">2–4 weeks</option>
+                            <option value="1_2_months">1–2 months</option>
+                            <option value="open_ended">Open-ended / as long as needed</option>
+                        </select>
+                    </div>
+
+                    <hr class="form-divider">
+                    <div class="form-section-head">🐕 Saw a Dog on Instagram?</div>
+
+                    <div class="form-group full">
+                        <label>Dog's Name or Shelter ID (if you have someone specific in mind)</label>
+                        <input type="text" name="specific_dog" placeholder="e.g. MARTY or A2232612 — leave blank if open to any match">
+                    </div>
+                    <div class="form-group full">
+                        <label>Anything else we should know?</label>
+                        <textarea name="notes" placeholder="Schedule constraints, questions, allergies, or anything that helps us find the right match..."></textarea>
+                    </div>
+
+                </div>
+
+                <div class="submit-wrap">
+                    <button type="submit" class="btn-submit">Volunteer as a Foster →</button>
+                    <p class="submit-note">You'll receive a confirmation email right away. We'll share your info with a rescue partner within 48 hours.</p>
+                </div>
+            </form>
+
+            <div class="success-box" id="success-box">
+                <h3>🐾 Thank you for volunteering!</h3>
+                <p>We'll share your preferences with our rescue partners within 48 hours. A rescue will reach out to welcome you into their foster network. Check your inbox for a confirmation.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ BOTTOM CTA ═══ -->
+    <div class="bottom-cta">
+        <h2>Not ready to foster yet?</h2>
+        <p>There are other ways to make a real difference for these dogs.</p>
+        <div class="cta-buttons">
+            <a href="/#dogs-section" class="btn-red">Fund a Dog</a>
+            <a href="/volunteer.html" class="btn-ghost">Walk or Transport</a>
+            <a href="/share.html" class="btn-ghost">Share on Social</a>
+        </div>
+    </div>
+
+    <!-- ═══ BOTTOM TAB BAR (mobile) ═══ -->
+    <nav class="bottom-tab-bar">
+        <a href="/#dogs-section" class="tab-item">
+            <span class="tab-icon">🐕</span>
+            <span class="tab-label">Dogs</span>
+        </a>
+        <a href="/foster.html" class="tab-item active">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label">Foster</span>
+        </a>
+        <a href="https://givebutter.com/ladogdispatch" target="_blank" class="tab-item tab-fund">
+            <span class="tab-icon">💛</span>
+            <span class="tab-label">Fund a Dog</span>
+        </a>
+        <a href="/rescue.html" class="tab-item">
+            <span class="tab-icon">🐾</span>
+            <span class="tab-label">Rescue</span>
+        </a>
+        <button class="tab-item">
+            <span class="tab-icon">☰</span>
+            <span class="tab-label">More</span>
+        </button>
+    </nav>
+
+    <script>
+        // Chip toggle
+        document.querySelectorAll('.chip input').forEach(input => {
+            input.addEventListener('change', () => {
+                input.closest('.chip').classList.toggle('selected', input.checked);
+
+                // Limit breed selection to 3
+                if (input.name === 'breed') {
+                    const checked = document.querySelectorAll('input[name="breed"]:checked');
+                    if (checked.length > 3) {
+                        input.checked = false;
+                        input.closest('.chip').classList.remove('selected');
+                    }
+                }
+            });
+        });
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-q').forEach(q => {
+            q.addEventListener('click', () => {
+                const item = q.parentElement;
+                const isOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                if (!isOpen) item.classList.add('open');
+            });
+        });
+
+        // Form submission
+        document.getElementById('foster-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('.btn-submit');
+            btn.textContent = 'Submitting...';
+            btn.disabled = true;
+
+            const data = {
+                first_name: form.first_name.value,
+                last_name: form.last_name.value,
+                email: form.email.value,
+                phone: form.phone.value,
+                city: form.city.value,
+                zip: form.zip.value,
+                space: [...form.querySelectorAll('input[name="space"]:checked')].map(i => i.value),
+                kids: [...form.querySelectorAll('input[name="kids"]:checked')].map(i => i.value),
+                available_date: form.available_date.value,
+                duration: form.duration.value,
+                specific_dog: form.specific_dog.value,
+                notes: form.notes.value,
+                contact_pref: [...form.querySelectorAll('input[name="contact_pref"]:checked')].map(i => i.value),
+                sizes: [...form.querySelectorAll('input[name="size"]:checked')].map(i => i.value),
+                breeds: [...form.querySelectorAll('input[name="breed"]:checked')].map(i => i.value),
+                other_pets: [...form.querySelectorAll('input[name="other_pets"]:checked')].map(i => i.value),
+            };
+
+            try {
+                const res = await fetch('/api/fosters', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    form.style.display = 'none';
+                    document.getElementById('success-box').style.display = 'block';
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (err) {
+                btn.textContent = 'Volunteer as a Foster →';
+                btn.disabled = false;
+                alert('Something went wrong. Please try again or email us directly.');
+            }
+        });
+    </script>
+</body>
+</html>
