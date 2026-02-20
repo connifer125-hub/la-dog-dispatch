@@ -198,14 +198,14 @@
         <div class="ig-left">
             <span class="eyebrow" style="color:var(--red);display:block;margin-bottom:0.5rem;">Follow us</span>
             <h2>See every dog we post — on Instagram.</h2>
-            <p>We post urgent dogs daily to <strong>@ladogdispatch</strong>. Follow us and turn on notifications so you never miss one that needs sharing.</p>
-            <a href="https://instagram.com/ladogdispatch" target="_blank" class="btn-follow">📸 @ladogdispatch</a>
+            <p>We post urgent dogs daily to <strong>@la_urgent_dogs_dispatch</strong>. Follow us and turn on notifications so you never miss one that needs sharing.</p>
+            <a href="https://instagram.com/la_urgent_dogs_dispatch" target="_blank" class="btn-follow">📸 @la_urgent_dogs_dispatch</a>
         </div>
         <div class="ig-right">
             <div>
                 <div style="font-size:2rem;">📸</div>
                 <p>Your Instagram feed will appear here.<br><br>
-                To connect: go to any post on <strong>@ladogdispatch</strong> → ··· → Embed → copy code → paste it here in place of this placeholder.<br><br>
+                To connect: go to any post on <strong>@la_urgent_dogs_dispatch</strong> → ··· → Embed → copy code → paste it here in place of this placeholder.<br><br>
                 Or use a service like <code>lightwidget.com</code> for a live feed widget.</p>
             </div>
         </div>
@@ -219,7 +219,7 @@
         <p>Instagram Stories need the mobile app. On desktop, the fastest path is to download the card and post it from your phone.</p>
         <div class="modal-btns">
             <button class="modal-btn-dark" onclick="downloadCard(window._pendingDog); document.getElementById('share-modal').classList.remove('open')">⬇ Download Card</button>
-            <a href="https://instagram.com/ladogdispatch" target="_blank" class="modal-btn-ig">📸 View @ladogdispatch on Instagram</a>
+            <a href="https://instagram.com/la_urgent_dogs_dispatch" target="_blank" class="modal-btn-ig">📸 View @la_urgent_dogs_dispatch on Instagram</a>
             <button class="modal-btn-ghost" onclick="document.getElementById('share-modal').classList.remove('open')">Close</button>
         </div>
     </div>
@@ -383,50 +383,107 @@ async function generateCard(dog) {
         fontSize -= 6;
         ctx.font = `bold ${fontSize}px Georgia, serif`;
     }
-    ctx.fillText(name, 50, 460);
+    ctx.fillText(name, 50, 530);
 
     // ── MINT UNDERLINE under name ──
     ctx.fillStyle = '#4ecdc4';
-    ctx.fillRect(50, 475, Math.min(ctx.measureText(name).width, W - 100), 6);
+    ctx.fillRect(50, 548, Math.min(ctx.measureText(name).width, W - 100), 6);
 
     // ── BREED · GENDER · AGE ──
     ctx.fillStyle = 'rgba(255,255,255,0.55)';
     ctx.font = '34px sans-serif';
     const metaParts = [dog.breed, dog.gender, dog.age].filter(Boolean);
-    ctx.fillText(metaParts.join('  ·  '), 50, 545);
+    ctx.fillText(metaParts.join('  ·  '), 50, 618);
 
     // ── DEADLINE LINE ──
     const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
     const dlText = `Deadline: ${dlStr} — ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`;
     ctx.fillStyle = isCritical ? '#f87171' : '#fca5a5';
     ctx.font = 'bold 34px sans-serif';
-    ctx.fillText(dlText, 50, 620);
+    ctx.fillText(dlText, 50, 700);
 
     // ── RESCUE ONLY BADGE ──
     if (dog.rescue_only) {
         ctx.fillStyle = '#fef3c7';
-        roundRect(ctx, 50, 645, 380, 44, 22); ctx.fill();
+        roundRect(ctx, 50, 725, 380, 44, 22); ctx.fill();
         ctx.fillStyle = '#92400e';
         ctx.font = 'bold 20px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 240, 673);
+        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 240, 753);
         ctx.textAlign = 'left';
     }
 
     // ── DIVIDER ──
     ctx.strokeStyle = 'rgba(255,255,255,0.1)';
     ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(50, 730); ctx.lineTo(W - 50, 730); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(50, 830); ctx.lineTo(W - 50, 830); ctx.stroke();
 
     // ── BOTTOM CTA ──
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '28px sans-serif';
-    ctx.fillText('Fund · Foster · Rescue this dog  →', 50, 800);
+    ctx.fillText('Fund · Foster · Rescue this dog  →', 50, 880);
 
     // ── URL ──
     ctx.fillStyle = 'white';
     ctx.font = 'bold 36px sans-serif';
-    ctx.fillText('ladogdispatch.org', 50, 858);
+    ctx.fillText('la_urgent_dogs_dispatch.org', 50, 950);
+
+    // ── DOG PHOTO THUMBNAIL (bottom right) ──
+    if (dog.photo_url) {
+        try {
+            const photoUrl = dog.photo_url.startsWith('http')
+                ? dog.photo_url
+                : window.location.origin + dog.photo_url;
+            await new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                const thumbSize = 260;
+                const thumbX = W - thumbSize - 50;
+                const thumbY = H - thumbSize - 50;
+                img.onload = () => {
+                    // Clip to rounded square
+                    ctx.save();
+                    ctx.beginPath();
+                    const r = 16;
+                    ctx.moveTo(thumbX + r, thumbY);
+                    ctx.lineTo(thumbX + thumbSize - r, thumbY);
+                    ctx.quadraticCurveTo(thumbX + thumbSize, thumbY, thumbX + thumbSize, thumbY + r);
+                    ctx.lineTo(thumbX + thumbSize, thumbY + thumbSize - r);
+                    ctx.quadraticCurveTo(thumbX + thumbSize, thumbY + thumbSize, thumbX + thumbSize - r, thumbY + thumbSize);
+                    ctx.lineTo(thumbX + r, thumbY + thumbSize);
+                    ctx.quadraticCurveTo(thumbX, thumbY + thumbSize, thumbX, thumbY + thumbSize - r);
+                    ctx.lineTo(thumbX, thumbY + r);
+                    ctx.quadraticCurveTo(thumbX, thumbY, thumbX + r, thumbY);
+                    ctx.closePath();
+                    ctx.clip();
+                    // Draw photo filling the square
+                    const scale = Math.max(thumbSize / img.width, thumbSize / img.height);
+                    const dw = img.width * scale;
+                    const dh = img.height * scale;
+                    ctx.drawImage(img, thumbX + (thumbSize - dw) / 2, thumbY + (thumbSize - dh) / 2, dw, dh);
+                    ctx.restore();
+                    // White border around thumbnail
+                    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(thumbX + r, thumbY);
+                    ctx.lineTo(thumbX + thumbSize - r, thumbY);
+                    ctx.quadraticCurveTo(thumbX + thumbSize, thumbY, thumbX + thumbSize, thumbY + r);
+                    ctx.lineTo(thumbX + thumbSize, thumbY + thumbSize - r);
+                    ctx.quadraticCurveTo(thumbX + thumbSize, thumbY + thumbSize, thumbX + thumbSize - r, thumbY + thumbSize);
+                    ctx.lineTo(thumbX + r, thumbY + thumbSize);
+                    ctx.quadraticCurveTo(thumbX, thumbY + thumbSize, thumbX, thumbY + thumbSize - r);
+                    ctx.lineTo(thumbX, thumbY + r);
+                    ctx.quadraticCurveTo(thumbX, thumbY, thumbX + r, thumbY);
+                    ctx.closePath();
+                    ctx.stroke();
+                    resolve();
+                };
+                img.onerror = () => resolve(); // fail silently, card still looks good
+                img.src = photoUrl;
+            });
+        } catch(e) {}
+    }
 
     // ── BOTTOM MINT BAR ──
     ctx.fillStyle = '#4ecdc4';
@@ -443,7 +500,7 @@ async function downloadCard(dog) {
     try {
         const c = await generateCard(dog);
         const a = document.createElement('a');
-        a.download = `ladogdispatch-${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`;
+        a.download = `la_urgent_dogs_dispatch-${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`;
         a.href = c.toDataURL('image/png');
         a.click();
     } catch(e) { alert('Could not generate card. Save the dog photo directly instead.'); }
@@ -481,7 +538,7 @@ async function igStory(dog) {
 function copyCaption(dog, btnId) {
     const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
     const dl = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
-    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?' Rescue organizations only.':''} Fosters and donors welcome.\n\nFund, foster, or share → ladogdispatch.org\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?' Rescue organizations only.':''} Fosters and donors welcome.\n\nFund, foster, or share → la_urgent_dogs_dispatch.org\n\n#la_urgent_dogs_dispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
     navigator.clipboard.writeText(caption).then(() => {
         const btn = document.getElementById(btnId);
         if (!btn) return;
