@@ -108,6 +108,44 @@ app.get('/api/scrape-now', async (req, res) => {
 // app.use('/api/donations', require('./routes/donations'));
 app.use('/api/rescues', require('./routes/rescues'));
 app.use('/api/fosters', require('./routes/fosters'));
+
+// Subscribers (newsletter sign-ups)
+app.post('/api/subscribers', async (req, res) => {
+  try {
+    const { name, email, phone, dog_alerts, newsletter, text_ok } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    await db.query(`CREATE TABLE IF NOT EXISTS subscribers (
+      id SERIAL PRIMARY KEY, name VARCHAR(200), email VARCHAR(255) UNIQUE,
+      phone VARCHAR(50), dog_alerts BOOLEAN, newsletter BOOLEAN, text_ok BOOLEAN,
+      created_at TIMESTAMP DEFAULT NOW())`);
+    await db.query(
+      `INSERT INTO subscribers (name, email, phone, dog_alerts, newsletter, text_ok)
+       VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (email) DO UPDATE SET name=$1, phone=$3, dog_alerts=$4, newsletter=$5, text_ok=$6`,
+      [name, email, phone, dog_alerts, newsletter, text_ok]
+    );
+    console.log('📧 New subscriber:', email);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Transporters sign-ups
+app.post('/api/transporters', async (req, res) => {
+  try {
+    const { first_name, last_name, email, phone, city, zip, range, contact_pref } = req.body;
+    if (!email || !first_name) return res.status(400).json({ error: 'Name and email required' });
+    await db.query(`CREATE TABLE IF NOT EXISTS transporters (
+      id SERIAL PRIMARY KEY, first_name VARCHAR(100), last_name VARCHAR(100),
+      email VARCHAR(255), phone VARCHAR(50), city VARCHAR(100), zip VARCHAR(20),
+      range VARCHAR(50), contact_pref VARCHAR(100), created_at TIMESTAMP DEFAULT NOW())`);
+    await db.query(
+      `INSERT INTO transporters (first_name, last_name, email, phone, city, zip, range, contact_pref)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [first_name, last_name, email, phone, city, zip, range, contact_pref]
+    );
+    console.log('🚗 New transporter:', first_name, email);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
 // app.use('/api/transport', require('./routes/transport'));
 // app.use('/api/admin', require('./routes/admin'));
 // app.use('/api/notifications', require('./routes/notifications'));
