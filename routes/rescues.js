@@ -1,97 +1,96 @@
 const express = require('express');
-const db = require('../config/database');
-const { authMiddleware, requireRole } = require('../middleware/auth');
 const router = express.Router();
+const db = require('../config/database');
 
-// Register as a rescue organization
-router.post('/register', authMiddleware, async (req, res) => {
+// GET /api/rescues/fosters — list foster volunteers for rescue portal
+router.get('/fosters', async (req, res) => {
   try {
-    const { organization_name, ein_tax_id, rescue_type, capacity, service_area } = req.body;
-
-    if (!organization_name) {
-      return res.status(400).json({ error: 'Organization name required' });
-    }
-
     const result = await db.query(
-      `INSERT INTO rescues (user_id, organization_name, ein_tax_id, rescue_type, capacity, service_area)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [req.user.id, organization_name, ein_tax_id, rescue_type, capacity || 0, service_area]
+      `SELECT id, first_name, last_name, city, zip, available_date, duration,
+              sizes, breeds, other_pets, kids, space_info, contact_pref,
+              specific_dog, notes, email, phone
+       FROM foster_applications
+       ORDER BY created_at DESC`
     );
-
-    // Update user role to rescue
-    await db.query('UPDATE users SET role = $1 WHERE id = $2', ['rescue', req.user.id]);
-
-    res.status(201).json({
-      message: 'Rescue organization registered. Pending verification.',
-      rescue: result.rows[0]
-    });
-  } catch (error) {
-    console.error('Error registering rescue:', error);
-    res.status(500).json({ error: 'Failed to register rescue' });
+    res.json({ fosters: result.rows });
+  } catch (err) {
+    console.error('❌ Error fetching fosters:', err.message);
+    res.status(500).json({ error: 'Failed to fetch fosters' });
   }
 });
 
-// Claim a dog for rescue
-router.post('/claim/:dogId', authMiddleware, requireRole('rescue'), async (req, res) => {
+// POST /api/rescues/commit — rescue commits to pulling a dog
+router.post('/commit', async (req, res) => {
   try {
-    const { pickup_date, notes } = req.body;
+    const { dog_id, shelter_id, dog_name, org, contact, email, foster_status, notes } = req.body;
 
-    // Get rescue ID for this user
-    const rescueResult = await db.query(
-      'SELECT id FROM rescues WHERE user_id = $1 AND verified = true',
-      [req.user.id]
-    );
-
-    if (rescueResult.rows.length === 0) {
-      return res.status(403).json({ error: 'Rescue not verified' });
+    if (!org || !contact || !email) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const rescueId = rescueResult.rows[0].id;
+    // Create table if needed
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS rescue_commits (
+        id SERIAL PRIMARY KEY,
+        dog_id INTEGER, shelter_id VARCHAR(50), dog_name VARCHAR(255),
+        org VARCHAR(255), contact VARCHAR(255), email VARCHAR(255),
+        foster_status VARCHAR(100), notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
 
-    // Create rescue assignment
-    const result = await db.query(
-      `INSERT INTO rescue_assignments (dog_id, rescue_id, pickup_date, notes, status)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [req.params.dogId, rescueId, pickup_date, notes, 'pending']
+    await db.query(
+      `INSERT INTO rescue_commits (dog_id, shelter_id, dog_name, org, contact, email, foster_status, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [dog_id, shelter_id, dog_name, org, contact, email, foster_status, notes]
     );
 
-    res.status(201).json({
-      message: 'Dog claimed successfully. Pending admin approval.',
-      assignment: result.rows[0]
-    });
-  } catch (error) {
-    console.error('Error claiming dog:', error);
-    res.status(500).json({ error: 'Failed to claim dog' });
-  }
-});
+    console.log(`🐾 Rescue commit: ${org} committed to ${dog_name || shelter_id}`);
 
-// Get rescue assignments
-router.get('/assignments', authMiddleware, requireRole('rescue'), async (req, res) => {
-  try {
-    const rescueResult = await db.query(
-      'SELECT id FROM rescues WHERE user_id = $1',
-      [req.user.id]
-    );
+    // Send emails if SendGrid configured
+    if (process.env.SENDGRID_API_KEY) {
+      const sgMail = require('@sendgrid/mail');
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      const fromEmail = process.env.FROM_EMAIL || 'hello@ladogdispatch.org';
+      const teamEmail = process.env.TEAM_EMAIL || fromEmail;
 
-    if (rescueResult.rows.length === 0) {
-      return res.json({ assignments: [] });
+      // Notify team
+      await sgMail.send({
+        to: teamEmail,
+        from: fromEmail,
+        subject: `🐾 Rescue Commit — ${dog_name || shelter_id} — ${org}`,
+        html: `
+          <div style="font-family: Georgia, serif; max-width: 560px; color: #3a3632;">
+            <h2 style="color: #1a1614;">Rescue Commitment Received</h2>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+              <tr><td style="padding:5px 0;color:#6b6560;width:130px;">Dog</td><td><strong>${dog_name || shelter_id}</strong></td></tr>
+              <tr><td style="padding:5px 0;color:#6b6560;">Rescue Org</td><td><strong>${org}</strong></td></tr>
+              <tr><td style="padding:5px 0;color:#6b6560;">Contact</td><td>${contact}</td></tr>
+              <tr><td style="padding:5px 0;color:#6b6560;">Email</td><td><a href="mailto:${email}">${email}</a></td></tr>
+              <tr><td style="padding:5px 0;color:#6b6560;">Foster Status</td><td>${foster_status || '—'}</td></tr>
+              ${notes ? `<tr><td style="padding:5px 0;color:#6b6560;vertical-align:top;">Notes</td><td>${notes}</td></tr>` : ''}
+            </table>
+          </div>`
+      });
+
+      // Confirm to rescue
+      await sgMail.send({
+        to: email,
+        from: fromEmail,
+        subject: `✅ Commitment Confirmed — ${dog_name || shelter_id}`,
+        html: `
+          <div style="font-family: Georgia, serif; max-width: 560px; color: #3a3632;">
+            <h2 style="color: #1a1614;">Hi ${contact},</h2>
+            <p style="line-height:1.7;margin-bottom:1rem;">We've recorded your commitment to pull <strong>${dog_name || shelter_id}</strong>. The LA Dog Dispatch team will follow up shortly to coordinate next steps, including any donor funds held for this dog.</p>
+            <p style="line-height:1.7;color:#6b6560;font-size:0.9rem;">Questions? Reply to this email.<br><br>— The LA Dog Dispatch Team</p>
+          </div>`
+      });
     }
 
-    const result = await db.query(
-      `SELECT ra.*, d.name, d.breed, d.age, d.photo_url, d.shelter
-       FROM rescue_assignments ra
-       JOIN dogs d ON ra.dog_id = d.id
-       WHERE ra.rescue_id = $1
-       ORDER BY ra.created_at DESC`,
-      [rescueResult.rows[0].id]
-    );
-
-    res.json({ assignments: result.rows });
-  } catch (error) {
-    console.error('Error fetching assignments:', error);
-    res.status(500).json({ error: 'Failed to fetch assignments' });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('❌ Rescue commit error:', err.message);
+    res.status(500).json({ error: 'Failed to record commitment' });
   }
 });
 
