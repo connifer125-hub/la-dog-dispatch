@@ -20,8 +20,8 @@
         nav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100; }
         .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 75px; }
         .logo { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: var(--color-dark); text-decoration: none; font-weight: 600; }
-        .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--color-text); font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--color-text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
         .nav-links a:hover { color: var(--color-red); }
         .btn-primary { background: var(--color-red); color: white; padding: 0.8rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; transition: all 0.3s; display: inline-block; cursor: pointer; }
         .btn-primary:hover { background: #9d1f16; transform: translateY(-2px); box-shadow: var(--shadow-md); }
@@ -261,7 +261,7 @@
             height: 100%;
         }
         .tab-item:active { opacity: 0.7; }
-        .tab-icon { font-size: 1.3rem; line-height: 1; }
+        .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
         .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; letter-spacing: 0.02em; }
         .tab-item.active .tab-icon { filter: none; }
         .tab-item.active .tab-label { color: var(--color-red); }
@@ -444,11 +444,11 @@
             <span class="tab-label">Foster</span>
         </a>
         <a href="https://givebutter.com/ladogdispatch" target="_blank" class="tab-item tab-fund">
-            <span class="tab-icon">💛</span>
+            <span class="tab-icon">$</span>
             <span class="tab-label">Fund a Dog</span>
         </a>
         <a href="/rescue.html" class="tab-item" onclick="setActiveTab(this)">
-            <span class="tab-icon">🐾</span>
+            <span class="tab-icon">★</span>
             <span class="tab-label">Rescue</span>
         </a>
         <button class="tab-item" onclick="toggleMore()">
