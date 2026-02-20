@@ -16,8 +16,8 @@
         nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
         .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; }
         .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
-        .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.92rem; transition: color 0.2s; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
         .nav-links a:hover { color: var(--red); }
         .btn-red-nav { background: var(--red); color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
 
@@ -73,7 +73,7 @@
         .btn-outline:hover { border-color: var(--text); }
 
         /* MOBILE */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .nav-links { display: none; }
             .hero { padding: 2rem 1.2rem; }
             .hero h1 { font-size: 1.9rem; }
@@ -88,7 +88,7 @@
             .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
         }
         .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
-        .tab-icon { font-size: 1.3rem; line-height: 1; }
+        .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
         .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
         .tab-item.tab-fund { flex: 1.4; background: var(--red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
         .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
