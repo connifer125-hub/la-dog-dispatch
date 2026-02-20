@@ -113,6 +113,34 @@ app.use('/api/rescues', require('./routes/rescues'));
 app.use('/api/fosters', require('./routes/fosters'));
 
 
+// Debug: fetch one dog from PetHarbor and show raw text to diagnose rescue_only parsing
+app.get('/api/debug-petharbor', async (req, res) => {
+  try {
+    const axios = require('axios');
+    const cheerio = require('cheerio');
+    const url = 'https://petharbor.com/results.asp?WHERE=type_DOG&searchtype=ALL&friends=1&samaritans=1&nosuccess=0&rows=10&view=sysadm.v_lact_alert_euth&SHELTERLIST=%27LACT%27,%27LACT1%27,%27LACT4%27,%27LACT3%27,%27LACT2%27,%27LACT5%27,%27LACT6%27';
+    const response = await axios.get(url, { timeout: 15000, headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const $ = cheerio.load(response.data);
+    const samples = [];
+    $('table.ResultsTable tr').each((i, row) => {
+      if (samples.length >= 3) return;
+      const text = $(row).find('td').eq(1).text();
+      if (!text.match(/A\d{7}/)) return;
+      const rescueMatch = text.match(/only available to a rescue[:\s]+(\w+)/i);
+      const rawSnippet = text.substring(Math.max(0, text.toLowerCase().indexOf('rescue') - 20), text.toLowerCase().indexOf('rescue') + 60);
+      samples.push({
+        id: (text.match(/A\d{7}/) || [])[0],
+        rescue_match: rescueMatch ? rescueMatch[0] : 'NO MATCH',
+        raw_rescue_snippet: rawSnippet,
+        full_text_sample: text.substring(0, 400)
+      });
+    });
+    res.json(samples);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Subscribers (newsletter sign-ups)
 app.post('/api/subscribers', async (req, res) => {
   try {
