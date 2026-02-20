@@ -335,6 +335,12 @@
 
         .logo-img { height: 52px; width: auto; display: block; }
         @media (max-width: 900px) { .logo-img { height: 40px; } }
+
+        .dog-share-btns { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
+        .btn-ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .btn-save { background: #1a1614; color: white; padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .btn-caption { background: white; color: var(--color-text); padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid var(--color-border); cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .btn-caption.copied { background: #dcfce7; border-color: #86efac; color: #166534; }
     </style>
 </head>
 <body>
@@ -475,6 +481,7 @@
         </div>
     </div>
 
+    <canvas id="card-canvas" style="display:none;" width="1080" height="1080"></canvas>
     <nav class="bottom-tab-bar">
         <a href="#dogs-section" class="tab-item active" onclick="setActiveTab(this)">
             <span class="tab-icon">🐕</span>
@@ -642,6 +649,11 @@
                         <a href="${dog.givebutter_url || 'https://givebutter.com/la_urgent_dogs_dispatch'}" 
                            target="_blank" rel="noopener" class="btn-primary" 
                            onclick="event.stopPropagation()">💛 Fund This Dog</a>
+                        <div class="dog-share-btns">
+                            <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;')})">📱 IG Story</button>
+                            <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;')})">⬇ Save</button>
+                            <button class="btn-caption" onclick="event.stopPropagation(); copyDogCaption(this, ${JSON.stringify(dog).replace(/"/g,'&quot;')})">Copy Caption</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -716,6 +728,152 @@
             alert('Something went wrong. Please try again.');
         }
     });
+
+
+        // ── SHARE CARD FUNCTIONS ──────────────────────────────────────
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+            ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+            ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+            ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+        }
+
+        async function generateCard(dog) {
+            const c = document.getElementById('card-canvas');
+            const ctx = c.getContext('2d');
+            const W = 1080, H = 1080;
+            c.width = W; c.height = H;
+            ctx.clearRect(0, 0, W, H);
+
+            const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+            const isCritical = daysLeft <= 1;
+
+            // Background
+            const bg = ctx.createLinearGradient(0,0,W,H);
+            bg.addColorStop(0,'#1a1614'); bg.addColorStop(0.5,'#231e1b'); bg.addColorStop(1,'#1a1614');
+            ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+            ctx.save(); ctx.globalAlpha=0.07; ctx.fillStyle='#c4281c';
+            ctx.beginPath(); ctx.moveTo(W*0.5,0); ctx.lineTo(W,0); ctx.lineTo(W*0.7,H); ctx.lineTo(0.2*W,H);
+            ctx.closePath(); ctx.fill(); ctx.restore();
+
+            // Top bar + badge
+            ctx.fillStyle='#c4281c'; ctx.fillRect(0,0,W,12);
+            roundRect(ctx,44,32,224,54,27); ctx.fill();
+            ctx.fillStyle='white'; ctx.font='bold 26px sans-serif'; ctx.textAlign='center';
+            ctx.fillText(isCritical?'🚨 CRITICAL':'⚠️ URGENT', 156, 66);
+            ctx.fillStyle='rgba(255,255,255,0.38)'; ctx.font='bold 22px sans-serif'; ctx.textAlign='right';
+            ctx.fillText('LA DOG DISPATCH', W-44, 66);
+
+            // Shelter tag
+            ctx.textAlign='left';
+            if (dog.shelter) {
+                const tag = dog.shelter.toUpperCase();
+                ctx.font='bold 20px sans-serif';
+                const tagW = ctx.measureText(tag).width+36;
+                ctx.fillStyle='rgba(255,255,255,0.1)'; roundRect(ctx,44,112,tagW,42,8); ctx.fill();
+                ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.fillText(tag, 62, 140);
+            }
+
+            // Dog name
+            const name = (dog.name||dog.shelter_id||'UNKNOWN').toUpperCase();
+            let fs = 180; ctx.font=`bold ${fs}px Georgia,serif`;
+            while(ctx.measureText(name).width > W-100 && fs>70){fs-=6; ctx.font=`bold ${fs}px Georgia,serif`;}
+            ctx.fillStyle='white'; ctx.fillText(name, 44, 330);
+            ctx.fillStyle='#4ecdc4'; ctx.fillRect(44, 348, Math.min(ctx.measureText(name).width,W-88), 7);
+
+            // Meta + deadline
+            ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.font='38px sans-serif';
+            ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '), 44, 415);
+            const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+            ctx.fillStyle=isCritical?'#f87171':'#fca5a5'; ctx.font='bold 38px sans-serif';
+            ctx.fillText(`Deadline: ${dlStr} — ${daysLeft<=0?'TODAY':daysLeft===1?'1 DAY LEFT':daysLeft+' DAYS LEFT'}`, 44, 480);
+
+            // Divider
+            ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(44,530); ctx.lineTo(W-44,530); ctx.stroke();
+
+            // CTA text
+            ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='bold 34px sans-serif';
+            ['Donate now or foster this dog;','as always, share passionately','to your followers.']
+                .forEach((line,i) => ctx.fillText(line, 44, 610+(i*52)));
+            ctx.fillStyle='rgba(255,255,255,0.38)'; ctx.font='28px sans-serif';
+            ctx.fillText('Fund · Foster · Rescue this dog  →', 44, 790);
+            ctx.fillStyle='white'; ctx.font='bold 34px sans-serif';
+            ctx.fillText('ladogdispatch.com  @la_urgent_dogs_dispatch', 44, 838);
+
+            // Dog photo thumbnail (bottom right)
+            if (dog.photo_url) {
+                await new Promise(resolve => {
+                    const img = new Image();
+                    img.crossOrigin='anonymous';
+                    const sz=440, tx=W-sz-30, ty=555, r=20;
+                    img.onload = () => {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.moveTo(tx+r,ty); ctx.lineTo(tx+sz-r,ty); ctx.quadraticCurveTo(tx+sz,ty,tx+sz,ty+r);
+                        ctx.lineTo(tx+sz,ty+sz-r); ctx.quadraticCurveTo(tx+sz,ty+sz,tx+sz-r,ty+sz);
+                        ctx.lineTo(tx+r,ty+sz); ctx.quadraticCurveTo(tx,ty+sz,tx,ty+sz-r);
+                        ctx.lineTo(tx,ty+r); ctx.quadraticCurveTo(tx,ty,tx+r,ty); ctx.closePath();
+                        ctx.clip();
+                        const scale=Math.max(sz/img.width,sz/img.height);
+                        ctx.drawImage(img,tx+(sz-img.width*scale)/2,ty+(sz-img.height*scale)/2,img.width*scale,img.height*scale);
+                        ctx.restore();
+                        ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=3;
+                        ctx.beginPath();
+                        ctx.moveTo(tx+r,ty); ctx.lineTo(tx+sz-r,ty); ctx.quadraticCurveTo(tx+sz,ty,tx+sz,ty+r);
+                        ctx.lineTo(tx+sz,ty+sz-r); ctx.quadraticCurveTo(tx+sz,ty+sz,tx+sz-r,ty+sz);
+                        ctx.lineTo(tx+r,ty+sz); ctx.quadraticCurveTo(tx,ty+sz,tx,ty+sz-r);
+                        ctx.lineTo(tx,ty+r); ctx.quadraticCurveTo(tx,ty,tx+r,ty); ctx.closePath();
+                        ctx.stroke(); resolve();
+                    };
+                    img.onerror = () => resolve();
+                    img.src = dog.photo_url.startsWith('http') ? dog.photo_url : window.location.origin+dog.photo_url;
+                });
+            }
+
+            // Bottom mint bar
+            ctx.fillStyle='#4ecdc4'; ctx.fillRect(0,H-14,W,14);
+            return c;
+        }
+
+        async function shareIGStory(dog) {
+            const c = await generateCard(dog);
+            const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+            c.toBlob(async blob => {
+                const file = new File([blob], `${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`, {type:'image/png'});
+                if (isMobile && navigator.share && navigator.canShare({files:[file]})) {
+                    await navigator.share({files:[file], title:`${dog.name||dog.shelter_id} needs rescue — ladogdispatch.com`});
+                } else {
+                    const a = document.createElement('a');
+                    a.href = c.toDataURL('image/png');
+                    a.download = file.name;
+                    a.click();
+                    if (isMobile) setTimeout(() => { window.location.href='instagram://story-camera'; }, 800);
+                    else alert('Card saved! Open Instagram on your phone, create a Story, and add from camera roll. Tag @la_urgent_dogs_dispatch!');
+                }
+            }, 'image/png');
+        }
+
+        async function saveCard(dog) {
+            const c = await generateCard(dog);
+            const a = document.createElement('a');
+            a.href = c.toDataURL('image/png');
+            a.download = `ladogdispatch-${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`;
+            a.click();
+        }
+
+        async function copyDogCaption(btn, dog) {
+            const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+            const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+            const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?' Rescue organizations only.':''} Fosters and donors welcome.\n\nFund, foster, or share → ladogdispatch.com\n@la_urgent_dogs_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+            try {
+                await navigator.clipboard.writeText(caption);
+                btn.textContent = '✓ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy Caption'; btn.classList.remove('copied'); }, 2500);
+            } catch(e) { prompt('Copy this caption:', caption); }
+        }
 
     </script>
 </body>
