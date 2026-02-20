@@ -106,8 +106,8 @@ app.get('/api/scrape-now', async (req, res) => {
 // ── ROUTES NOT YET BUILT (uncomment as each page is built) ──
 // app.use('/api/auth', require('./routes/auth'));
 // app.use('/api/donations', require('./routes/donations'));
-// app.use('/api/rescues', require('./routes/rescues'));
-// app.use('/api/fosters', require('./routes/fosters'));
+app.use('/api/rescues', require('./routes/rescues'));
+app.use('/api/fosters', require('./routes/fosters'));
 // app.use('/api/transport', require('./routes/transport'));
 // app.use('/api/admin', require('./routes/admin'));
 // app.use('/api/notifications', require('./routes/notifications'));
