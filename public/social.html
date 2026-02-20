@@ -126,6 +126,11 @@
         .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
         .tab-item.tab-fund { flex: 1.4; background: var(--red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
         .tab-item.tab-fund .tab-label { color: white; }
+
+        .filter-btns { display: flex; gap: 0.7rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .filter-btn { padding: 0.5rem 1.2rem; border: 2px solid var(--border); background: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.82rem; font-family: 'Source Sans 3', sans-serif; transition: all 0.2s; }
+        .filter-btn:hover { border-color: var(--red); color: var(--red); }
+        .filter-btn.active { background: var(--red); color: white; border-color: var(--red); }
     </style>
 </head>
 <body>
@@ -186,6 +191,10 @@
 <div class="main">
     <p class="section-eyebrow">Urgent dogs — share one today</p>
     <h2 class="section-title">Pick a dog to share</h2>
+    <div class="filter-btns">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All Dogs</button>
+        <button class="filter-btn" onclick="setFilter('rescue_only', this)">🔒 Rescue Only</button>
+    </div>
     <div class="share-grid" id="share-grid">
         <div class="loading">Loading urgent dogs...</div>
     </div>
@@ -235,13 +244,29 @@
 
 <script>
 // ── LOAD DOGS ─────────────────────────────────────────────────────
+let allDogs = [];
+let currentFilter = 'all';
+
 async function loadDogs() {
     try {
         const res = await fetch('/api/dogs');
         const data = await res.json();
-        renderGrid(data.dogs || data || []);
+        allDogs = data.dogs || data || [];
+        renderGrid(allDogs);
     } catch(e) {
         document.getElementById('share-grid').innerHTML = '<div class="loading">Unable to load dogs — please refresh.</div>';
+    }
+}
+
+function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = filter === 'rescue_only' ? allDogs.filter(d => d.rescue_only) : allDogs;
+    if (filtered.length === 0) {
+        document.getElementById('share-grid').innerHTML = '<div class="loading">No rescue-only dogs listed right now.</div>';
+    } else {
+        renderGrid(filtered);
     }
 }
 
@@ -258,8 +283,7 @@ function renderGrid(dogs) {
             ${dog.photo_url ? `<img class="card-img" src="${dog.photo_url}" alt="${dog.name}" loading="lazy">` : `<div class="card-img-ph">🐕</div>`}
             <div class="card-body">
                 <div class="card-badges">
-                    ${urgency ? `<span class="badge badge-${urgency}">${urgency.toUpperCase()}</span>` : ''}
-                    ${dog.rescue_only ? `<span class="badge badge-rescue">🔒 Rescue Only</span>` : ''}
+                    ${dog.rescue_only ? `<span class="badge badge-rescue">🔒 Rescue Only — Must be pulled by a rescue org</span>` : ''}
                 </div>
                 <div class="card-name">${dog.name || dog.shelter_id}</div>
                 <div class="card-meta">${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'}</div>
@@ -537,7 +561,7 @@ async function igStory(dog) {
 function copyCaption(dog, btnId) {
     const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
     const dl = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
-    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?' Rescue organizations only.':''} Fosters and donors welcome.\n\nFund, foster, or share → ladogdispatch.com  @la_urgent_dogs_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.rescue_only?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted directly from the shelter.\n\n':''}${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?'':' Fosters and donors welcome.'}\n\nFund, foster, or share → ladogdispatch.com  @la_urgent_dogs_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
     navigator.clipboard.writeText(caption).then(() => {
         const btn = document.getElementById(btnId);
         if (!btn) return;
