@@ -392,16 +392,16 @@
 
                 <a href="/rescue.html" class="network-card" style="--card-accent: #c4281c;">
                     <span class="network-card-icon">🐾</span>
-                    <div class="network-card-title">Vetted Rescue Partner</div>
-                    <p class="network-card-desc">Apply to become a verified rescue partner. Claim dogs from the urgent list, receive confirmed donor funds, and coordinate transport — all in one place.</p>
-                    <span class="network-card-cta">Apply as a rescue</span>
+                    <div class="network-card-title">Rescue Partner</div>
+                    <p class="network-card-desc">We fuel vetted rescues — connecting them to fosters, confirmed donor funds, and a dashboard that automates coordination so they can pull more dogs faster.</p>
+                    <span class="network-card-cta">Rescue partner portal</span>
                 </a>
 
-                <a href="/volunteer.html" class="network-card" style="--card-accent: #8b5cf6;">
-                    <span class="network-card-icon walker-pair"><span class="walker-woman">🚶‍♀️</span><span class="walker-dog">🦮</span></span>
-                    <div class="network-card-title">Dog Walker or Transporter</div>
-                    <p class="network-card-desc">Walk dogs at the shelter to reduce stress and increase visibility. Or offer transport — getting dogs from shelters to fosters and rescues is critical.</p>
-                    <span class="network-card-cta">Volunteer your time</span>
+                <a href="/transport.html" class="network-card" style="--card-accent: #8b5cf6;">
+                    <span class="network-card-icon">🚗</span>
+                    <div class="network-card-title">Dog Transporter</div>
+                    <p class="network-card-desc">Getting dogs from shelters to fosters and rescues — locally or to other cities — is critical to every pull. Sign up to be on our transport list.</p>
+                    <span class="network-card-cta">Sign up to transport</span>
                 </a>
 
                 <a href="/share.html" class="network-card" style="--card-accent: #06b6d4;">
@@ -417,8 +417,7 @@
                     <p class="network-card-desc">Medical costs are often the barrier between a dog living and dying. Partner with us to offer discounted care for rescued dogs and be listed in our network directory.</p>
                     <span class="network-card-cta">Partner with us</span>
                 </a>
-
-            </div>
+                </div>
         </div>
 
         <!-- Final strip inside the dark section -->
@@ -434,6 +433,36 @@
     </div>
 
     <!-- ═══ BOTTOM TAB BAR (mobile only) ═══ -->
+
+    <!-- NEWSLETTER SIGN-UP -->
+    <div id="signup-section" style="background: white; border-top: 1px solid var(--color-border); padding: 1.8rem 3rem;">
+        <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+            <p style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-red); margin-bottom: 0.4rem;">Stay Connected</p>
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--color-dark); font-weight: 700; margin-bottom: 0.4rem;">Stay connected with our work and how you can help.</h2>
+            <p style="font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 1.2rem; line-height: 1.6;">Dog alerts, rescue wins, and network news — straight to your inbox or phone.</p>
+            <form id="newsletter-form" style="display: flex; flex-direction: column; gap: 0.7rem; align-items: center;">
+                <div style="display: flex; gap: 0.6rem; width: 100%; max-width: 480px; flex-wrap: wrap; justify-content: center;">
+                    <input type="text" id="nl-name" placeholder="Your first name" required style="flex: 1; min-width: 140px; padding: 0.6rem 0.9rem; border: 1.5px solid var(--color-border); border-radius: 7px; font-size: 0.9rem; font-family: inherit; background: var(--color-cream);">
+                    <input type="email" id="nl-email" placeholder="your@email.com" required style="flex: 2; min-width: 200px; padding: 0.6rem 0.9rem; border: 1.5px solid var(--color-border); border-radius: 7px; font-size: 0.9rem; font-family: inherit; background: var(--color-cream);">
+                </div>
+                <input type="tel" id="nl-phone" placeholder="Phone (optional — for dog alerts)" style="width: 100%; max-width: 480px; padding: 0.6rem 0.9rem; border: 1.5px solid var(--color-border); border-radius: 7px; font-size: 0.9rem; font-family: inherit; background: var(--color-cream);">
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 500; cursor: pointer; background: var(--color-cream); border: 1.5px solid var(--color-border); border-radius: 20px; padding: 0.3rem 0.8rem;">
+                        <input type="checkbox" id="nl-alerts" checked style="accent-color: var(--color-red);"> Dog alerts
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 500; cursor: pointer; background: var(--color-cream); border: 1.5px solid var(--color-border); border-radius: 20px; padding: 0.3rem 0.8rem;">
+                        <input type="checkbox" id="nl-newsletter" checked style="accent-color: var(--color-red);"> Newsletter
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 500; cursor: pointer; background: var(--color-cream); border: 1.5px solid var(--color-border); border-radius: 20px; padding: 0.3rem 0.8rem;">
+                        <input type="checkbox" id="nl-text" style="accent-color: var(--color-red);"> Text me instead
+                    </label>
+                </div>
+                <button type="submit" style="background: var(--color-red); color: white; padding: 0.55rem 1.8rem; border-radius: 7px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; font-family: inherit; transition: background 0.2s;">Sign Me Up →</button>
+            </form>
+            <div id="nl-success" style="display: none; color: #166534; font-size: 0.9rem; font-weight: 600; margin-top: 0.8rem;">✓ You're in! We'll be in touch soon.</div>
+        </div>
+    </div>
+
     <nav class="bottom-tab-bar">
         <a href="#dogs-section" class="tab-item active" onclick="setActiveTab(this)">
             <span class="tab-icon">🐕</span>
@@ -644,6 +673,38 @@
         });
 
         loadDogs();
+    
+    // Newsletter sign-up
+    document.getElementById('newsletter-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.textContent = 'Signing up...';
+        btn.disabled = true;
+        const data = {
+            name: document.getElementById('nl-name').value,
+            email: document.getElementById('nl-email').value,
+            phone: document.getElementById('nl-phone').value,
+            dog_alerts: document.getElementById('nl-alerts').checked,
+            newsletter: document.getElementById('nl-newsletter').checked,
+            text_ok: document.getElementById('nl-text').checked,
+        };
+        try {
+            const res = await fetch('/api/subscribers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                document.getElementById('newsletter-form').style.display = 'none';
+                document.getElementById('nl-success').style.display = 'block';
+            } else { throw new Error(); }
+        } catch {
+            btn.textContent = 'Sign Me Up →';
+            btn.disabled = false;
+            alert('Something went wrong. Please try again.');
+        }
+    });
+
     </script>
 </body>
 </html>
