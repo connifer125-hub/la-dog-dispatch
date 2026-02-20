@@ -308,14 +308,12 @@ async function generateCard(dog) {
     const ctx = c.getContext('2d');
     const W = 1080, H = 1080;
     c.width = W; c.height = H;
-
-    // Clear first
     ctx.clearRect(0, 0, W, H);
 
     const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
     const isCritical = daysLeft <= 1;
 
-    // ── BACKGROUND: dark with textured gradient ──
+    // ── BACKGROUND ──
     const bgGrad = ctx.createLinearGradient(0, 0, W, H);
     bgGrad.addColorStop(0, '#1a1614');
     bgGrad.addColorStop(0.5, '#231e1b');
@@ -323,179 +321,164 @@ async function generateCard(dog) {
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // ── ACCENT: large diagonal red slash ──
+    // Diagonal red accent
     ctx.save();
     ctx.globalAlpha = 0.07;
     ctx.fillStyle = '#c4281c';
     ctx.beginPath();
-    ctx.moveTo(W * 0.4, 0); ctx.lineTo(W, 0); ctx.lineTo(W * 0.6, H); ctx.lineTo(0, H);
+    ctx.moveTo(W*0.5, 0); ctx.lineTo(W, 0); ctx.lineTo(W*0.7, H); ctx.lineTo(0.2*W, H);
     ctx.closePath(); ctx.fill();
     ctx.restore();
 
-    // ── TOP BAR: red ──
+    // ── TOP RED BAR ──
     ctx.fillStyle = '#c4281c';
     ctx.fillRect(0, 0, W, 12);
 
-    // ── URGENCY BADGE ──
+    // ── URGENCY BADGE (top left) ──
     const badgeText = isCritical ? '🚨 CRITICAL' : '⚠️ URGENT';
-    const badgeW = 220, badgeH = 52, badgeX = 50, badgeY = 36;
     ctx.fillStyle = '#c4281c';
-    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 26); ctx.fill();
-    ctx.fillStyle = 'white'; ctx.font = 'bold 24px sans-serif';
+    roundRect(ctx, 44, 32, 224, 54, 27); ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 26px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(badgeText, badgeX + badgeW / 2, badgeY + 34);
+    ctx.fillText(badgeText, 156, 66);
 
-    // ── LA DOG DISPATCH top right ──
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    // ── LA DOG DISPATCH (top right) ──
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
     ctx.font = 'bold 22px sans-serif';
     ctx.textAlign = 'right';
-    ctx.fillText('LA DOG DISPATCH', W - 50, 72);
-
-    // ── LARGE PAWS WATERMARK (center decorative) ──
-    ctx.save();
-    ctx.globalAlpha = 0.04;
-    ctx.fillStyle = 'white';
-    ctx.font = '600px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('🐾', W / 2, H * 0.62);
-    ctx.restore();
+    ctx.fillText('LA DOG DISPATCH', W - 44, 66);
 
     // ── SHELTER TAG ──
+    ctx.textAlign = 'left';
     if (dog.shelter) {
-        ctx.fillStyle = 'rgba(255,255,255,0.08)';
-        ctx.textAlign = 'left';
-        const tagText = dog.shelter.toUpperCase();
-        const tagW = ctx.measureText(tagText).width + 40;
-        roundRect(ctx, 50, 160, tagW, 44, 8); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        const tag = dog.shelter.toUpperCase();
         ctx.font = 'bold 20px sans-serif';
-        ctx.fillText(tagText, 70, 188);
+        const tagW = ctx.measureText(tag).width + 36;
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        roundRect(ctx, 44, 112, tagW, 42, 8); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillText(tag, 62, 140);
     }
 
-    // ── DOG NAME: very large ──
+    // ── DOG NAME (large, top section) ──
     const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'left';
-    // Scale font to fit
-    let fontSize = 160;
+    let fontSize = 180;
     ctx.font = `bold ${fontSize}px Georgia, serif`;
-    while (ctx.measureText(name).width > W - 100 && fontSize > 60) {
+    while (ctx.measureText(name).width > W - 100 && fontSize > 70) {
         fontSize -= 6;
         ctx.font = `bold ${fontSize}px Georgia, serif`;
     }
-    ctx.fillText(name, 50, 530);
+    ctx.fillStyle = 'white';
+    ctx.fillText(name, 44, 330);
 
-    // ── MINT UNDERLINE under name ──
+    // ── MINT UNDERLINE ──
+    const nameWidth = Math.min(ctx.measureText(name).width, W - 88);
     ctx.fillStyle = '#4ecdc4';
-    ctx.fillRect(50, 548, Math.min(ctx.measureText(name).width, W - 100), 6);
+    ctx.fillRect(44, 348, nameWidth, 7);
 
     // ── BREED · GENDER · AGE ──
     ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.font = '34px sans-serif';
-    const metaParts = [dog.breed, dog.gender, dog.age].filter(Boolean);
-    ctx.fillText(metaParts.join('  ·  '), 50, 618);
+    ctx.font = '38px sans-serif';
+    const meta = [dog.breed, dog.gender, dog.age].filter(Boolean).join('  ·  ');
+    ctx.fillText(meta, 44, 415);
 
-    // ── DEADLINE LINE ──
+    // ── DEADLINE ──
     const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
     const dlText = `Deadline: ${dlStr} — ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`;
     ctx.fillStyle = isCritical ? '#f87171' : '#fca5a5';
-    ctx.font = 'bold 34px sans-serif';
-    ctx.fillText(dlText, 50, 700);
+    ctx.font = 'bold 38px sans-serif';
+    ctx.fillText(dlText, 44, 480);
 
     // ── RESCUE ONLY BADGE ──
     if (dog.rescue_only) {
         ctx.fillStyle = '#fef3c7';
-        roundRect(ctx, 50, 725, 380, 44, 22); ctx.fill();
+        roundRect(ctx, 44, 500, 400, 46, 23); ctx.fill();
         ctx.fillStyle = '#92400e';
         ctx.font = 'bold 20px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 240, 753);
+        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 244, 529);
         ctx.textAlign = 'left';
     }
 
-    // ── CTA TEXT ──
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.font = 'bold 28px sans-serif';
-    ctx.textAlign = 'left';
+    // ── DIVIDER ──
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(44, 530); ctx.lineTo(W - 44, 530); ctx.stroke();
+
+    // ── BOTTOM HALF: LEFT = CTA text + URL, RIGHT = dog photo ──
+
+    // CTA text (left side, bottom half)
     const ctaLines = [
         'Donate now or foster this dog;',
         'as always, share passionately',
         'to your followers.'
     ];
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.font = 'bold 34px sans-serif';
     ctaLines.forEach((line, i) => {
-        ctx.fillText(line, 50, 740 + (i * 42));
+        ctx.fillText(line, 44, 610 + (i * 52));
     });
 
-    // ── DIVIDER ──
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(50, 880); ctx.lineTo(W - 50, 880); ctx.stroke();
-
-    // ── BOTTOM CTA ──
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    // Fund/Foster CTA line
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
     ctx.font = '28px sans-serif';
-    ctx.fillText('Fund · Foster · Rescue this dog  →', 50, 920);
+    ctx.fillText('Fund · Foster · Rescue this dog  →', 44, 790);
 
-    // ── URL ──
+    // URL
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 36px sans-serif';
-    ctx.fillText('la_urgent_dogs_dispatch.org', 50, 950);
+    ctx.font = 'bold 34px sans-serif';
+    ctx.fillText('ladogdispatch.org', 44, 838);
 
-    // ── DOG PHOTO THUMBNAIL (bottom right) ──
+    // ── DOG PHOTO (right side, bottom half) ──
+    const thumbSize = 440;
+    const thumbX = W - thumbSize - 30;
+    const thumbY = 555;
+
     if (dog.photo_url) {
-        try {
-            const photoUrl = dog.photo_url.startsWith('http')
-                ? dog.photo_url
-                : window.location.origin + dog.photo_url;
-            await new Promise((resolve) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                const thumbSize = 520;
-                const thumbX = W - thumbSize - 30;
-                const thumbY = H - thumbSize - 30;
-                img.onload = () => {
-                    // Clip to rounded square
-                    ctx.save();
-                    ctx.beginPath();
-                    const r = 16;
-                    ctx.moveTo(thumbX + r, thumbY);
-                    ctx.lineTo(thumbX + thumbSize - r, thumbY);
-                    ctx.quadraticCurveTo(thumbX + thumbSize, thumbY, thumbX + thumbSize, thumbY + r);
-                    ctx.lineTo(thumbX + thumbSize, thumbY + thumbSize - r);
-                    ctx.quadraticCurveTo(thumbX + thumbSize, thumbY + thumbSize, thumbX + thumbSize - r, thumbY + thumbSize);
-                    ctx.lineTo(thumbX + r, thumbY + thumbSize);
-                    ctx.quadraticCurveTo(thumbX, thumbY + thumbSize, thumbX, thumbY + thumbSize - r);
-                    ctx.lineTo(thumbX, thumbY + r);
-                    ctx.quadraticCurveTo(thumbX, thumbY, thumbX + r, thumbY);
-                    ctx.closePath();
-                    ctx.clip();
-                    // Draw photo filling the square
-                    const scale = Math.max(thumbSize / img.width, thumbSize / img.height);
-                    const dw = img.width * scale;
-                    const dh = img.height * scale;
-                    ctx.drawImage(img, thumbX + (thumbSize - dw) / 2, thumbY + (thumbSize - dh) / 2, dw, dh);
-                    ctx.restore();
-                    // White border around thumbnail
-                    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(thumbX + r, thumbY);
-                    ctx.lineTo(thumbX + thumbSize - r, thumbY);
-                    ctx.quadraticCurveTo(thumbX + thumbSize, thumbY, thumbX + thumbSize, thumbY + r);
-                    ctx.lineTo(thumbX + thumbSize, thumbY + thumbSize - r);
-                    ctx.quadraticCurveTo(thumbX + thumbSize, thumbY + thumbSize, thumbX + thumbSize - r, thumbY + thumbSize);
-                    ctx.lineTo(thumbX + r, thumbY + thumbSize);
-                    ctx.quadraticCurveTo(thumbX, thumbY + thumbSize, thumbX, thumbY + thumbSize - r);
-                    ctx.lineTo(thumbX, thumbY + r);
-                    ctx.quadraticCurveTo(thumbX, thumbY, thumbX + r, thumbY);
-                    ctx.closePath();
-                    ctx.stroke();
-                    resolve();
-                };
-                img.onerror = () => resolve(); // fail silently, card still looks good
-                img.src = photoUrl;
-            });
-        } catch(e) {}
+        await new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                ctx.save();
+                // Rounded rect clip
+                const r = 20;
+                ctx.beginPath();
+                ctx.moveTo(thumbX+r, thumbY);
+                ctx.lineTo(thumbX+thumbSize-r, thumbY);
+                ctx.quadraticCurveTo(thumbX+thumbSize, thumbY, thumbX+thumbSize, thumbY+r);
+                ctx.lineTo(thumbX+thumbSize, thumbY+thumbSize-r);
+                ctx.quadraticCurveTo(thumbX+thumbSize, thumbY+thumbSize, thumbX+thumbSize-r, thumbY+thumbSize);
+                ctx.lineTo(thumbX+r, thumbY+thumbSize);
+                ctx.quadraticCurveTo(thumbX, thumbY+thumbSize, thumbX, thumbY+thumbSize-r);
+                ctx.lineTo(thumbX, thumbY+r);
+                ctx.quadraticCurveTo(thumbX, thumbY, thumbX+r, thumbY);
+                ctx.closePath();
+                ctx.clip();
+                const scale = Math.max(thumbSize/img.width, thumbSize/img.height);
+                const dw = img.width*scale, dh = img.height*scale;
+                ctx.drawImage(img, thumbX+(thumbSize-dw)/2, thumbY+(thumbSize-dh)/2, dw, dh);
+                ctx.restore();
+                // Border
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(thumbX+r, thumbY);
+                ctx.lineTo(thumbX+thumbSize-r, thumbY);
+                ctx.quadraticCurveTo(thumbX+thumbSize, thumbY, thumbX+thumbSize, thumbY+r);
+                ctx.lineTo(thumbX+thumbSize, thumbY+thumbSize-r);
+                ctx.quadraticCurveTo(thumbX+thumbSize, thumbY+thumbSize, thumbX+thumbSize-r, thumbY+thumbSize);
+                ctx.lineTo(thumbX+r, thumbY+thumbSize);
+                ctx.quadraticCurveTo(thumbX, thumbY+thumbSize, thumbX, thumbY+thumbSize-r);
+                ctx.lineTo(thumbX, thumbY+r);
+                ctx.quadraticCurveTo(thumbX, thumbY, thumbX+r, thumbY);
+                ctx.closePath();
+                ctx.stroke();
+                resolve();
+            };
+            img.onerror = () => resolve();
+            img.src = dog.photo_url.startsWith('http') ? dog.photo_url : window.location.origin + dog.photo_url;
+        });
     }
 
     // ── BOTTOM MINT BAR ──
@@ -504,6 +487,7 @@ async function generateCard(dog) {
 
     return c;
 }
+
 
 // ── DOWNLOAD ──────────────────────────────────────────────────────
 async function downloadCard(dog) {
