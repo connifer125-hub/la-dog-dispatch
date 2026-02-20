@@ -36,7 +36,7 @@
         .problem { background: white; border-bottom: 1px solid var(--border); 0.8rem 3rem; }
         .problem-inner { max-width: 1100px; margin: 0 auto; }
         .problem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 0.8rem; }
-        .problem-item { 0.8rem 1.4rem; border-right: 1px solid var(--border); background: #fef2f2; position: relative; }
+        .problem-item { padding: 1rem 1.4rem; border-right: 1px solid var(--border); background: #fef2f2; position: relative; }
         .problem-item:last-child { border-right: none; }
         .problem-icon { font-size: 1.4rem; margin-bottom: 0.5rem; display: block; }
         .problem-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #b91c1c; margin-bottom: 0.3rem; }
@@ -120,19 +120,19 @@
         /* MOBILE */
         @media (max-width: 768px) {
             .nav-links { display: none; }
-            .hero { 0.8rem 1.2rem; }
-            .hero h1 { font-size: 1.9rem; }
-            .problem { 0.8rem 1.2rem; }
+            .hero { padding: 0.8rem 1.2rem; }
+            .hero h1 { font-size: 2.6rem; }
+            .problem { padding: 0.8rem 1.2rem; }
             .problem-grid { grid-template-columns: repeat(2, 1fr); }
             .problem-item:nth-child(2) { border-right: none; }
             .problem-item:nth-child(3) { border-top: 1px solid var(--border); border-right: 1px solid var(--border); }
             .problem-item:nth-child(4) { border-top: 1px solid var(--border); border-right: none; }
-            .flow-section { 0.8rem 1.2rem; }
+            .flow-section { padding: 0.8rem 1.2rem; }
             .recipients { flex-direction: column; }
-            .vs-section { 0.8rem 1.2rem; }
+            .vs-section { padding: 0.8rem 1.2rem; }
             .vs-grid { grid-template-columns: 1fr; }
             .vs-divider { display: none; }
-            .cta-section { 0.8rem 1.2rem; }
+            .cta-section { padding: 0.8rem 1.2rem; }
             body { padding-bottom: 64px; }
         }
 
