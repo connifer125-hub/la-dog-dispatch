@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share & Save — LA Dog Dispatch</title>
+    <link rel="icon" type="image/png" href="/logo-icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --red: #c4281c; --dark: #1a1614; --cream: #f8f6f3; --tan: #e8e4dd; --text: #3a3632; --muted: #6b6560; --border: #d4cfc7; }
+        body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
+
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); overflow: hidden; }
+        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; }
+        .logo { text-decoration: none; }
+        .logo-img { height: 38px; width: auto; display: block; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--red); }
+        .btn-red-nav { background: var(--red); color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
+
+        .hero { background: var(--dark); padding: 2.2rem 3rem; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 100%, rgba(196,40,28,0.18) 0%, transparent 60%); }
+        .hero-inner { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
+        .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin-bottom: 0.5rem; display: block; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: white; font-weight: 700; line-height: 1.2; margin-bottom: 0.5rem; }
+        .hero-sub { font-size: 0.9rem; color: rgba(255,255,255,0.5); line-height: 1.65; }
+
+        /* HOW */
+        .how { background: white; border-bottom: 1px solid var(--border); padding: 1rem 3rem; }
+        .how-inner { max-width: 900px; margin: 0 auto; display: flex; }
+        .how-step { flex: 1; display: flex; align-items: flex-start; gap: 0.6rem; padding: 0 1rem; border-right: 1px solid var(--border); }
+        .how-step:first-child { padding-left: 0; }
+        .how-step:last-child { border-right: none; }
+        .how-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--red); font-weight: 700; line-height: 1; flex-shrink: 0; }
+        .how-text h3 { font-size: 0.8rem; font-weight: 700; color: var(--dark); margin-bottom: 0.1rem; }
+        .how-text p { font-size: 0.73rem; color: var(--muted); line-height: 1.5; }
+
+        /* SIGN UP */
+        .signup-strip { background: var(--tan); border-bottom: 1px solid var(--border); padding: 0.9rem 3rem; }
+        .signup-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+        .signup-text { font-size: 0.85rem; }
+        .signup-text strong { color: var(--dark); }
+        .signup-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .signup-form input { padding: 0.48rem 0.8rem; border: 1.5px solid var(--border); border-radius: 7px; font-size: 0.83rem; font-family: inherit; background: white; width: 190px; }
+        .signup-form input:focus { outline: none; border-color: var(--red); }
+        .btn-join { background: var(--dark); color: white; padding: 0.48rem 1rem; border-radius: 7px; font-size: 0.83rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .signup-success { display: none; font-size: 0.85rem; color: #166534; font-weight: 600; }
+
+        /* GRID */
+        .main { max-width: 1200px; margin: 0 auto; padding: 1.8rem 3rem; }
+        .section-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 0.3rem; }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--dark); font-weight: 700; margin-bottom: 1rem; }
+        .share-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+
+        .share-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        .card-img { width: 100%; height: 195px; object-fit: cover; background: var(--tan); display: block; }
+        .card-img-ph { width: 100%; height: 195px; background: var(--tan); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .card-body { padding: 0.85rem 0.95rem; }
+        .card-badges { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
+        .badge { font-size: 0.63rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .badge-critical { background: #fee2e2; color: #b91c1c; }
+        .badge-urgent { background: #fef3c7; color: #92400e; }
+        .badge-rescue { background: #fef3c7; color: #92400e; }
+        .card-name { font-family: 'Playfair Display', serif; font-size: 0.98rem; font-weight: 700; color: var(--dark); margin-bottom: 0.15rem; }
+        .card-meta { font-size: 0.76rem; color: var(--muted); margin-bottom: 0.35rem; }
+        .card-deadline { font-size: 0.76rem; color: var(--red); font-weight: 700; margin-bottom: 0.7rem; }
+        .card-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+        .btn-ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; padding: 0.4rem 0.8rem; border-radius: 7px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 0.3rem; transition: opacity 0.2s; }
+        .btn-ig:hover { opacity: 0.85; }
+        .btn-dl { background: var(--dark); color: white; padding: 0.4rem 0.8rem; border-radius: 7px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 0.3rem; transition: opacity 0.2s; }
+        .btn-dl:hover { opacity: 0.8; }
+        .btn-cap { background: var(--cream); color: var(--text); padding: 0.4rem 0.7rem; border-radius: 7px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid var(--border); cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .btn-cap:hover { border-color: var(--text); }
+        .btn-cap.copied { color: #166534; border-color: #86efac; background: #f0fdf4; }
+
+        canvas#card-canvas { display: none; }
+
+        /* IG SECTION */
+        .ig-section { background: white; border-top: 1px solid var(--border); padding: 1.8rem 3rem; }
+        .ig-section-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start; }
+        .ig-left h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--dark); font-weight: 700; margin-bottom: 0.4rem; }
+        .ig-left p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; margin-bottom: 0.9rem; }
+        .btn-follow { display: inline-flex; align-items: center; gap: 0.4rem; background: linear-gradient(135deg, #f09433, #dc2743, #bc1888); color: white; padding: 0.55rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.88rem; }
+        .ig-right { background: var(--tan); border-radius: 10px; border: 1px solid var(--border); min-height: 380px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
+        .ig-right p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; margin-top: 0.5rem; }
+        .ig-right code { font-size: 0.78rem; background: white; padding: 0.2rem 0.4rem; border-radius: 4px; color: var(--text); }
+
+        /* MODAL */
+        .share-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; align-items: center; justify-content: center; }
+        .share-modal.open { display: flex; }
+        .share-modal-box { background: white; border-radius: 14px; padding: 1.6rem; max-width: 400px; width: 90%; }
+        .share-modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.4rem; }
+        .share-modal-box p { font-size: 0.83rem; color: var(--muted); margin-bottom: 1.1rem; line-height: 1.6; }
+        .modal-btns { display: flex; flex-direction: column; gap: 0.6rem; }
+        .modal-btn-dark { background: var(--dark); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem; border: none; cursor: pointer; font-family: inherit; text-align: center; }
+        .modal-btn-ig { background: linear-gradient(135deg,#f09433,#dc2743,#bc1888); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem; text-decoration: none; text-align: center; display: block; }
+        .modal-btn-ghost { background: transparent; color: var(--muted); padding: 0.4rem; border: none; cursor: pointer; font-size: 0.83rem; font-family: inherit; text-align: center; }
+
+        .loading { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.88rem; grid-column: 1/-1; }
+
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .logo-img { height: 30px; }
+            .hero { padding: 1.8rem 1.2rem; }
+            .hero h1 { font-size: 1.7rem; }
+            .how { padding: 0.8rem 1.2rem; }
+            .how-inner { flex-direction: column; gap: 0.6rem; }
+            .how-step { border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.6rem; }
+            .how-step:last-child { border-bottom: none; padding-bottom: 0; }
+            .signup-strip { padding: 0.9rem 1.2rem; }
+            .main { padding: 1.2rem 1.2rem; }
+            .share-grid { grid-template-columns: 1fr; }
+            .ig-section { padding: 1.5rem 1.2rem; }
+            .ig-section-inner { grid-template-columns: 1fr; }
+            body { padding-bottom: 64px; }
+        }
+        .bottom-tab-bar { display: none; }
+        @media (max-width: 900px) {
+            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
+        }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
+        .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
+        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
+        .tab-item.tab-fund { flex: 1.4; background: var(--red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
+        .tab-item.tab-fund .tab-label { color: white; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <div class="nav-inner">
+        <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
+        <ul class="nav-links">
+            <li><a href="/#dogs-section">Urgent Dogs</a></li>
+            <li><a href="/how-it-works.html">How It Works</a></li>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/donate.html" class="btn-red-nav">Fund a Dog</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="hero">
+    <div class="hero-inner">
+        <span class="eyebrow">Social Sharer Network</span>
+        <h1>Every share buys a dog more time.</h1>
+        <p class="hero-sub">Pick a dog. Share to your Instagram story in one tap on mobile, or download a card for anywhere else. No shelter visit. Just a phone and a following.</p>
+    </div>
+</div>
+
+<div class="how">
+    <div class="how-inner">
+        <div class="how-step">
+            <div class="how-num">1</div>
+            <div class="how-text"><h3>Pick a dog</h3><p>Most critical first. Every dog has days left on the clock.</p></div>
+        </div>
+        <div class="how-step">
+            <div class="how-num">2</div>
+            <div class="how-text"><h3>Tap IG Story</h3><p>On mobile, opens Instagram with the card ready. One tap to post.</p></div>
+        </div>
+        <div class="how-step">
+            <div class="how-num">3</div>
+            <div class="how-text"><h3>Or save + copy caption</h3><p>Download the card, paste the pre-written caption. Done in seconds.</p></div>
+        </div>
+        <div class="how-step">
+            <div class="how-num">4</div>
+            <div class="how-text"><h3>Dog gets seen</h3><p>Every share is a chance a rescue or foster spots them in time.</p></div>
+        </div>
+    </div>
+</div>
+
+<div class="signup-strip">
+    <div class="signup-inner">
+        <p class="signup-text"><strong>Join the sharer network</strong> — get urgent dog cards sent to your DMs or email.</p>
+        <form class="signup-form" id="sharer-form">
+            <input type="text" id="sh-handle" placeholder="Instagram handle (@you)">
+            <input type="email" id="sh-email" placeholder="Email (optional)">
+            <button type="submit" class="btn-join">Join →</button>
+        </form>
+        <p class="signup-success" id="sharer-success">✓ You're in! Watch your DMs.</p>
+    </div>
+</div>
+
+<div class="main">
+    <p class="section-eyebrow">Urgent dogs — share one today</p>
+    <h2 class="section-title">Pick a dog to share</h2>
+    <div class="share-grid" id="share-grid">
+        <div class="loading">Loading urgent dogs...</div>
+    </div>
+</div>
+
+<canvas id="card-canvas" width="1080" height="1080"></canvas>
+
+<div class="ig-section">
+    <div class="ig-section-inner">
+        <div class="ig-left">
+            <span class="eyebrow" style="color:var(--red);display:block;margin-bottom:0.5rem;">Follow us</span>
+            <h2>See every dog we post — on Instagram.</h2>
+            <p>We post urgent dogs daily to <strong>@ladogdispatch</strong>. Follow us and turn on notifications so you never miss one that needs sharing.</p>
+            <a href="https://instagram.com/ladogdispatch" target="_blank" class="btn-follow">📸 @ladogdispatch</a>
+        </div>
+        <div class="ig-right">
+            <div>
+                <div style="font-size:2rem;">📸</div>
+                <p>Your Instagram feed will appear here.<br><br>
+                To connect: go to any post on <strong>@ladogdispatch</strong> → ··· → Embed → copy code → paste it here in place of this placeholder.<br><br>
+                Or use a service like <code>lightwidget.com</code> for a live feed widget.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DESKTOP SHARE MODAL -->
+<div class="share-modal" id="share-modal">
+    <div class="share-modal-box">
+        <h3>Share <span id="modal-dog-name"></span></h3>
+        <p>Instagram Stories need the mobile app. On desktop, the fastest path is to download the card and post it from your phone.</p>
+        <div class="modal-btns">
+            <button class="modal-btn-dark" onclick="downloadCard(window._pendingDog); document.getElementById('share-modal').classList.remove('open')">⬇ Download Card</button>
+            <a href="https://instagram.com/ladogdispatch" target="_blank" class="modal-btn-ig">📸 View @ladogdispatch on Instagram</a>
+            <button class="modal-btn-ghost" onclick="document.getElementById('share-modal').classList.remove('open')">Close</button>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-tab-bar">
+    <a href="/#dogs-section" class="tab-item"><span class="tab-icon">🐕</span><span class="tab-label">Dogs</span></a>
+    <a href="/foster.html" class="tab-item"><span class="tab-icon">🏠</span><span class="tab-label">Foster</span></a>
+    <a href="/donate.html" class="tab-item tab-fund"><span class="tab-icon">$</span><span class="tab-label">Fund a Dog</span></a>
+    <a href="/rescue.html" class="tab-item"><span class="tab-icon">★</span><span class="tab-label">Rescue</span></a>
+    <button class="tab-item"><span class="tab-icon">☰</span><span class="tab-label">More</span></button>
+</nav>
+
+<script>
+// ── LOAD DOGS ─────────────────────────────────────────────────────
+async function loadDogs() {
+    try {
+        const res = await fetch('/api/dogs');
+        const data = await res.json();
+        renderGrid(data.dogs || data || []);
+    } catch(e) {
+        document.getElementById('share-grid').innerHTML = '<div class="loading">Unable to load dogs — please refresh.</div>';
+    }
+}
+
+function renderGrid(dogs) {
+    const grid = document.getElementById('share-grid');
+    if (!dogs.length) { grid.innerHTML = '<div class="loading">No urgent dogs right now.</div>'; return; }
+    grid.innerHTML = dogs.map(dog => {
+        const deadline = new Date(dog.deadline);
+        const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
+        const urgency = daysLeft <= 1 ? 'critical' : daysLeft <= 3 ? 'urgent' : null;
+        const dl = deadline.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+        const dogJson = JSON.stringify(dog).replace(/"/g, '&quot;');
+        return `<div class="share-card">
+            ${dog.photo_url ? `<img class="card-img" src="${dog.photo_url}" alt="${dog.name}" loading="lazy">` : `<div class="card-img-ph">🐕</div>`}
+            <div class="card-body">
+                <div class="card-badges">
+                    ${urgency ? `<span class="badge badge-${urgency}">${urgency.toUpperCase()}</span>` : ''}
+                    ${dog.rescue_only ? `<span class="badge badge-rescue">🔒 Rescue Only</span>` : ''}
+                </div>
+                <div class="card-name">${dog.name || dog.shelter_id}</div>
+                <div class="card-meta">${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'}</div>
+                <div class="card-deadline">⏰ ${dl} · ${daysLeft <= 0 ? 'TODAY' : daysLeft + 'd left'}</div>
+                <div class="card-actions">
+                    <button class="btn-ig" onclick='igStory(${dogJson})'>📸 IG Story</button>
+                    <button class="btn-dl" onclick='downloadCard(${dogJson})'>⬇ Save</button>
+                    <button class="btn-cap" id="cap-${dog.id}" onclick='copyCaption(${dogJson}, "cap-${dog.id}")'>Copy Caption</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── CANVAS CARD GENERATOR ─────────────────────────────────────────
+function loadImg(src) {
+    return new Promise((res, rej) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => res(img);
+        img.onerror = rej;
+        img.src = src;
+    });
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+async function generateCard(dog) {
+    const c = document.getElementById('card-canvas');
+    const ctx = c.getContext('2d');
+    const W = 1080, H = 1080;
+    c.width = W; c.height = H;
+
+    // Dark bg
+    ctx.fillStyle = '#1a1614'; ctx.fillRect(0, 0, W, H);
+
+    // Dog photo
+    if (dog.photo_url) {
+        try {
+            const img = await loadImg(dog.photo_url);
+            const ph = H * 0.62;
+            const scale = Math.max(W / img.width, ph / img.height);
+            ctx.drawImage(img, (W - img.width*scale)/2, 0, img.width*scale, img.height*scale);
+            const g = ctx.createLinearGradient(0, ph*0.35, 0, ph);
+            g.addColorStop(0, 'rgba(26,22,20,0)'); g.addColorStop(1, '#1a1614');
+            ctx.fillStyle = g; ctx.fillRect(0, 0, W, ph);
+        } catch(e) {}
+    }
+
+    // Red top bar
+    ctx.fillStyle = '#c4281c'; ctx.fillRect(0, 0, W, 10);
+
+    // URGENT badge
+    const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+    const badgeText = daysLeft <= 1 ? '🚨 CRITICAL' : '⚠️ URGENT';
+    ctx.fillStyle = '#c4281c';
+    roundRect(ctx, 40, 28, 210, 46, 23); ctx.fill();
+    ctx.fillStyle = 'white'; ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText(badgeText, 145, 57);
+
+    // LA Dog Dispatch top right
+    ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'right'; ctx.fillText('LA DOG DISPATCH', W-40, 57);
+
+    // Name
+    const nameY = H * 0.66;
+    ctx.fillStyle = 'white'; ctx.font = 'bold 74px Georgia, serif';
+    ctx.textAlign = 'left'; ctx.fillText(dog.name || dog.shelter_id, 50, nameY);
+
+    // Breed · Shelter
+    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '32px sans-serif';
+    ctx.fillText(`${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'}`, 50, nameY + 52);
+
+    // Deadline
+    const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
+    ctx.fillStyle = '#f87171'; ctx.font = 'bold 30px sans-serif';
+    ctx.fillText(`Deadline: ${dlStr} — ${daysLeft <= 0 ? 'TODAY' : daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + ' left'}`, 50, nameY + 106);
+
+    // Rescue only
+    if (dog.rescue_only) {
+        ctx.fillStyle = '#fef3c7';
+        roundRect(ctx, 50, nameY + 124, 270, 38, 19); ctx.fill();
+        ctx.fillStyle = '#92400e'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 185, nameY + 148);
+        ctx.textAlign = 'left';
+    }
+
+    // Divider
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(50, H*0.84); ctx.lineTo(W-50, H*0.84); ctx.stroke();
+
+    // CTA text
+    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '26px sans-serif';
+    ctx.fillText('Fund · Foster · Rescue this dog →', 50, H*0.89);
+
+    // URL
+    ctx.fillStyle = 'white'; ctx.font = 'bold 30px sans-serif';
+    ctx.fillText('ladogdispatch.org', 50, H*0.89 + 48);
+
+    return c;
+}
+
+// ── DOWNLOAD ──────────────────────────────────────────────────────
+async function downloadCard(dog) {
+    const btn = event?.target;
+    const orig = btn?.textContent;
+    if (btn) { btn.textContent = '...'; btn.disabled = true; }
+    try {
+        const c = await generateCard(dog);
+        const a = document.createElement('a');
+        a.download = `ladogdispatch-${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`;
+        a.href = c.toDataURL('image/png');
+        a.click();
+    } catch(e) { alert('Could not generate card. Save the dog photo directly instead.'); }
+    if (btn) { btn.textContent = orig; btn.disabled = false; }
+}
+
+// ── IG STORY ──────────────────────────────────────────────────────
+async function igStory(dog) {
+    window._pendingDog = dog;
+    const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        try {
+            const c = await generateCard(dog);
+            c.toBlob(async blob => {
+                const file = new File([blob], `${dog.name||dog.shelter_id}.png`, {type:'image/png'});
+                if (navigator.share && navigator.canShare({files:[file]})) {
+                    await navigator.share({ files:[file], title:`${dog.name} needs rescue — LA Dog Dispatch` });
+                } else {
+                    // IG Stories deep link with sticker
+                    const photoUrl = encodeURIComponent(`https://la-dog-dispatch-production.up.railway.app${dog.photo_url||''}`);
+                    window.location.href = `instagram://story-camera?sticker_image_url=${photoUrl}`;
+                    setTimeout(() => downloadCard(dog), 1500);
+                }
+            }, 'image/png');
+        } catch(e) { downloadCard(dog); }
+    } else {
+        // Desktop modal
+        document.getElementById('modal-dog-name').textContent = dog.name || dog.shelter_id;
+        document.getElementById('share-modal').classList.add('open');
+    }
+}
+
+// ── CAPTION ───────────────────────────────────────────────────────
+function copyCaption(dog, btnId) {
+    const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+    const dl = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
+    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?' Rescue organizations only.':''} Fosters and donors welcome.\n\nFund, foster, or share → ladogdispatch.org\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+    navigator.clipboard.writeText(caption).then(() => {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy Caption'; btn.classList.remove('copied'); }, 2500);
+    });
+}
+
+// Close modal on overlay click
+document.getElementById('share-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+});
+
+// ── SHARER SIGN-UP ────────────────────────────────────────────────
+document.getElementById('sharer-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const handle = document.getElementById('sh-handle').value;
+    const email = document.getElementById('sh-email').value;
+    if (!handle && !email) return;
+    try {
+        await fetch('/api/subscribers', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({name: handle, email, dog_alerts:true, newsletter:false, text_ok:false})
+        });
+    } catch(e) {}
+    document.getElementById('sharer-form').style.display = 'none';
+    document.getElementById('sharer-success').style.display = 'block';
+});
+
+loadDogs();
+</script>
+</body>
+</html>
