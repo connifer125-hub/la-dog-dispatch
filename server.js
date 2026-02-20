@@ -117,11 +117,16 @@ app.post('/api/subscribers', async (req, res) => {
     await db.query(`CREATE TABLE IF NOT EXISTS subscribers (
       id SERIAL PRIMARY KEY, name VARCHAR(200), email VARCHAR(255) UNIQUE,
       phone VARCHAR(50), dog_alerts BOOLEAN, newsletter BOOLEAN, text_ok BOOLEAN,
+      instagram_handle VARCHAR(100), is_sharer BOOLEAN DEFAULT FALSE,
       created_at TIMESTAMP DEFAULT NOW())`);
+    await db.query(`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS instagram_handle VARCHAR(100)`).catch(()=>{});
+    await db.query(`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS is_sharer BOOLEAN DEFAULT FALSE`).catch(()=>{});
+    const { instagram_handle, is_sharer } = req.body;
     await db.query(
-      `INSERT INTO subscribers (name, email, phone, dog_alerts, newsletter, text_ok)
-       VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (email) DO UPDATE SET name=$1, phone=$3, dog_alerts=$4, newsletter=$5, text_ok=$6`,
-      [name, email, phone, dog_alerts, newsletter, text_ok]
+      `INSERT INTO subscribers (name, email, phone, dog_alerts, newsletter, text_ok, instagram_handle, is_sharer)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (email) DO UPDATE 
+       SET name=$1, phone=$3, dog_alerts=$4, newsletter=$5, text_ok=$6, instagram_handle=$7, is_sharer=$8`,
+      [name, email, phone, dog_alerts, newsletter, text_ok, instagram_handle || null, is_sharer || false]
     );
     console.log('📧 New subscriber:', email);
     res.json({ success: true });
