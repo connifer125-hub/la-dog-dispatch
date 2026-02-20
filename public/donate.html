@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate — LA Dog Dispatch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --red: #c4281c; --dark: #1a1614; --cream: #f8f6f3;
+            --tan: #e8e4dd; --text: #3a3632; --muted: #6b6560;
+            --border: #d4cfc7; --green: #166534;
+        }
+        body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
+
+        /* NAV */
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; }
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.92rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--red); }
+        .btn-red-nav { background: var(--red); color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
+
+        /* HERO */
+        .hero { background: var(--dark); padding: 2.5rem 3rem 2rem; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 80%, rgba(196,40,28,0.15) 0%, transparent 60%); }
+        .hero-inner { max-width: 700px; margin: 0 auto; position: relative; z-index: 1; }
+        .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin-bottom: 0.6rem; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: white; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+        .hero-sub { font-size: 0.95rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+
+        /* TRUST BAR */
+        .trust-bar { background: white; border-bottom: 1px solid var(--border); padding: 0.7rem 3rem; }
+        .trust-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+        .trust-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+        .trust-item strong { color: var(--text); }
+
+        /* DONATION OPTIONS */
+        .donate-section { max-width: 1100px; margin: 0 auto; padding: 2rem 3rem; }
+        .section-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 0.4rem; }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--dark); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+
+        .donate-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+        .donate-card { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 1.5rem; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: box-shadow 0.25s, transform 0.25s; }
+        .donate-card:hover { box-shadow: 0 8px 28px rgba(26,22,20,0.1); transform: translateY(-2px); }
+        .donate-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, var(--red)); }
+        .card-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+        .card-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-bottom: 0.3rem; }
+        .card-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; flex: 1; }
+        .card-destination { font-size: 0.75rem; color: var(--muted); background: var(--cream); border-radius: 6px; padding: 0.5rem 0.7rem; margin-bottom: 1rem; line-height: 1.5; }
+        .card-destination strong { color: var(--text); }
+
+        /* Amount selector */
+        .amount-group { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
+        .amount-btn { padding: 0.35rem 0.8rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 700; background: var(--cream); cursor: pointer; transition: all 0.18s; color: var(--text); font-family: 'Source Sans 3', sans-serif; }
+        .amount-btn:hover, .amount-btn.selected { border-color: var(--red); background: #fff5f5; color: var(--red); }
+        .custom-amount { width: 100%; padding: 0.45rem 0.7rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: 0.88rem; font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); margin-bottom: 0.8rem; }
+        .custom-amount:focus { outline: none; border-color: var(--red); background: white; }
+
+        .btn-donate { background: var(--red); color: white; padding: 0.65rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; width: 100%; font-family: 'Source Sans 3', sans-serif; transition: all 0.2s; text-decoration: none; display: block; text-align: center; }
+        .btn-donate:hover { background: #9d1f16; transform: translateY(-1px); }
+
+        /* SPECIFIC DOG SECTION */
+        .dog-section { max-width: 1100px; margin: 0 auto; padding: 0 3rem 2rem; }
+        .dogs-scroll { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
+        .fund-dog-card { background: white; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: all 0.2s; }
+        .fund-dog-card:hover { box-shadow: 0 6px 20px rgba(26,22,20,0.1); transform: translateY(-2px); }
+        .fund-dog-card.selected { border-color: var(--red); box-shadow: 0 0 0 2px var(--red); }
+        .fund-dog-img { width: 100%; height: 120px; object-fit: cover; background: var(--tan); }
+        .fund-dog-body { padding: 0.6rem 0.7rem; }
+        .fund-dog-name { font-family: 'Playfair Display', serif; font-size: 0.88rem; font-weight: 600; color: var(--dark); margin-bottom: 0.15rem; }
+        .fund-dog-meta { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.4rem; }
+        .fund-dog-bar { height: 5px; background: var(--tan); border-radius: 5px; overflow: hidden; }
+        .fund-dog-fill { height: 100%; background: var(--red); border-radius: 5px; }
+        .selected-dog-note { font-size: 0.8rem; color: var(--red); font-weight: 600; margin-top: 0.5rem; min-height: 1.2rem; }
+
+        /* MEMBERSHIP PERKS */
+        .perks { margin-top: 0.8rem; }
+        .perk { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; line-height: 1.4; }
+        .perk-check { color: var(--red); font-size: 0.75rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+        /* HOW MONEY WORKS */
+        .how-section { background: white; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 2rem 3rem; }
+        .how-inner { max-width: 900px; margin: 0 auto; }
+        .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.2rem; }
+        .how-item { display: flex; flex-direction: column; gap: 0.3rem; }
+        .how-step { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--red); }
+        .how-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; color: var(--dark); }
+        .how-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+        /* BOTTOM CTA */
+        .bottom-cta { background: var(--dark); padding: 2.5rem 3rem; text-align: center; border-top: 3px solid var(--red); }
+        .bottom-cta h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: white; margin-bottom: 0.5rem; }
+        .bottom-cta p { color: rgba(255,255,255,0.5); font-size: 0.88rem; margin-bottom: 1.2rem; }
+        .cta-btns { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+        .btn-ghost { background: transparent; color: white; padding: 0.5rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; border: 1.5px solid rgba(255,255,255,0.3); transition: all 0.2s; }
+        .btn-ghost:hover { border-color: white; }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero { padding: 2rem 1.2rem; }
+            .trust-bar { padding: 0.6rem 1.2rem; }
+            .trust-inner { gap: 1rem; }
+            .donate-section { padding: 1.5rem 1.2rem; }
+            .donate-grid { grid-template-columns: 1fr; }
+            .dog-section { padding: 0 1.2rem 1.5rem; }
+            .dogs-scroll { grid-template-columns: repeat(2, 1fr); }
+            .how-section { padding: 1.5rem 1.2rem; }
+            .how-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .bottom-cta { padding: 2rem 1.2rem; }
+            body { padding-bottom: 64px; }
+        }
+
+        /* BOTTOM TAB BAR */
+        .bottom-tab-bar { display: none; }
+        @media (max-width: 768px) {
+            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
+        }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
+        .tab-icon { font-size: 1.3rem; line-height: 1; }
+        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
+        .tab-item.active .tab-label { color: var(--red); }
+        .tab-item.tab-fund { flex: 1.4; background: var(--red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
+        .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <div class="nav-inner">
+        <a href="/" class="logo">LA Dog Dispatch</a>
+        <ul class="nav-links">
+            <li><a href="/#dogs-section">Urgent Dogs</a></li>
+            <li><a href="/how-it-works.html">How It Works</a></li>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/#network-section">Join the Network</a></li>
+            <li><a href="/donate.html" class="btn-red-nav">Fund a Dog</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Support the Mission</p>
+        <h1>Every dollar moves a dog closer to safety.</h1>
+        <p class="hero-sub">Donations fund specific dogs, support the rescue network, and keep LA Dog Dispatch running. Choose how you want to help.</p>
+    </div>
+</div>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+    <div class="trust-inner">
+        <div class="trust-item">✅ <span>Fiscally sponsored by <strong>Hot Girls Care</strong></span></div>
+        <div class="trust-item">✅ <span><strong>100%</strong> of dog-specific funds go to the rescue</span></div>
+        <div class="trust-item">✅ <span>Processed securely through <strong>GiveButter</strong></span></div>
+    </div>
+</div>
+
+<!-- DONATION CARDS -->
+<div class="donate-section">
+    <p class="section-eyebrow">Three ways to give</p>
+    <h2 class="section-title">Choose how you want to help</h2>
+
+    <div class="donate-grid">
+
+        <!-- CARD 1: General Fund -->
+        <div class="donate-card" style="--accent: #10b981;">
+            <div class="card-icon">💚</div>
+            <div class="card-title">General Fund</div>
+            <div class="card-sub">Support the whole rescue network. Funds cover operations, outreach, and emergency pulls when no donor has stepped up for a specific dog.</div>
+            <div class="card-destination">
+                Processed by <strong>Hot Girls Care</strong> — the nonprofit that powers LA Dog Dispatch.
+            </div>
+            <div class="amount-group" id="general-amounts">
+                <button class="amount-btn" onclick="selectAmount('general', 25, this)">$25</button>
+                <button class="amount-btn selected" onclick="selectAmount('general', 50, this)">$50</button>
+                <button class="amount-btn" onclick="selectAmount('general', 100, this)">$100</button>
+                <button class="amount-btn" onclick="selectAmount('general', 250, this)">$250</button>
+            </div>
+            <input class="custom-amount" type="number" placeholder="Or enter custom amount" id="general-custom" min="1">
+            <a href="https://givebutter.com/ladogdispatch" target="_blank" class="btn-donate" id="general-btn">Donate to General Fund →</a>
+        </div>
+
+        <!-- CARD 2: Monthly Membership -->
+        <div class="donate-card" style="--accent: #c4281c;">
+            <div class="card-icon">❤️</div>
+            <div class="card-title">Monthly Membership</div>
+            <div class="card-sub">Become a sustaining member. Your recurring gift keeps the lights on and gives us the stability to act fast when a dog's time is running out.</div>
+            <div class="card-destination">
+                Same fund as above — <strong>Hot Girls Care</strong> — but set to recur monthly. Cancel anytime.
+            </div>
+            <div class="perks">
+                <div class="perk"><span class="perk-check">✓</span> Monthly dispatch email with dog updates</div>
+                <div class="perk"><span class="perk-check">✓</span> First to know about dogs that need urgent fosters</div>
+                <div class="perk"><span class="perk-check">✓</span> Your name in our supporter credits</div>
+            </div>
+            <div class="amount-group" style="margin-top: 0.8rem;" id="member-amounts">
+                <button class="amount-btn" onclick="selectAmount('member', 10, this)">$10/mo</button>
+                <button class="amount-btn selected" onclick="selectAmount('member', 25, this)">$25/mo</button>
+                <button class="amount-btn" onclick="selectAmount('member', 50, this)">$50/mo</button>
+                <button class="amount-btn" onclick="selectAmount('member', 100, this)">$100/mo</button>
+            </div>
+            <input class="custom-amount" type="number" placeholder="Or enter custom amount/mo" id="member-custom" min="1">
+            <a href="https://givebutter.com/ladogdispatch" target="_blank" class="btn-donate">Become a Member →</a>
+        </div>
+
+        <!-- CARD 3: Specific Dog -->
+        <div class="donate-card" style="--accent: #f59e0b;">
+            <div class="card-icon">🐕</div>
+            <div class="card-title">Fund a Specific Dog</div>
+            <div class="card-sub">Pick a dog from the urgent list below. Your donation is held and passed directly to the rescue that commits to pulling them.</div>
+            <div class="card-destination">
+                Funds are <strong>held as pass-through</strong> and released to the committed rescue once they confirm the pull.
+            </div>
+            <div class="selected-dog-note" id="selected-dog-note">← Select a dog below</div>
+            <div class="amount-group" id="dog-amounts">
+                <button class="amount-btn" onclick="selectAmount('dog', 25, this)">$25</button>
+                <button class="amount-btn selected" onclick="selectAmount('dog', 50, this)">$50</button>
+                <button class="amount-btn" onclick="selectAmount('dog', 100, this)">$100</button>
+                <button class="amount-btn" onclick="selectAmount('dog', 250, this)">$250</button>
+            </div>
+            <input class="custom-amount" type="number" placeholder="Or enter custom amount" id="dog-custom" min="1">
+            <a href="https://givebutter.com/ladogdispatch" target="_blank" class="btn-donate" id="dog-donate-btn">Select a Dog Below →</a>
+        </div>
+
+    </div>
+</div>
+
+<!-- SPECIFIC DOG GRID -->
+<div class="dog-section">
+    <p class="section-eyebrow" style="margin-bottom: 0.8rem;">Pick a dog to fund</p>
+    <div class="dogs-scroll" id="fund-dogs-grid">
+        <div style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 1.5rem; font-size: 0.88rem;">Loading urgent dogs...</div>
+    </div>
+</div>
+
+<!-- HOW MONEY WORKS -->
+<div class="how-section">
+    <div class="how-inner">
+        <p class="section-eyebrow">Where your money goes</p>
+        <h2 class="section-title" style="font-size: 1.4rem; margin-bottom: 0;">Full transparency on every dollar</h2>
+        <div class="how-grid">
+            <div class="how-item">
+                <div class="how-step">General Fund</div>
+                <div class="how-title">Powers the platform</div>
+                <div class="how-desc">Covers outreach, operations, and emergency situations where a dog needs pulling but no specific donor has stepped up yet. Managed by Hot Girls Care.</div>
+            </div>
+            <div class="how-item">
+                <div class="how-step">Monthly Membership</div>
+                <div class="how-title">Sustains the network</div>
+                <div class="how-desc">Recurring gifts mean we can plan ahead, respond faster, and keep the rescue network growing. Same destination as the general fund — just ongoing.</div>
+            </div>
+            <div class="how-item">
+                <div class="how-step">Dog-Specific Donation</div>
+                <div class="how-title">Goes to the rescue, directly</div>
+                <div class="how-desc">100% of dog-specific donations are held and transferred to the verified rescue that commits to pulling that dog. No platform fees taken from this track.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="bottom-cta">
+    <h2>Want to do more than donate?</h2>
+    <p>There are other ways to make a real difference for these dogs.</p>
+    <div class="cta-btns">
+        <a href="/foster.html" class="btn-ghost">Foster a Dog</a>
+        <a href="/rescue.html" class="btn-ghost">Rescue Partner Portal</a>
+        <a href="/share.html" class="btn-ghost">Share on Social</a>
+    </div>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="bottom-tab-bar">
+    <a href="/#dogs-section" class="tab-item"><span class="tab-icon">🐕</span><span class="tab-label">Dogs</span></a>
+    <a href="/foster.html" class="tab-item"><span class="tab-icon">🏠</span><span class="tab-label">Foster</span></a>
+    <a href="/donate.html" class="tab-item tab-fund active"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
+    <a href="/rescue.html" class="tab-item"><span class="tab-icon">🐾</span><span class="tab-label">Rescue</span></a>
+    <button class="tab-item"><span class="tab-icon">☰</span><span class="tab-label">More</span></button>
+</nav>
+
+<script>
+    let selectedAmounts = { general: 50, member: 25, dog: 50 };
+    let selectedDog = null;
+
+    function selectAmount(type, amount, btn) {
+        selectedAmounts[type] = amount;
+        const group = document.getElementById(type + '-amounts');
+        group.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+    }
+
+    // Load dogs for funding grid
+    async function loadFundDogs() {
+        try {
+            const res = await fetch('/api/dogs');
+            const data = await res.json();
+            const dogs = (data.dogs || data || []).slice(0, 8);
+            const grid = document.getElementById('fund-dogs-grid');
+            if (!dogs.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:1.5rem;">No urgent dogs right now.</div>'; return; }
+            grid.innerHTML = dogs.map(dog => {
+                const deadline = new Date(dog.deadline);
+                const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
+                return `
+                <div class="fund-dog-card" onclick="selectDog(this, ${JSON.stringify(dog).replace(/"/g,'&quot;')})">
+                    ${dog.photo_url ? `<img class="fund-dog-img" src="${dog.photo_url}" alt="${dog.name}">` : `<div class="fund-dog-img" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem">🐕</div>`}
+                    <div class="fund-dog-body">
+                        <div class="fund-dog-name">${dog.name || dog.shelter_id}</div>
+                        <div class="fund-dog-meta">${dog.shelter || 'LA County'} · ${daysLeft <= 0 ? '⚠️ TODAY' : daysLeft + 'd left'}</div>
+                        <div class="fund-dog-bar"><div class="fund-dog-fill" style="width: ${Math.min((dog.raised_amount || 0) / (dog.goal_amount || 500) * 100, 100)}%"></div></div>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch(e) {
+            document.getElementById('fund-dogs-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:1.5rem;">Unable to load dogs.</div>';
+        }
+    }
+
+    function selectDog(el, dog) {
+        document.querySelectorAll('.fund-dog-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedDog = dog;
+        document.getElementById('selected-dog-note').textContent = `Funding: ${dog.name || dog.shelter_id}`;
+        const btn = document.getElementById('dog-donate-btn');
+        btn.textContent = `Fund ${dog.name || dog.shelter_id} →`;
+        btn.href = dog.givebutter_url || `https://givebutter.com/ladogdispatch?dog=${dog.shelter_id}`;
+    }
+
+    loadFundDogs();
+</script>
+
+</body>
+</html>
