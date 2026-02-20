@@ -201,7 +201,7 @@
                     </label>
                 </div>
             </div>
-            <a href="https://givebutter.com/ladogdispatch" target="_blank" class="btn-donate" id="general-btn">Donate to General Fund →</a>
+            <a href="https://givebutter.com/la_urgent_dogs_dispatch" target="_blank" class="btn-donate" id="general-btn">Donate to General Fund →</a>
         </div>
 
         <!-- CARD 2: Monthly Membership -->
@@ -238,7 +238,7 @@
                     </label>
                 </div>
             </div>
-            <a href="https://givebutter.com/ladogdispatch" target="_blank" class="btn-donate">Become a Member →</a>
+            <a href="https://givebutter.com/la_urgent_dogs_dispatch" target="_blank" class="btn-donate">Become a Member →</a>
         </div>
 
         <!-- CARD 3: Specific Dog -->
@@ -257,7 +257,7 @@
                 <button class="amount-btn" onclick="selectAmount('dog', 250, this)">$250</button>
             </div>
             <input class="custom-amount" type="number" placeholder="Or enter custom amount" id="dog-custom" min="1">
-            <a href="https://givebutter.com/ladogdispatch" target="_blank" class="btn-donate" id="dog-donate-btn">Select a Dog Below →</a>
+            <a href="https://givebutter.com/la_urgent_dogs_dispatch" target="_blank" class="btn-donate" id="dog-donate-btn">Select a Dog Below →</a>
         </div>
 
     </div>
@@ -360,7 +360,7 @@
         document.getElementById('selected-dog-note').textContent = `Funding: ${dog.name || dog.shelter_id}`;
         const btn = document.getElementById('dog-donate-btn');
         btn.textContent = `Fund ${dog.name || dog.shelter_id} →`;
-        btn.href = dog.givebutter_url || `https://givebutter.com/ladogdispatch?dog=${dog.shelter_id}`;
+        btn.href = dog.givebutter_url || `https://givebutter.com/la_urgent_dogs_dispatch?dog=${dog.shelter_id}`;
     }
 
     loadFundDogs();
