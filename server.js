@@ -35,7 +35,7 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS shelter_priority INTEGER DEFAULT 99",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE",
       "ALTER TABLE dogs ALTER COLUMN rescue_only SET DEFAULT FALSE",
-      "UPDATE dogs SET rescue_only = FALSE WHERE rescue_only IS NULL",
+      // rescue_only NULLs are fixed by re-scrape, not blanket false
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE"
     ];
@@ -86,7 +86,7 @@ app.use('/api', require('./routes/diagnose-photos'));
 app.get('/api/run-migrations', async (req, res) => {
   try {
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE");
-    await db.query("UPDATE dogs SET rescue_only = FALSE WHERE rescue_only IS NULL").catch(()=>{});
+    // rescue_only NULLs fixed by re-scrape
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE");
     res.json({ message: 'Migrations complete - columns added' });
