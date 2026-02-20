@@ -428,7 +428,7 @@ async function generateCard(dog) {
     // URL
     ctx.fillStyle = 'white';
     ctx.font = 'bold 34px sans-serif';
-    ctx.fillText('ladogdispatch.org', 44, 838);
+    ctx.fillText('ladogdispatch.com', 44, 838);
 
     // ── DOG PHOTO (right side, bottom half) ──
     const thumbSize = 440;
@@ -535,7 +535,7 @@ async function igStory(dog) {
 function copyCaption(dog, btnId) {
     const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
     const dl = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
-    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?' Rescue organizations only.':''} Fosters and donors welcome.\n\nFund, foster, or share → la_urgent_dogs_dispatch.org\n\n#la_urgent_dogs_dispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?' Rescue organizations only.':''} Fosters and donors welcome.\n\nFund, foster, or share → ladogdispatch.com  @la_urgent_dogs_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
     navigator.clipboard.writeText(caption).then(() => {
         const btn = document.getElementById(btnId);
         if (!btn) return;
