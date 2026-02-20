@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>How It Works — LA Dog Dispatch</title>
+    <link rel="icon" type="image/png" href="/logo-icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -159,13 +160,16 @@
         /* Pulse on system box */
         @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 0 0 rgba(196,40,28,0.4); } 50% { box-shadow: 0 0 0 8px rgba(196,40,28,0); } }
         .system-box { animation: pulse-border 2.5s ease infinite; }
+
+        .logo-img { height: 38px; width: auto; display: block; }
+        @media (max-width: 900px) { .logo-img { height: 30px; } }
     </style>
 </head>
 <body>
 
 <nav class="topnav">
     <div class="nav-inner">
-        <a href="/" class="logo">LA Dog Dispatch</a>
+        <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
         <ul class="nav-links">
             <li><a href="/#dogs-section">Urgent Dogs</a></li>
             <li><a href="/how-it-works.html">How It Works</a></li>
