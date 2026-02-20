@@ -182,6 +182,20 @@
                 <button class="amount-btn" onclick="selectAmount('general', 250, this)">$250</button>
             </div>
             <input class="custom-amount" type="number" placeholder="Or enter custom amount" id="general-custom" min="1">
+            <div style="margin-bottom: 0.7rem;">
+                <p style="font-size: 0.75rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem;">Stay informed about your impact:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; cursor: pointer; background: var(--cream); border: 1.5px solid var(--border); border-radius: 20px; padding: 0.28rem 0.7rem;">
+                        <input type="checkbox" name="gen_comms" value="dog_alerts" checked style="accent-color: var(--red);"> Dog alerts
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; cursor: pointer; background: var(--cream); border: 1.5px solid var(--border); border-radius: 20px; padding: 0.28rem 0.7rem;">
+                        <input type="checkbox" name="gen_comms" value="newsletter" checked style="accent-color: var(--red);"> Newsletter
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; cursor: pointer; background: var(--cream); border: 1.5px solid var(--border); border-radius: 20px; padding: 0.28rem 0.7rem;">
+                        <input type="checkbox" name="gen_comms" value="text" style="accent-color: var(--red);"> Text alerts
+                    </label>
+                </div>
+            </div>
             <a href="https://givebutter.com/ladogdispatch" target="_blank" class="btn-donate" id="general-btn">Donate to General Fund →</a>
         </div>
 
@@ -205,6 +219,20 @@
                 <button class="amount-btn" onclick="selectAmount('member', 100, this)">$100/mo</button>
             </div>
             <input class="custom-amount" type="number" placeholder="Or enter custom amount/mo" id="member-custom" min="1">
+            <div style="margin-bottom: 0.7rem;">
+                <p style="font-size: 0.75rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem;">Member communications:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; cursor: pointer; background: var(--cream); border: 1.5px solid var(--border); border-radius: 20px; padding: 0.28rem 0.7rem;">
+                        <input type="checkbox" name="mem_comms" value="dog_alerts" checked style="accent-color: var(--red);"> Dog alerts
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; cursor: pointer; background: var(--cream); border: 1.5px solid var(--border); border-radius: 20px; padding: 0.28rem 0.7rem;">
+                        <input type="checkbox" name="mem_comms" value="newsletter" checked style="accent-color: var(--red);"> Monthly dispatch
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; cursor: pointer; background: var(--cream); border: 1.5px solid var(--border); border-radius: 20px; padding: 0.28rem 0.7rem;">
+                        <input type="checkbox" name="mem_comms" value="text" style="accent-color: var(--red);"> Text alerts
+                    </label>
+                </div>
+            </div>
             <a href="https://givebutter.com/ladogdispatch" target="_blank" class="btn-donate">Become a Member →</a>
         </div>
 
