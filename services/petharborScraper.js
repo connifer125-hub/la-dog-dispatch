@@ -159,10 +159,19 @@ async function scrapePetHarbor() {
             // ── RESCUE ONLY ──
             // "This animal is only available to a rescue: Yes"
             let rescue_only = false;
-            const rescueMatch = text.match(/only available to a rescue[:\s]+(\w+)/i);
+            // Normalize whitespace in text for more reliable matching
+            const normalizedText = text.replace(/\s+/g, ' ');
+            const rescueMatch = normalizedText.match(/only available to a rescue[^a-zA-Z]*(yes|no|y|n)\b/i);
             if (rescueMatch) {
               const val = rescueMatch[1].trim().toLowerCase();
               rescue_only = (val === 'yes' || val === 'y');
+              console.log(`🔍 Rescue only match for dog: "${rescueMatch[0]}" → ${rescue_only}`);
+            } else {
+              // Log when we don't find the field so we can see what the text actually says
+              const rescueIdx = normalizedText.toLowerCase().indexOf('rescue');
+              if (rescueIdx > -1) {
+                console.log(`⚠️ Rescue field found but no match: "${normalizedText.substring(rescueIdx-10, rescueIdx+60)}"`);
+              }
             }
 
             // ── INTAKE DATE ──
