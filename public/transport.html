@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Transporter Sign-Up — LA Dog Dispatch</title>
+    <link rel="icon" type="image/png" href="/logo-icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -77,13 +78,16 @@
         .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
         .tab-item.tab-fund { flex: 1.4; background: var(--red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
         .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
+
+        .logo-img { height: 38px; width: auto; display: block; }
+        @media (max-width: 900px) { .logo-img { height: 30px; } }
     </style>
 </head>
 <body>
 
 <nav class="topnav">
     <div class="nav-inner">
-        <a href="/" class="logo">LA Dog Dispatch</a>
+        <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
         <ul class="nav-links">
             <li><a href="/#dogs-section">Urgent Dogs</a></li>
             <li><a href="/how-it-works.html">How It Works</a></li>
