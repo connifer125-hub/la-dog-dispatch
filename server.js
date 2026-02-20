@@ -109,22 +109,6 @@ app.get('/api/scrape-now', async (req, res) => {
 app.use('/api/rescues', require('./routes/rescues'));
 app.use('/api/fosters', require('./routes/fosters'));
 
-// Image proxy — allows canvas to load dog photos without CORS blocking
-app.get('/api/image-proxy', async (req, res) => {
-  try {
-    const { url } = req.query;
-    if (!url) return res.status(400).send('No URL');
-    const axios = require('axios');
-    const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
-    const contentType = response.headers['content-type'] || 'image/jpeg';
-    res.set('Content-Type', contentType);
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Cache-Control', 'public, max-age=86400');
-    res.send(Buffer.from(response.data));
-  } catch(err) {
-    res.status(500).send('Image proxy error');
-  }
-});
 
 // Subscribers (newsletter sign-ups)
 app.post('/api/subscribers', async (req, res) => {
