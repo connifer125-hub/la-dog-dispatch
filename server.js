@@ -157,21 +157,6 @@ app.get('/api/debug-rescue-only', async (req, res) => {
   }
 });
 
-    }
-
-    const client = require('twilio')(sid, token);
-    const message = `🚨 TEST — New dog on euth list: BUDDY\nSouth L.A. · Mixed Breed · 3 YRS\nDeadline: Feb 25 (5 days)\n✅ Foster/adopt eligible\nladogdispatch.com`;
-
-    const results = [];
-    for (const to of adminNumbers) {
-      await client.messages.create({ body: message, from: fromNumber, to });
-      results.push(to);
-    }
-    res.json({ success: true, sent_to: results });
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
-});
 
 // Subscribers (newsletter sign-ups)
 app.post('/api/subscribers', async (req, res) => {
