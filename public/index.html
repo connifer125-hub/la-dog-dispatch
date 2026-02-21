@@ -784,9 +784,20 @@
             ctx.fillStyle=isCritical?'#f87171':'#fca5a5'; ctx.font='bold 38px sans-serif';
             ctx.fillText(`Deadline: ${dlStr} — ${daysLeft<=0?'TODAY':daysLeft===1?'1 DAY LEFT':daysLeft+' DAYS LEFT'}`, 44, 480);
 
+            // Rescue Only badge on card
+            const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
+            if (isRescueOnly) {
+                ctx.fillStyle = '#fef3c7';
+                roundRect(ctx, 44, 498, 440, 42, 21); ctx.fill();
+                ctx.fillStyle = '#92400e'; ctx.font = 'bold 20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 264, 525);
+                ctx.textAlign = 'left';
+            }
+
             // Divider
             ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
-            ctx.beginPath(); ctx.moveTo(44,530); ctx.lineTo(W-44,530); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(44,550); ctx.lineTo(W-44,550); ctx.stroke();
 
             // CTA text
             ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='bold 34px sans-serif';
@@ -863,7 +874,8 @@
         async function copyDogCaption(btn, dog) {
             const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
             const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
-            const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?' Rescue organizations only.':''} Fosters and donors welcome.\n\nFund, foster, or share → ladogdispatch.com\n@la_urgent_dogs_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+            const isRO = dog.rescue_only === true || dog.rescue_only === 'true' || dog.rescue_only === 1;
+            const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${isRO ? '🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n\n' : ''}${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO ? '' : ' Fosters and donors welcome.'}\n\nFund, foster, or share → ladogdispatch.com\n@la_urgent_dogs_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue ${dog.rescue_only ? '#rescueonly ' : '#fosterdog '}#adoptdontshop`;
             try {
                 await navigator.clipboard.writeText(caption);
                 btn.textContent = '✓ Copied!';
