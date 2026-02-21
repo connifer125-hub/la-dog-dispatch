@@ -157,6 +157,32 @@ app.get('/api/debug-rescue-only', async (req, res) => {
   }
 });
 
+// Test SMS alert
+app.get('/api/test-sms', async (req, res) => {
+  try {
+    const sid = process.env.TWILIO_ACCOUNT_SID;
+    const token = process.env.TWILIO_AUTH_TOKEN;
+    const fromNumber = process.env.TWILIO_FROM_NUMBER;
+    const adminNumbers = (process.env.ADMIN_PHONE_NUMBERS || '').split(',').map(n => n.trim()).filter(Boolean);
+
+    if (!sid || !token || !fromNumber || !adminNumbers.length) {
+      return res.status(400).json({ error: 'Twilio env vars not configured' });
+    }
+
+    const client = require('twilio')(sid, token);
+    const message = `🚨 TEST — New dog on euth list: BUDDY\nSouth L.A. · Mixed Breed · 3 YRS\nDeadline: Feb 25 (5 days)\n✅ Foster/adopt eligible\nladogdispatch.com`;
+
+    const results = [];
+    for (const to of adminNumbers) {
+      await client.messages.create({ body: message, from: fromNumber, to });
+      results.push(to);
+    }
+    res.json({ success: true, sent_to: results });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Subscribers (newsletter sign-ups)
 app.post('/api/subscribers', async (req, res) => {
   try {
