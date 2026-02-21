@@ -11,13 +11,13 @@
         :root { --red: #c4281c; --dark: #1a1614; --cream: #f8f6f3; --tan: #e8e4dd; --text: #3a3632; --muted: #6b6560; --border: #d4cfc7; }
         body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
 
-        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); overflow: hidden; }
+        nav.topnav { background: rgba(74,140,106,0.97); border-bottom: 1px solid #3d7a5c; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); overflow: hidden; }
         .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; }
         .logo { text-decoration: none; }
         .logo-img { height: 38px; width: auto; display: block; }
         .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--red); }
+        .nav-links a { text-decoration: none; color: rgba(255,255,255,0.85); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
+        .nav-links a:hover { color: white; }
         .btn-red-nav { background: var(--red); color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
 
         .hero { background: var(--dark); padding: 2.2rem 3rem; text-align: center; position: relative; overflow: hidden; }
@@ -28,7 +28,7 @@
         .hero-sub { font-size: 0.9rem; color: rgba(255,255,255,0.5); line-height: 1.65; }
 
         /* HOW */
-        .how { background: white; border-bottom: 1px solid var(--border); padding: 1rem 3rem; }
+        .how { background: white; border-bottom: 1px solid #3d7a5c; padding: 1rem 3rem; }
         .how-inner { max-width: 900px; margin: 0 auto; display: flex; }
         .how-step { flex: 1; display: flex; align-items: flex-start; gap: 0.6rem; padding: 0 1rem; border-right: 1px solid var(--border); }
         .how-step:first-child { padding-left: 0; }
@@ -38,7 +38,7 @@
         .how-text p { font-size: 0.73rem; color: var(--muted); line-height: 1.5; }
 
         /* SIGN UP */
-        .signup-strip { background: var(--tan); border-bottom: 1px solid var(--border); padding: 0.9rem 3rem; }
+        .signup-strip { background: var(--tan); border-bottom: 1px solid #3d7a5c; padding: 0.9rem 3rem; }
         .signup-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
         .signup-text { font-size: 0.85rem; }
         .signup-text strong { color: var(--dark); }
@@ -108,7 +108,7 @@
             .hero h1 { font-size: 1.7rem; }
             .how { padding: 0.8rem 1.2rem; }
             .how-inner { flex-direction: column; gap: 0.6rem; }
-            .how-step { border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.6rem; }
+            .how-step { border-right: none; border-bottom: 1px solid #3d7a5c; padding: 0 0 0.6rem; }
             .how-step:last-child { border-bottom: none; padding-bottom: 0; }
             .signup-strip { padding: 0.9rem 1.2rem; }
             .main { padding: 1.2rem 1.2rem; }
@@ -129,8 +129,8 @@
 
         .filter-btns { display: flex; gap: 0.7rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .filter-btn { padding: 0.5rem 1.2rem; border: 2px solid var(--border); background: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.82rem; font-family: 'Source Sans 3', sans-serif; transition: all 0.2s; }
-        .filter-btn:hover { border-color: var(--red); color: var(--red); }
-        .filter-btn.active { background: var(--red); color: white; border-color: var(--red); }
+        .filter-btn:hover { border-color: #4a8c6a; color: #4a8c6a; }
+        .filter-btn.active { background: #4a8c6a; color: white; border-color: #4a8c6a; }
     </style>
 </head>
 <body>
@@ -347,8 +347,8 @@ async function generateCard(dog) {
 
     // Diagonal red accent
     ctx.save();
-    ctx.globalAlpha = 0.07;
-    ctx.fillStyle = '#c4281c';
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = '#2d5a44';
     ctx.beginPath();
     ctx.moveTo(W*0.5, 0); ctx.lineTo(W, 0); ctx.lineTo(W*0.7, H); ctx.lineTo(0.2*W, H);
     ctx.closePath(); ctx.fill();
