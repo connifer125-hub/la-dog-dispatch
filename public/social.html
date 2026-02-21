@@ -378,11 +378,14 @@ async function generateCard(dog) {
     if (dog.shelter) {
         const tag = dog.shelter.toUpperCase();
         ctx.font = 'bold 20px sans-serif';
+        ctx.font = 'bold 20px sans-serif';
         const tagW = ctx.measureText(tag).width + 36;
+        const tagX = (W - tagW) / 2;
         ctx.fillStyle = 'rgba(255,255,255,0.1)';
-        roundRect(ctx, 44, 112, tagW, 42, 8); ctx.fill();
+        roundRect(ctx, tagX, 112, tagW, 42, 8); ctx.fill();
         ctx.fillStyle = 'rgba(255,255,255,0.55)';
-        ctx.fillText(tag, 62, 140);
+        ctx.textAlign = 'center';
+        ctx.fillText(tag, W/2, 140);
     }
 
     // ── DOG NAME (large, top section) ──
@@ -418,15 +421,17 @@ async function generateCard(dog) {
     const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
     if (isRescueOnly) {
         ctx.fillStyle = '#fef3c7';
-        roundRect(ctx, 44, 500, 400, 46, 23); ctx.fill();
+        const badgeW = 420;
+        roundRect(ctx, (W-badgeW)/2, 500, badgeW, 46, 23); ctx.fill();
         ctx.fillStyle = '#92400e';
         ctx.font = 'bold 20px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', 244, 529);
+        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', W/2, 529);
         ctx.textAlign = 'left';
     }
 
     // ── DIVIDER ──
+    ctx.textAlign = 'left'; // reset for bottom half
     ctx.strokeStyle = 'rgba(255,255,255,0.1)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(44, 530); ctx.lineTo(W - 44, 530); ctx.stroke();
