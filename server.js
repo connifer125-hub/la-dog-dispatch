@@ -141,6 +141,22 @@ app.get('/api/debug-petharbor', async (req, res) => {
   }
 });
 
+// Debug: check rescue_only values directly in DB
+app.get('/api/debug-rescue-only', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT shelter_id, name, rescue_only 
+      FROM dogs 
+      WHERE shelter_id IN ('A2079962','A2188525','A2198173')
+      OR name ILIKE '%zeus%' OR name ILIKE '%carter%' OR name ILIKE '%trucker%'
+      ORDER BY name
+    `);
+    res.json(result.rows);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Subscribers (newsletter sign-ups)
 app.post('/api/subscribers', async (req, res) => {
   try {
