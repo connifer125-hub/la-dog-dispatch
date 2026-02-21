@@ -415,7 +415,8 @@ async function generateCard(dog) {
     ctx.fillText(dlText, 44, 480);
 
     // ── RESCUE ONLY BADGE ──
-    if (dog.rescue_only) {
+    const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
+    if (isRescueOnly) {
         ctx.fillStyle = '#fef3c7';
         roundRect(ctx, 44, 500, 400, 46, 23); ctx.fill();
         ctx.fillStyle = '#92400e';
@@ -433,7 +434,11 @@ async function generateCard(dog) {
     // ── BOTTOM HALF: LEFT = CTA text + URL, RIGHT = dog photo ──
 
     // CTA text (left side, bottom half)
-    const ctaLines = [
+    const ctaLines = isRescueOnly ? [
+        '🔒 Rescue orgs only — contact a',
+        'licensed rescue to pull this dog.',
+        'Share passionately to your followers.'
+    ] : [
         'Donate now or foster this dog;',
         'as always, share passionately',
         'to your followers.'
@@ -561,7 +566,8 @@ async function igStory(dog) {
 function copyCaption(dog, btnId) {
     const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
     const dl = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
-    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.rescue_only?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted directly from the shelter.\n\n':''}${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${dog.rescue_only?'':' Fosters and donors welcome.'}\n\nFund, foster, or share → ladogdispatch.com  @la_urgent_dogs_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+    const isRO = dog.rescue_only === true || dog.rescue_only === 'true' || dog.rescue_only === 1;
+    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n\n':''}${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\nFund, foster, or share → ladogdispatch.com  @la_urgent_dogs_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
     navigator.clipboard.writeText(caption).then(() => {
         const btn = document.getElementById(btnId);
         if (!btn) return;
