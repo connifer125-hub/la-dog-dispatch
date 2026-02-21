@@ -161,17 +161,13 @@ async function scrapePetHarbor() {
             let rescue_only = false;
             // Normalize whitespace in text for more reliable matching
             const normalizedText = text.replace(/\s+/g, ' ');
-            const rescueMatch = normalizedText.match(/only available to a rescue[^a-zA-Z]*(yes|no|y|n)\b/i);
+            // PetHarbor text runs together: "rescue: YesThis animal..." with no space
+            // So we match Yes or No at the START of whatever follows the colon
+            const rescueMatch = normalizedText.match(/only available to a rescue:\s*(Yes|No)/i);
             if (rescueMatch) {
               const val = rescueMatch[1].trim().toLowerCase();
-              rescue_only = (val === 'yes' || val === 'y');
-              console.log(`🔍 Rescue only match for dog: "${rescueMatch[0]}" → ${rescue_only}`);
-            } else {
-              // Log when we don't find the field so we can see what the text actually says
-              const rescueIdx = normalizedText.toLowerCase().indexOf('rescue');
-              if (rescueIdx > -1) {
-                console.log(`⚠️ Rescue field found but no match: "${normalizedText.substring(rescueIdx-10, rescueIdx+60)}"`);
-              }
+              rescue_only = (val === 'yes');
+              console.log(`🔍 Rescue only: "${rescueMatch[0]}" → ${rescue_only}`);
             }
 
             // ── INTAKE DATE ──
@@ -270,6 +266,7 @@ async function scrapePetHarbor() {
           addedCount++;
           console.log(`➕ ${dog.name} (${dog.shelter_id}) - ${dog.shelter} - ${dog.daysUntil} days${dog.rescue_only ? ' - RESCUE ONLY' : ''}`);
         } else {
+          console.log(`✏️ UPDATE ${dog.shelter_id} ${dog.name} rescue_only=${dog.rescue_only} (type: ${typeof dog.rescue_only})`);
           await db.query(
             `UPDATE dogs SET 
               name = $1, breed = $2, age = $3, gender = $4, shelter = $5,
