@@ -8,6 +8,53 @@ const BASE_URL = 'https://petharbor.com/results.asp?WHERE=type_DOG&searchtype=AL
 
 const SOUTH_LA_ONLY = false;
 
+// ── TWILIO SMS ALERTS ──────────────────────────────────────────────
+async function sendNewDogAlert(dog) {
+  try {
+    // Only send texts between 7am and 9pm Pacific time
+    const now = new Date();
+    const hour = parseInt(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hour12: false }));
+    const alertStart = parseInt(process.env.SMS_ALERT_START_HOUR || '7');
+    const alertEnd = parseInt(process.env.SMS_ALERT_END_HOUR || '21');
+    if (hour < alertStart || hour >= alertEnd) {
+      console.log(`⏰ SMS suppressed (outside alert hours ${alertStart}:00-${alertEnd}:00 PT) — ${dog.name}`);
+      return;
+    }
+
+    const sid = process.env.TWILIO_ACCOUNT_SID;
+    const token = process.env.TWILIO_AUTH_TOKEN;
+    const fromNumber = process.env.TWILIO_FROM_NUMBER;
+    const adminNumbers = (process.env.ADMIN_PHONE_NUMBERS || '').split(',').map(n => n.trim()).filter(Boolean);
+
+    if (!sid || !token || !fromNumber || !adminNumbers.length) {
+      console.log('⚠️ Twilio not configured — skipping SMS alert');
+      return;
+    }
+
+    const deadline = new Date(dog.deadline);
+    const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
+    const dlStr = deadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    const message = [
+      `🚨 New dog on euth list: ${dog.name || dog.shelter_id}`,
+      `${dog.shelter} · ${dog.breed || 'Mixed'} · ${dog.age || ''}`,
+      `Deadline: ${dlStr} (${daysLeft} day${daysLeft !== 1 ? 's' : ''})`,
+      dog.rescue_only ? '🔒 Rescue pull only' : '✅ Foster/adopt eligible',
+      `ladogdispatch.com`
+    ].join('\n');
+
+    const client = require('twilio')(sid, token);
+    for (const to of adminNumbers) {
+      await client.messages.create({ body: message, from: fromNumber, to });
+      console.log(`📱 SMS sent to ${to} for ${dog.name}`);
+    }
+  } catch (err) {
+    console.error('❌ SMS alert failed:', err.message);
+  }
+}
+
+
+
 const SHELTER_PRIORITY = {
   'SOUTH L.A.': 1,
   'SOUTH LA': 1,
@@ -265,6 +312,7 @@ async function scrapePetHarbor() {
           );
           addedCount++;
           console.log(`➕ ${dog.name} (${dog.shelter_id}) - ${dog.shelter} - ${dog.daysUntil} days${dog.rescue_only ? ' - RESCUE ONLY' : ''}`);
+          await sendNewDogAlert(dog);
         } else {
           console.log(`✏️ UPDATE ${dog.shelter_id} ${dog.name} rescue_only=${dog.rescue_only} (type: ${typeof dog.rescue_only})`);
           await db.query(
