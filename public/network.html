@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join the Network — LA Dog Dispatch</title>
+    <link rel="icon" type="image/png" href="/logo-icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --color-dark: #1a1614; --color-red: #c4281c; --color-cream: #f8f6f3;
+            --color-text: #3a3632; --color-text-light: #6b6560; --color-border: #d4cfc7;
+            --shadow-sm: 0 2px 12px rgba(26,22,20,0.06);
+        }
+        body { font-family: 'Source Sans 3', sans-serif; color: var(--color-text); background: var(--color-cream); line-height: 1.65; }
+
+        /* NAV */
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); overflow: hidden; }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 72px; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--color-text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
+        .nav-links a:hover { color: #4a8c6a; }
+        .btn-nav { background: #4a8c6a; color: white !important; padding: 0.45rem 1.4rem; border-radius: 6px; font-weight: 600 !important; }
+        .btn-nav:hover { background: #3d7a5c !important; }
+        .logo-img { height: 52px; width: auto; display: block; }
+
+        /* NETWORK SECTION */
+        .network-section {
+            background: #4a8c6a;
+            padding: 3.5rem 0 0;
+        }
+        .network-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem 2.5rem;
+        }
+        .network-eyebrow {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .network-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.6rem;
+            color: white;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .network-subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.75);
+            font-size: 1rem;
+            max-width: 580px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+        .network-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        .network-card {
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-decoration: none;
+            transition: all 0.35s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .network-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--card-accent, #4a8c6a);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.35s ease;
+        }
+        .network-card:hover {
+            background: rgba(255,255,255,0.28);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .network-card:hover::before { transform: scaleX(1); }
+        .network-card-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+        @keyframes walkerBounce {
+            0%, 100% { transform: translateY(0); }
+            25% { transform: translateY(-6px) rotate(-5deg); }
+            75% { transform: translateY(-3px) rotate(3deg); }
+        }
+        .network-card:hover .network-card-icon { animation: walkerBounce 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+        .network-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+        .network-card-desc {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            line-height: 1.65;
+            flex: 1;
+            margin-bottom: 1.4rem;
+        }
+        .network-card-cta {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: gap 0.2s;
+        }
+        .network-card:hover .network-card-cta { gap: 0.7rem; }
+        .network-card-cta::after { content: '→'; }
+
+        /* FINAL STRIP */
+        .final-strip {
+            background: #3d7a5c;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding: 2.5rem 3rem;
+            text-align: center;
+        }
+        .final-strip p {
+            color: rgba(255,255,255,0.8);
+            font-size: 1rem;
+            margin-bottom: 1.8rem;
+            line-height: 1.8;
+        }
+        .final-strip p strong { color: white; }
+        .final-strip-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn-primary { background: #4a8c6a; color: white; padding: 0.8rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; transition: all 0.3s; display: inline-block; }
+        .btn-primary:hover { background: #3d7a5c; }
+        .btn-outline-white {
+            background: transparent; color: white; padding: 0.8rem 2rem;
+            border-radius: 6px; text-decoration: none; font-weight: 600;
+            border: 2px solid rgba(255,255,255,0.4); transition: all 0.3s; display: inline-block;
+        }
+        .btn-outline-white:hover { border-color: white; background: rgba(255,255,255,0.08); }
+
+        /* FOOTER */
+        footer { background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 2rem 3rem; text-align: center; }
+
+        /* MOBILE */
+        .bottom-tab-bar { display: none; }
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .nav-container { padding: 0 1rem; }
+            .logo-img { height: 40px; }
+            .network-section { padding: 2.5rem 0 0; }
+            .network-inner { padding: 0 1rem 1.5rem; }
+            .network-grid { grid-template-columns: 1fr; }
+            .network-title { font-size: 1.8rem; }
+            .network-subtitle { font-size: 0.9rem; }
+            .final-strip { padding: 1.5rem 1rem; }
+            .final-strip-buttons { flex-direction: column; align-items: stretch; }
+            .bottom-tab-bar {
+                display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+                height: 64px; background: white; border-top: 1px solid var(--color-border);
+                z-index: 200; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); align-items: center;
+            }
+            .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
+            .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
+            .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
+            .tab-item.active .tab-label { color: #4a8c6a; }
+            .tab-item.tab-fund { flex: 1.4; background: #4a8c6a; margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(74,140,106,0.35); }
+            .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <div class="nav-container">
+        <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
+        <ul class="nav-links">
+            <li><a href="/#dogs-section">Urgent Dogs</a></li>
+            <li><a href="/how-it-works.html">How It Works</a></li>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/network.html">Join the Network</a></li>
+            <li><a href="/#dogs-section" class="btn-nav">Fund a Dog</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="network-section">
+    <div class="network-inner">
+        <p class="network-eyebrow">The LA Dog Dispatch Network</p>
+        <h1 class="network-title">Every Role Matters</h1>
+        <p class="network-subtitle">Dogs are saved when the right people move together. Find where you fit.</p>
+
+        <div class="network-grid">
+
+            <a href="/foster.html" class="network-card" style="--card-accent: #f59e0b;">
+                <span class="network-card-icon">🏠</span>
+                <div class="network-card-title">Become a Foster</div>
+                <p class="network-card-desc">More dogs get saved when more fosters say yes. Open your home while a rescue finds them a forever family.</p>
+                <span class="network-card-cta">Sign up to foster</span>
+            </a>
+
+            <a href="/donate.html" class="network-card" style="--card-accent: #10b981;">
+                <span class="network-card-icon">💛</span>
+                <div class="network-card-title">Donate or Become a Member</div>
+                <p class="network-card-desc">Fund specific dogs or support the whole system with a monthly membership. Your donation goes directly to the rescue that pulls the dog you funded.</p>
+                <span class="network-card-cta">Support the mission</span>
+            </a>
+
+            <a href="/rescue.html" class="network-card" style="--card-accent: #c4281c;">
+                <span class="network-card-icon">🐾</span>
+                <div class="network-card-title">Rescue Partner</div>
+                <p class="network-card-desc">We fuel vetted rescues — connecting them to fosters, confirmed donor funds, and a dashboard that automates coordination so they can pull more dogs faster.</p>
+                <span class="network-card-cta">Rescue partner portal</span>
+            </a>
+
+            <a href="/transport.html" class="network-card" style="--card-accent: #8b5cf6;">
+                <span class="network-card-icon">🚗</span>
+                <div class="network-card-title">Dog Transporter</div>
+                <p class="network-card-desc">Getting dogs from shelters to fosters and rescues — locally or to other cities — is critical to every pull. Sign up to be on our transport list.</p>
+                <span class="network-card-cta">Sign up to transport</span>
+            </a>
+
+            <a href="/social.html" class="network-card" style="--card-accent: #06b6d4;">
+                <span class="network-card-icon"><span style="display:inline-block; transform:scaleX(-1);">📢</span></span>
+                <div class="network-card-title">Social Media Sharer</div>
+                <p class="network-card-desc">Every share is a lifeline. Get ready-to-post content for urgent dogs delivered to you. No shelter visit required — just a phone and a following.</p>
+                <span class="network-card-cta">Start sharing</span>
+            </a>
+
+            <a href="/vet.html" class="network-card" style="--card-accent: #f43f5e;">
+                <span class="network-card-icon">🏥</span>
+                <div class="network-card-title">Discount Vet Partner</div>
+                <p class="network-card-desc">Medical costs are often the barrier between a dog living and dying. Partner with us to offer discounted care for rescued dogs and be listed in our network directory.</p>
+                <span class="network-card-cta">Partner with us</span>
+            </a>
+
+        </div>
+    </div>
+
+    <div class="final-strip">
+        <p>Dogs don't run out of time because people don't care.<br>
+        They run out of time because <strong>visibility starts too late.</strong><br>
+        We start it earlier.</p>
+        <div class="final-strip-buttons">
+            <a href="/#dogs-section" class="btn-primary">Fund a Dog</a>
+            <a href="/donate.html" class="btn-outline-white">Become a Member</a>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer style="background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 2rem 3rem; text-align: center;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem;">
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+        <p style="font-size: 0.78rem;">
+            <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
+            <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
+            <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+        </p>
+        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
+    </div>
+</footer>
+
+<nav class="bottom-tab-bar">
+    <a href="/#dogs-section" class="tab-item"><span class="tab-icon">🐕</span><span class="tab-label">Dogs</span></a>
+    <a href="/foster.html" class="tab-item"><span class="tab-icon">🏠</span><span class="tab-label">Foster</span></a>
+    <a href="/#dogs-section" class="tab-item tab-fund"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
+    <a href="/rescue.html" class="tab-item"><span class="tab-icon">🐾</span><span class="tab-label">Rescue</span></a>
+    <a href="/network.html" class="tab-item active"><span class="tab-icon">🌐</span><span class="tab-label">Network</span></a>
+</nav>
+
+</body>
+</html>
