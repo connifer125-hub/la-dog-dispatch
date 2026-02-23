@@ -16,16 +16,16 @@
         .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
         .nav-links a { text-decoration: none; color: rgba(255,255,255,0.85); font-weight: 500; font-size: 0.85rem; }
         .nav-links a:hover { color: var(--red); }
-        .btn-red-nav { background: var(--red); color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
+        .btn-red-nav { background: #4a8c6a; color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
 
-        .hero { background: var(--dark); padding: 2.5rem 3rem; }
+        .hero { background: #4a8c6a; padding: 2.5rem 3rem; }
         .hero-inner { max-width: 760px; margin: 0 auto; }
-        .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin-bottom: 0.7rem; display: block; }
+        .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 0.7rem; display: block; }
         .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: white; font-weight: 700; line-height: 1.2; margin-bottom: 0.7rem; }
-        .hero-sub { font-size: 0.95rem; color: rgba(255,255,255,0.55); line-height: 1.7; border-left: 3px solid var(--red); padding-left: 1.1rem; max-width: 580px; }
+        .hero-sub { font-size: 0.95rem; color: rgba(255,255,255,0.85); line-height: 1.7; border-left: 3px solid rgba(255,255,255,0.4); padding-left: 1.1rem; max-width: 580px; }
 
         .form-wrap { max-width: 600px; margin: 0 auto; padding: 2rem 3rem; }
-        .section-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 0.5rem; display: block; }
+        .section-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #4a8c6a; margin-bottom: 0.5rem; display: block; }
         h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--dark); font-weight: 700; margin-bottom: 0.5rem; }
         .form-sub { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
 
@@ -34,31 +34,31 @@
         .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
         label { font-size: 0.8rem; font-weight: 600; color: var(--dark); }
         .req { color: var(--red); }
-        input, select { padding: 0.65rem 0.9rem; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); width: 100%; transition: border-color 0.2s; }
-        input:focus, select:focus { outline: none; border-color: var(--red); background: white; }
+        input, select { padding: 0.65rem 0.9rem; border: 1.5px solid #4a8c6a; border-radius: 8px; font-size: 0.9rem; font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); width: 100%; transition: border-color 0.2s; }
+        input:focus, select:focus { outline: none; border-color: #4a8c6a; box-shadow: 0 0 0 3px rgba(74,140,106,0.12); background: white; }
         select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; padding-right: 2.2rem; }
 
         .chip-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
         .chip { display: inline-flex; align-items: center; gap: 0.4rem; border: 1.5px solid var(--border); border-radius: 20px; padding: 0.35rem 0.8rem; cursor: pointer; transition: all 0.18s; background: var(--cream); }
-        .chip:hover { border-color: var(--red); }
+        .chip:hover { border-color: #4a8c6a; }
         .chip input { position: absolute; opacity: 0; pointer-events: none; }
         .chip span { font-size: 0.82rem; font-weight: 500; pointer-events: none; }
-        .chip.selected { border-color: var(--red); background: #fff5f5; color: var(--red); }
+        .chip.selected { border-color: #4a8c6a; background: #f0f7f4; color: #4a8c6a; }
 
         .submit-wrap { margin-top: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem; }
-        .btn-submit { background: var(--red); color: white; padding: 0.6rem 1.8rem; border-radius: 8px; font-weight: 700; font-size: 0.95rem; border: none; cursor: pointer; font-family: 'Source Sans 3', sans-serif; transition: background 0.2s; width: fit-content; }
-        .btn-submit:hover { background: #9d1f16; }
+        .btn-submit { background: #4a8c6a; color: white; padding: 0.6rem 1.8rem; border-radius: 8px; font-weight: 700; font-size: 0.95rem; border: none; cursor: pointer; font-family: 'Source Sans 3', sans-serif; transition: background 0.2s; width: fit-content; }
+        .btn-submit:hover { background: #3d7a5c; }
         .submit-note { font-size: 0.78rem; color: var(--muted); }
         .success-box { display: none; background: #f0fdf4; border: 2px solid #86efac; border-radius: 10px; padding: 1.2rem 1.4rem; text-align: center; margin-top: 1rem; }
         .success-box h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #166534; margin-bottom: 0.3rem; }
         .success-box p { font-size: 0.85rem; color: #166534; }
 
-        .bottom-cta { background: var(--dark); border-top: 3px solid var(--red); padding: 1.8rem 3rem; text-align: center; }
-        .bottom-cta h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: white; margin-bottom: 0.4rem; }
-        .bottom-cta p { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 1rem; }
+        .bottom-cta { background: var(--cream); border-top: 1px solid var(--border); padding: 1.8rem 3rem; text-align: center; }
+        .bottom-cta h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--dark); margin-bottom: 0.4rem; }
+        .bottom-cta p { color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem; }
         .cta-btns { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
-        .btn-red { background: var(--red); color: white; padding: 0.55rem 1.3rem; border-radius: 7px; text-decoration: none; font-weight: 700; font-size: 0.88rem; }
-        .btn-outline { background: transparent; color: white; padding: 0.55rem 1.3rem; border-radius: 7px; text-decoration: none; font-weight: 600; font-size: 0.88rem; border: 1.5px solid rgba(255,255,255,0.3); }
+        .btn-red { background: #4a8c6a; color: white; padding: 0.55rem 1.3rem; border-radius: 7px; text-decoration: none; font-weight: 700; font-size: 0.88rem; }
+        .btn-outline { background: transparent; color: var(--dark); padding: 0.55rem 1.3rem; border-radius: 7px; text-decoration: none; font-weight: 600; font-size: 0.88rem; border: 1.5px solid var(--dark); transition: all 0.2s; }
 
         @media (max-width: 900px) {
             .nav-links { display: none; }
@@ -76,7 +76,7 @@
         .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
         .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
         .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
-        .tab-item.tab-fund { flex: 1.4; background: var(--red); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(196,40,28,0.35); }
+        .tab-item.tab-fund { flex: 1.4; background: #4a8c6a; margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(74,140,106,0.35); }
         .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
 
         .logo-img { height: 52px; width: auto; display: block; }
@@ -186,16 +186,16 @@
 
 
     <!-- Footer -->
-    <footer style="background: var(--color-dark); color: white; padding: 2rem 3rem; text-align: center;">
+    <footer style="background: #3d7a5c; color: white; padding: 2rem 3rem; text-align: center;">
         <div style="max-width: 1400px; margin: 0 auto;">
             <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
-            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: rgba(255,255,255,0.6); text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
             <p style="font-size: 0.78rem; color: rgba(255,255,255,0.3);">
-                <a href="/terms.html" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
-                <a href="/privacy.html" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+                <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
+                <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
+                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
             </p>
-            <p style="font-size: 0.72rem; color: rgba(255,255,255,0.2); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
+            <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
         </div>
     </footer>
 
