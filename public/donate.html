@@ -141,7 +141,7 @@
             <li><a href="/#dogs-section">Urgent Dogs</a></li>
             <li><a href="/how-it-works.html">How It Works</a></li>
             <li><a href="/about.html">About</a></li>
-            <li><a href="/#network-section">Join the Network</a></li>
+            <li><a href="/network.html">Join the Network</a></li>
             <li><a href="/donate.html" class="btn-red-nav">Fund a Dog</a></li>
         </ul>
     </div>
@@ -317,7 +317,7 @@
             <p style="font-size: 0.78rem; color: rgba(255,255,255,0.3);">
                 <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
                 <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+                <a href="/cdn-cgi/l/email-protection#4f272a2323200f232e2b20282b263c3f2e3b2c27612c2022" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
             </p>
             <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
         </div>
@@ -331,7 +331,7 @@
     <button class="tab-item"><span class="tab-icon">☰</span><span class="tab-label">More</span></button>
 </nav>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     let selectedAmounts = { general: 50, member: 25, dog: 50 };
     let selectedDog = null;
 
@@ -375,11 +375,3 @@
         document.getElementById('selected-dog-note').textContent = `Funding: ${dog.name || dog.shelter_id}`;
         const btn = document.getElementById('dog-donate-btn');
         btn.textContent = `Fund ${dog.name || dog.shelter_id} →`;
-        btn.href = dog.givebutter_url || `https://givebutter.com/la_dog_dispatch?dog=${dog.shelter_id}`;
-    }
-
-    loadFundDogs();
-</script>
-
-</body>
-</html>
