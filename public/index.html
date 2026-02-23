@@ -18,14 +18,16 @@
             --shadow-md: 0 8px 24px rgba(26,22,20,0.12); --shadow-lg: 0 16px 48px rgba(26,22,20,0.18);
         }
         body { font-family: 'Source Sans 3', sans-serif; color: var(--color-text); background: var(--color-cream); line-height: 1.65; }
-        nav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        nav { background: rgba(74,140,106,0.97); border-bottom: 1px solid #3d7a5c; position: sticky; top: 0; z-index: 100; }
         .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 75px; overflow: hidden; }
         .logo { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: var(--color-dark); text-decoration: none; font-weight: 600; }
         .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--red); }
+        .nav-links a { text-decoration: none; color: rgba(255,255,255,0.9); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
+        .nav-links a:hover { color: white; }
         .btn-primary { background: var(--color-red); color: white; padding: 0.8rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; transition: all 0.3s; display: inline-block; cursor: pointer; }
         .btn-primary:hover { background: #9d1f16; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .hero-buttons .btn-primary { background: var(--color-red) !important; }
+        .hero-buttons .btn-primary:hover { background: #9d1f16 !important; }
         .btn-secondary { background: transparent; color: var(--color-dark); padding: 0.5rem 1.6rem; border-radius: 6px; text-decoration: none; font-weight: 600; border: 2px solid var(--color-dark); transition: all 0.3s; display: inline-block; cursor: pointer; }
         .btn-secondary:hover { background: var(--color-dark); color: white; }
         .hero { max-width: 1400px; margin: 0 auto; padding: 0.6rem 3rem 0.4rem; text-align: center; display: flex; flex-direction: column; justify-content: center; }
@@ -40,8 +42,8 @@
         #dogs-section { padding-top: 0 !important; padding-bottom: 1.5rem; margin-top: 0.2rem; }
         .category-filters { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
         .category-btn { padding: 0.85rem 1.7rem; border: 2px solid var(--color-border); background: white; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s; font-size: 0.95rem; }
-        .category-btn:hover { border-color: var(--color-red); color: var(--color-red); transform: translateY(-2px); }
-        .category-btn.active { background: var(--color-red); color: white; border-color: var(--color-red); }
+        .category-btn:hover { border-color: #4a8c6a; color: #4a8c6a; transform: translateY(-2px); }
+        .category-btn.active { background: #4a8c6a; color: white; border-color: #4a8c6a; }
         .dogs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2.5rem; }
         .dog-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); transition: all 0.4s; cursor: pointer; border: 3px solid #4a8c6a; }
         .dog-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
@@ -65,7 +67,8 @@
         .progress-bar { height: 10px; background: var(--color-tan); border-radius: 10px; overflow: hidden; margin-bottom: 0.4rem; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 10px; transition: width 0.5s; }
         .progress-text { font-size: 0.85rem; color: var(--color-text-light); }
-        .dog-card .btn-primary { width: 100%; text-align: center; margin-top: 1.2rem; }
+        .dog-card .btn-primary { width: 100%; text-align: center; margin-top: 1.2rem; background: #4a8c6a; }
+        .dog-card .btn-primary:hover { background: #3d7a5c; }
 
         /* ── JOIN THE NETWORK SECTION ── */
         .network-section {
@@ -220,6 +223,8 @@
             .proof-points { gap: 0.8rem; flex-direction: column; align-items: flex-start; padding: 0 0.5rem; margin-bottom: 0.8rem; }
             .hero-buttons { flex-direction: column; align-items: stretch; padding: 0 1rem; }
             .hero-buttons .btn-primary, .hero-buttons .btn-secondary { text-align: center; }
+            .hero-buttons .btn-primary { background: var(--color-red) !important; }
+            .hero-buttons .btn-primary:hover { background: #9d1f16 !important; }
             section { padding: 1rem 1rem; }
             #dogs-section { padding-top: 0.5rem; padding-bottom: 1.5rem; }
             .section-title { font-size: 1.3rem; }
@@ -274,11 +279,11 @@
         .tab-item.active .tab-label { color: var(--color-red); }
         .tab-item.tab-fund {
             flex: 1.4;
-            background: var(--color-red);
+            background: #4a8c6a;
             margin: 0.4rem 0.3rem;
             border-radius: 10px;
             height: calc(100% - 0.8rem);
-            box-shadow: 0 4px 12px rgba(196,40,28,0.35);
+            box-shadow: 0 4px 12px rgba(74,140,106,0.35);
         }
         .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
         .tab-item.tab-fund .tab-icon { font-size: 1.15rem; }
