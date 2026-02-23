@@ -16,12 +16,12 @@
         body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
 
         /* NAV */
-        nav.topnav { background: rgba(74,140,106,0.97); border-bottom: 1px solid #3d7a5c; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px);  overflow: hidden;}
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px);  overflow: hidden;}
         .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px;  overflow: hidden;}
         .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
         .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: rgba(255,255,255,0.85); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
-        .nav-links a:hover { color: white; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--red); }
         .btn-red { background: var(--red); color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
 
         /* HERO */
@@ -38,7 +38,7 @@
         .stat-l { font-size: 0.72rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
 
         /* TABS */
-        .tabs-bar { background: white; border-bottom: 1px solid #3d7a5c; sticky; top: 68px; z-index: 90; }
+        .tabs-bar { background: white; border-bottom: 1px solid var(--border); sticky; top: 68px; z-index: 90; }
         .tabs-inner { max-width: 1200px; margin: 0 auto; padding: 0 3rem; display: flex; gap: 0; }
         .tab-btn { padding: 0.9rem 1.5rem; font-size: 0.88rem; font-weight: 600; color: var(--muted); background: none; border: none; border-bottom: 2.5px solid transparent; cursor: pointer; transition: all 0.2s; font-family: 'Source Sans 3', sans-serif; }
         .tab-btn:hover { color: var(--text); }
@@ -65,7 +65,7 @@
         .badge-critical { background: #fee2e2; color: #b91c1c; }
         .badge-urgent { background: #fef3c7; color: #92400e; }
         .badge-shelter { background: #ede9fe; color: #5b21b6; font-size: 0.65rem; }
-        .badge-rescue-only { background: #e8f3ed; color: #2d5a44; border: 1px solid #4a8c6a; }
+        .badge-rescue-only { background: #fef3c7; color: #92400e; }
         .dog-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--dark); margin-bottom: 0.2rem; }
         .dog-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
         .dog-deadline { font-size: 0.78rem; color: var(--red); font-weight: 600; margin-bottom: 0.7rem; }
@@ -250,7 +250,7 @@
 <div class="contact-bar">
     <div class="contact-bar-inner">
         <p><strong>Not yet a verified partner?</strong> We work with rescues directly to build trust before sharing funds and fosters.</p>
-        <a href="mailto:hello@la_urgent_dogs_dispatch.org?subject=Rescue Partner Inquiry&body=Hi, I'd like to learn more about becoming a verified rescue partner with LA Dog Dispatch." class="btn-contact-us">Get in Touch →</a>
+        <a href="mailto:hello@la_dog_dispatch.org?subject=Rescue Partner Inquiry&body=Hi, I'd like to learn more about becoming a verified rescue partner with LA Dog Dispatch." class="btn-contact-us">Get in Touch →</a>
     </div>
 </div>
 
@@ -258,14 +258,14 @@
 <div class="modal-overlay" id="ig-modal" onclick="closeIgModal(event)">
     <div class="modal">
         <h3>Share to Instagram</h3>
-        <p>Screenshot or download this card and post it to your Instagram story or feed. Tag <strong>@la_urgent_dogs_dispatch</strong> so we can reshare.</p>
+        <p>Screenshot or download this card and post it to your Instagram story or feed. Tag <strong>@la_dog_dispatch</strong> so we can reshare.</p>
         <div class="ig-card-preview" id="ig-preview">
             <img class="ig-card-img" id="ig-card-img" src="" alt="">
             <div class="ig-card-content">
                 <div class="ig-card-tag">🚨 Urgent — LA Dog Dispatch</div>
                 <div class="ig-card-name" id="ig-card-name"></div>
                 <div class="ig-card-meta" id="ig-card-meta"></div>
-                <div class="ig-card-cta">la_urgent_dogs_dispatch.org · Link in bio to fund or rescue</div>
+                <div class="ig-card-cta">la_dog_dispatch.org · Link in bio to fund or rescue</div>
             </div>
         </div>
         <div class="modal-actions">
@@ -315,10 +315,25 @@
 </div>
 
 <!-- MOBILE NAV -->
+
+    <!-- Footer -->
+    <footer style="background: var(--color-dark); color: white; padding: 2rem 3rem; text-align: center;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
+            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: rgba(255,255,255,0.6); text-decoration: none;">Hot Girls Care Foundation</a> · Los Angeles, CA</p>
+            <p style="font-size: 0.78rem; color: rgba(255,255,255,0.3);">
+                <a href="/terms.html" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
+                <a href="/privacy.html" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
+                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+            </p>
+            <p style="font-size: 0.72rem; color: rgba(255,255,255,0.2); margin-top: 0.8rem;">© 2026 Hot Girls Care Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
 <nav class="bottom-tab-bar">
     <a href="/#dogs-section" class="tab-item"><span class="tab-icon">🐕</span><span class="tab-label">Dogs</span></a>
     <a href="/foster.html" class="tab-item"><span class="tab-icon">🏠</span><span class="tab-label">Foster</span></a>
-    <a href="https://givebutter.com/la_urgent_dogs_dispatch" target="_blank" class="tab-item tab-fund"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
+    <a href="https://givebutter.com/la_dog_dispatch" target="_blank" class="tab-item tab-fund"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
     <a href="/rescue.html" class="tab-item active"><span class="tab-icon">🐾</span><span class="tab-label">Rescue</span></a>
     <button class="tab-item"><span class="tab-icon">☰</span><span class="tab-label">More</span></button>
 </nav>
@@ -450,7 +465,7 @@
     }
     function downloadIgCard() {
         // For now, instruct to screenshot — canvas-based download can be added later
-        alert('Screenshot this card and post to your Instagram story or feed. Tag @la_urgent_dogs_dispatch!');
+        alert('Screenshot this card and post to your Instagram story or feed. Tag @la_dog_dispatch!');
     }
 
     // Commit Modal
@@ -479,7 +494,7 @@
                 document.getElementById('commit-modal').classList.remove('open');
                 alert(`✅ Commitment recorded for ${currentDog.name || currentDog.shelter_id}. We'll follow up shortly.`);
             } else { throw new Error(); }
-        } catch { alert('Something went wrong. Please email us directly at hello@la_urgent_dogs_dispatch.org'); }
+        } catch { alert('Something went wrong. Please email us directly at hello@la_dog_dispatch.org'); }
     }
 
     // Init
