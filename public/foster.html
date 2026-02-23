@@ -24,11 +24,11 @@
         .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
         .nav-links a:hover { color: var(--red); }
         .btn-nav { background: var(--color-red); color: white !important; padding: 0.45rem 1.4rem; border-radius: 6px; font-weight: 600 !important; }
-        .btn-nav:hover { background: #9d1f16; }
+        .btn-nav:hover { background: #3d7a5c; }
 
         /* ── HERO ── */
         .hero {
-            background: var(--color-dark);
+            background: #4a8c6a;
             padding: 1.8rem 3rem 1.5rem;
             text-align: center;
             position: relative;
@@ -41,7 +41,7 @@
                         radial-gradient(ellipse at 75% 30%, rgba(196,40,28,0.1) 0%, transparent 50%);
         }
         .hero-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
-        .hero-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-red); margin-bottom: 1rem; }
+        .hero-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 1rem; }
         .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: white; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.8rem; }
         .hero h1 em { font-style: italic; color: rgba(255,255,255,0.65); }
         .hero-sub { font-size: 1rem; color: rgba(255,255,255,0.6); line-height: 1.6; max-width: 900px; margin: 0 auto 1rem; }
@@ -49,19 +49,19 @@
         .stat { text-align: center; }
         .stat-number { font-family: 'Playfair Display', serif; font-size: 2rem; color: white; font-weight: 700; }
         .stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.25rem; max-width: 120px; line-height: 1.4; }
-        .hero-pull { margin-top: 1rem; border-left: 3px solid var(--color-red); padding: 0.5rem 1.2rem; text-align: left; max-width: 860px; margin-left: auto; margin-right: auto; }
+        .hero-pull { margin-top: 1rem; border-left: 3px solid rgba(255,255,255,0.4); padding: 0.5rem 1.2rem; text-align: left; max-width: 860px; margin-left: auto; margin-right: auto; }
         .pull-quote { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: rgba(255,255,255,0.85); line-height: 1.6; font-style: italic; margin-bottom: 0.3rem; }
         .pull-quote em { color: white; font-style: normal; font-weight: 600; }
         .pull-attr { font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
 
         /* ── WHAT TO EXPECT ── */
         .section { max-width: 1200px; margin: 0 auto; padding: 1.5rem 3rem; }
-        .section-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-red); margin-bottom: 0.5rem; }
+        .section-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #4a8c6a; margin-bottom: 0.5rem; }
         .section-title { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: var(--color-dark); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
         .section-sub { color: var(--color-text-light); font-size: 0.95rem; margin-bottom: 2rem; }
 
         .expect-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; max-width: 1100px; width: 100%; }
-        .expect-card { background: white; border-radius: 10px; padding: 0.9rem 1.2rem; border: 1px solid var(--color-border); position: relative; overflow: hidden; transition: box-shadow 0.3s, transform 0.3s; display: flex; align-items: flex-start; gap: 0.8rem; }
+        .expect-card { background: white; border-radius: 10px; padding: 0.9rem 1.2rem; border: 1px solid #4a8c6a; position: relative; overflow: hidden; transition: box-shadow 0.3s, transform 0.3s; display: flex; align-items: flex-start; gap: 0.8rem; }
         .expect-card:hover { box-shadow: 0 8px 28px rgba(26,22,20,0.1); transform: translateY(-3px); }
         .expect-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--color-red); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
         .expect-card:hover::before { transform: scaleX(1); }
@@ -70,7 +70,7 @@
         .expect-desc { color: var(--color-text-light); font-size: 0.84rem; line-height: 1.55; }
 
         /* ── FORM SECTION ── */
-        .form-wrap { background: white; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+        .form-wrap { background: white; border-top: 2px solid #4a8c6a; border-bottom: 2px solid #4a8c6a; }
         .form-inner { max-width: 760px; margin: 0 auto; padding: 2rem 3rem; }
 
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
@@ -83,7 +83,7 @@
         label .req { color: var(--color-red); }
         input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
             padding: 0.7rem 0.9rem;
-            border: 1.5px solid var(--color-border);
+            border: 1.5px solid #4a8c6a;
             border-radius: 8px;
             font-size: 0.92rem;
             font-family: 'Source Sans 3', sans-serif;
@@ -92,12 +92,12 @@
             transition: border-color 0.2s, box-shadow 0.2s;
             width: 100%;
         }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-red); box-shadow: 0 0 0 3px rgba(196,40,28,0.08); background: white; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #4a8c6a; box-shadow: 0 0 0 3px rgba(74,140,106,0.12); background: white; }
         textarea { resize: vertical; min-height: 90px; }
         select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; background-size: 12px; padding-right: 2.5rem; }
 
         .chip-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .chip { display: inline-flex; align-items: center; gap: 0.4rem; border: 1.5px solid var(--color-border); border-radius: 20px; padding: 0.38rem 0.85rem; cursor: pointer; transition: all 0.18s; background: var(--color-cream); }
+        .chip { display: inline-flex; align-items: center; gap: 0.4rem; border: 1.5px solid #4a8c6a; border-radius: 20px; padding: 0.38rem 0.85rem; cursor: pointer; transition: all 0.18s; background: var(--color-cream); }
         .chip:hover { border-color: var(--color-red); }
         .chip input { position: absolute; opacity: 0; pointer-events: none; }
         .chip span { font-size: 0.84rem; font-weight: 500; color: var(--color-text); pointer-events: none; }
@@ -105,8 +105,8 @@
         .chip.selected span { color: var(--color-red); }
 
         .submit-wrap { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 0.5rem; }
-        .btn-submit { background: var(--color-red); color: white; padding: 0.85rem 2.2rem; border-radius: 8px; font-weight: 700; font-size: 1rem; font-family: 'Source Sans 3', sans-serif; border: none; cursor: pointer; transition: all 0.3s; display: inline-block; width: fit-content; }
-        .btn-submit:hover { background: #9d1f16; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(196,40,28,0.25); }
+        .btn-submit { background: #4a8c6a; color: white; padding: 0.85rem 2.2rem; border-radius: 8px; font-weight: 700; font-size: 1rem; font-family: 'Source Sans 3', sans-serif; border: none; cursor: pointer; transition: all 0.3s; display: inline-block; width: fit-content; }
+        .btn-submit:hover { background: #3d7a5c; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(196,40,28,0.25); }
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .submit-note { font-size: 0.78rem; color: var(--color-text-light); }
 
@@ -126,12 +126,12 @@
         .faq-item.open .faq-a { max-height: 300px; padding-bottom: 1rem; }
 
         /* ── BOTTOM CTA ── */
-        .bottom-cta { background: var(--color-dark); padding: 3rem; text-align: center; border-top: 3px solid var(--color-red); }
+        .bottom-cta { background: #3d7a5c; padding: 3rem; text-align: center; border-top: 3px solid rgba(255,255,255,0.2); }
         .bottom-cta h2 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: white; margin-bottom: 0.6rem; }
         .bottom-cta p { color: rgba(255,255,255,0.55); margin-bottom: 1.5rem; font-size: 0.92rem; }
         .cta-buttons { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
-        .btn-red { background: var(--color-red); color: white; padding: 0.5rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
-        .btn-red:hover { background: #9d1f16; }
+        .btn-red { background: #4a8c6a; color: white; padding: 0.5rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
+        .btn-red:hover { background: #3d7a5c; }
         .btn-ghost { background: transparent; color: white; padding: 0.5rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; border: 1.5px solid rgba(255,255,255,0.3); transition: all 0.2s; }
         .btn-ghost:hover { border-color: white; }
 
@@ -378,16 +378,16 @@
     <!-- ═══ BOTTOM TAB BAR (mobile) ═══ -->
     
     <!-- Footer -->
-    <footer style="background: var(--color-dark); color: white; padding: 2rem 3rem; text-align: center;">
+    <footer style="background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 2rem 3rem; text-align: center;">
         <div style="max-width: 1400px; margin: 0 auto;">
             <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
-            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: rgba(255,255,255,0.6); text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
             <p style="font-size: 0.78rem; color: rgba(255,255,255,0.3);">
-                <a href="/terms.html" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
-                <a href="/privacy.html" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.45); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+                <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
+                <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
+                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
             </p>
-            <p style="font-size: 0.72rem; color: rgba(255,255,255,0.2); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
+            <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
         </div>
     </footer>
 
