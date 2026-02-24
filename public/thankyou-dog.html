@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You — LA Dog Dispatch</title>
+    <link rel="icon" type="image/png" href="/logo-icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --cream: #f8f6f3; --dark: #1a1614; --text: #3a3632; --muted: #6b6560; --border: #d4cfc7; }
+        body { font-family: 'Source Sans 3', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 72px; }
+        .logo-img { height: 52px; width: auto; display: block; }
+
+        .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 4rem 2rem; }
+        .card { background: white; border-radius: 20px; border: 1px solid var(--border); padding: 3rem 2.5rem; max-width: 560px; width: 100%; text-align: center; box-shadow: 0 8px 40px rgba(26,22,20,0.08); }
+
+        .paw { font-size: 3.5rem; margin-bottom: 1.2rem; display: block; animation: pop 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+        @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 80% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+
+        .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #4a8c6a; margin-bottom: 0.6rem; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--dark); font-weight: 700; margin-bottom: 0.8rem; line-height: 1.2; }
+        .sub { font-size: 0.95rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; }
+        .amount-badge { display: inline-block; background: #f0f7f4; color: #4a8c6a; font-weight: 700; font-size: 1.1rem; padding: 0.4rem 1.2rem; border-radius: 50px; margin-bottom: 1.5rem; border: 1.5px solid #4a8c6a; }
+
+        .divider { border: none; border-top: 1px solid var(--border); margin: 1.8rem 0; }
+
+        .nudge { background: #4a8c6a; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.2rem; text-align: left; }
+        .nudge-eyebrow { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 0.4rem; }
+        .nudge h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white; font-weight: 700; margin-bottom: 0.4rem; }
+        .nudge p { font-size: 0.83rem; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 1rem; }
+        .btn-member { display: block; background: white; color: #4a8c6a; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; text-decoration: none; text-align: center; transition: all 0.2s; }
+        .btn-member:hover { background: #f0f7f4; }
+
+        .btn-back { display: inline-block; color: var(--muted); font-size: 0.85rem; text-decoration: none; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+        .btn-back:hover { color: var(--dark); }
+
+        footer { background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 1.5rem 3rem; text-align: center; }
+        footer p { font-size: 0.78rem; color: rgba(255,255,255,0.8); }
+        footer a { color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.6rem; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <div class="nav-container">
+        <a href="/"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
+    </div>
+</nav>
+
+<div class="main">
+    <div class="card">
+        <span class="paw">🐾</span>
+        <p class="eyebrow">Donation received</p>
+        <h1 id="headline">You just gave a dog a fighting chance.</h1>
+        <div class="amount-badge" id="amount-badge" style="display:none"></div>
+        <p class="sub" id="sub-text">Your donation goes directly to the rescue that commits to pulling them. We'll let you know when they're safe.</p>
+
+        <hr class="divider">
+
+        <div class="nudge">
+            <p class="nudge-eyebrow">Want to do more?</p>
+            <h3>Become a monthly member.</h3>
+            <p>Members fund the whole system — so every dog gets a shot, not just the ones who get lucky with a donor. Starting at $10/month.</p>
+            <a href="/donate.html#membership" class="btn-member">Become a Member →</a>
+        </div>
+
+        <a href="/#dogs-section" class="btn-back">← See more dogs that need help</a>
+    </div>
+</div>
+
+<footer>
+    <p>
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="mailto:hello@ladogdispatch.com">Contact</a>
+        · © 2026 Hot Girls Care Nonprofit
+    </p>
+</footer>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const dog = params.get('dog');
+    const amount = params.get('amount');
+
+    if (dog) {
+        document.getElementById('headline').textContent = `You just gave ${dog} a fighting chance.`;
+        document.getElementById('sub-text').textContent = `Your donation is held for ${dog} and released directly to the rescue that commits to pulling them. We'll let you know when they're safe.`;
+    }
+    if (amount) {
+        const dollars = (parseInt(amount) / 100).toFixed(0);
+        const badge = document.getElementById('amount-badge');
+        badge.textContent = `$${dollars} donated`;
+        badge.style.display = 'inline-block';
+    }
+</script>
+
+</body>
+</html>
