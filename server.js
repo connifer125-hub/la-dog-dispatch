@@ -18,6 +18,18 @@ app.use(express.static('public'));
 // Database connection
 const db = require('./config/database');
 
+// ── WRAP db.query WITH A 10s TIMEOUT ──
+// Prevents hung DB connections from stalling the entire API indefinitely
+const originalQuery = db.query.bind(db);
+db.query = (...args) => {
+  return Promise.race([
+    originalQuery(...args),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('DB query timeout after 10s')), 10000)
+    )
+  ]);
+};
+
 // Run migrations to fix ALL field lengths
 const runMigrations = async () => {
   try {
@@ -35,7 +47,6 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS shelter_priority INTEGER DEFAULT 99",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE",
       "ALTER TABLE dogs ALTER COLUMN rescue_only SET DEFAULT FALSE",
-      // rescue_only NULLs are fixed by re-scrape, not blanket false
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE"
     ];
@@ -77,16 +88,28 @@ const initDB = async () => {
   }
 };
 
+// ── HEALTH CHECK — use this to diagnose DB issues ──
+// Visit: /api/health
+app.get('/api/health', async (req, res) => {
+  try {
+    const start = Date.now();
+    await originalQuery('SELECT 1'); // bypass timeout wrapper for health check
+    res.json({ status: 'ok', db: 'connected', latency_ms: Date.now() - start, time: new Date().toISOString() });
+  } catch (err) {
+    console.error('❌ Health check failed:', err.message);
+    res.status(503).json({ status: 'error', db: 'disconnected', error: err.message });
+  }
+});
+
 // ── ACTIVE ROUTES ──
 app.use('/api/dogs', require('./routes/dogs'));
 app.use('/api', require('./routes/fix-photos'));
 app.use('/api', require('./routes/diagnose-photos'));
 
-// Force migration endpoint - adds new columns if they don't exist
+// Force migration endpoint
 app.get('/api/run-migrations', async (req, res) => {
   try {
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE");
-    // rescue_only NULLs fixed by re-scrape
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE");
     res.json({ message: 'Migrations complete - columns added' });
@@ -95,7 +118,7 @@ app.get('/api/run-migrations', async (req, res) => {
   }
 });
 
-// Manual scraper trigger (for testing/refreshing data)
+// Manual scraper trigger
 app.get('/api/scrape-now', async (req, res) => {
   try {
     const { scrapePetHarbor } = require('./services/petharborScraper');
@@ -106,14 +129,10 @@ app.get('/api/scrape-now', async (req, res) => {
   }
 });
 
-// ── ROUTES NOT YET BUILT (uncomment as each page is built) ──
-// app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/donations', require('./routes/donations'));
 app.use('/api/rescues', require('./routes/rescues'));
 app.use('/api/fosters', require('./routes/fosters'));
 
-
-// Debug: fetch one dog from PetHarbor and show raw text to diagnose rescue_only parsing
+// Debug: fetch one dog from PetHarbor
 app.get('/api/debug-petharbor', async (req, res) => {
   try {
     const axios = require('axios');
@@ -141,7 +160,7 @@ app.get('/api/debug-petharbor', async (req, res) => {
   }
 });
 
-// Debug: check rescue_only values directly in DB
+// Debug: check rescue_only values in DB
 app.get('/api/debug-rescue-only', async (req, res) => {
   try {
     const result = await db.query(`
@@ -156,7 +175,6 @@ app.get('/api/debug-rescue-only', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
-
 
 // Subscribers (newsletter sign-ups)
 app.post('/api/subscribers', async (req, res) => {
@@ -200,9 +218,6 @@ app.post('/api/transporters', async (req, res) => {
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
-// app.use('/api/transport', require('./routes/transport'));
-// app.use('/api/admin', require('./routes/admin'));
-// app.use('/api/notifications', require('./routes/notifications'));
 
 // Test SMS alert
 app.get('/api/test-sms', async (req, res) => {
