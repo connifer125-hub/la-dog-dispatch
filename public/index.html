@@ -357,6 +357,7 @@
                 <li><a href="/how-it-works.html">How It Works</a></li>
                 <li><a href="/about.html">About</a></li>
                 <li><a href="/network.html">Join the Network</a></li>
+                <li><a href="/donate.html">Become a Member</a></li>
                 <li><a href="#dogs-section" class="btn-primary">Fund a Dog</a></li>
             </ul>
         </div>
@@ -492,28 +493,28 @@
             <p style="font-size: 0.78rem;">
                 <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
                 <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+                <a href="/cdn-cgi/l/email-protection#0d65686161624d616c69626a69647e7d6c796e65236e6260" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
             </p>
             <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
         </div>
     </footer>
 
     <canvas id="card-canvas" style="display:none;" width="1080" height="1080"></canvas>
-    <nav class="bottom-tab-bar">
-        <a href="#dogs-section" class="tab-item active" onclick="setActiveTab(this)">
+        <nav class="bottom-tab-bar">
+        <a href="#dogs-section" class="tab-item tab-fund">
             <span class="tab-icon">🐕</span>
-            <span class="tab-label">Dogs</span>
+            <span class="tab-label">Fund a Dog</span>
         </a>
-        <a href="/foster.html" class="tab-item" onclick="setActiveTab(this)">
+        <a href="/foster.html" class="tab-item">
             <span class="tab-icon">🏠</span>
             <span class="tab-label">Foster</span>
         </a>
-        <a href="https://givebutter.com/la_dog_dispatch" target="_blank" class="tab-item tab-fund">
-            <span class="tab-icon">$</span>
-            <span class="tab-label">Fund a Dog</span>
+        <a href="/donate.html" class="tab-item tab-member">
+            <span class="tab-icon">💛</span>
+            <span class="tab-label">Become a Member</span>
         </a>
-        <a href="/rescue.html" class="tab-item" onclick="setActiveTab(this)">
-            <span class="tab-icon">★</span>
+        <a href="/rescue.html" class="tab-item">
+            <span class="tab-icon">⭐</span>
             <span class="tab-label">Rescue</span>
         </a>
         <button class="tab-item" onclick="toggleMore()">
@@ -522,10 +523,38 @@
         </button>
     </nav>
 
-    <!-- ═══ MORE SLIDE-UP DRAWER ═══ -->
-    <div class="more-overlay" id="more-overlay" onclick="closeMore()"></div>
+    <!-- MORE DRAWER -->
+    <div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
     <div class="more-drawer" id="more-drawer">
         <div class="more-handle"></div>
+        <div class="more-title">More Pages</div>
+        <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
+        <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
+        <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
+        <a href="/social.html" class="more-link"><span class="more-link-icon">📢</span> Share on Social <span class="more-link-arrow">›</span></a>
+        <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    function toggleMore() {
+        const drawer = document.getElementById('more-drawer');
+        const overlay = document.getElementById('more-overlay');
+        const isOpen = drawer.classList.contains('open');
+        if (isOpen) {
+            drawer.classList.remove('open');
+            overlay.classList.remove('visible');
+            setTimeout(() => overlay.classList.remove('active'), 250);
+        } else {
+            overlay.classList.add('active');
+            requestAnimationFrame(() => {
+                overlay.classList.add('visible');
+                drawer.classList.add('open');
+            });
+        }
+    }
+    </script>
+
+    <!-- ═══ MORE SLIDE-UP DRAWER ═══ -->
         <div class="more-title">More</div>
         <a href="/donate.html" class="more-link">
             <span class="more-link-icon">💛</span> Donate / Become a Member
@@ -903,10 +932,4 @@
                 await navigator.clipboard.writeText(caption);
                 btn.textContent = '✓ Copied!';
                 btn.classList.add('copied');
-                setTimeout(() => { btn.textContent = 'Copy Caption'; btn.classList.remove('copied'); }, 2500);
-            } catch(e) { prompt('Copy this caption:', caption); }
-        }
-
-    </script>
-</body>
-</html>
+                setTimeout(() => { btn.textContent = 'Copy Capti
