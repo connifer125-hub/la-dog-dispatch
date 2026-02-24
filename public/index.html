@@ -241,6 +241,31 @@
             body { padding-bottom: 64px; }
         }
 
+
+        /* ── FUND A DOG MODAL ── */
+        .fund-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
+        @media (min-width: 600px) { .fund-modal-overlay { align-items: center; } }
+        .fund-modal-overlay.open { display: flex; }
+        .fund-modal { background: white; border-radius: 20px 20px 0 0; padding: 2rem 1.5rem 2.5rem; width: 100%; max-width: 460px; position: relative; animation: slideUp 0.3s cubic-bezier(0.32,0.72,0,1); }
+        @media (min-width: 600px) { .fund-modal { border-radius: 20px; } }
+        @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .fund-modal-close { position: absolute; top: 1rem; right: 1rem; background: #f0ede8; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 0.75rem; cursor: pointer; color: #6b6560; display: flex; align-items: center; justify-content: center; }
+        .fund-modal-eyebrow { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #4a8c6a; margin-bottom: 0.2rem; }
+        .fund-modal-dog-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: #1a1614; margin-bottom: 0.2rem; }
+        .fund-modal-dog-meta { font-size: 0.82rem; color: #6b6560; margin-bottom: 1.4rem; }
+        .fund-modal-amounts { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+        .fund-amt-btn { flex: 1; min-width: 52px; padding: 0.6rem 0.4rem; border: 1.5px solid #d4cfc7; border-radius: 8px; background: #f8f6f3; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: inherit; color: #3a3632; }
+        .fund-amt-btn:hover { border-color: #4a8c6a; color: #4a8c6a; }
+        .fund-amt-btn.selected { border-color: #4a8c6a; background: #f0f7f4; color: #4a8c6a; }
+        .fund-modal-custom { display: flex; align-items: center; border: 1.5px solid #d4cfc7; border-radius: 8px; overflow: hidden; margin-bottom: 1rem; background: #f8f6f3; }
+        .fund-custom-prefix { padding: 0 0.6rem 0 0.9rem; color: #6b6560; font-weight: 700; font-size: 0.95rem; }
+        .fund-modal-custom input { flex: 1; border: none; background: transparent; padding: 0.6rem 0.6rem 0.6rem 0; font-size: 0.9rem; font-family: inherit; outline: none; color: #1a1614; }
+        .fund-modal-note { font-size: 0.78rem; color: #6b6560; line-height: 1.6; margin-bottom: 1.2rem; }
+        .fund-modal-btn { width: 100%; background: #4a8c6a; color: white; border: none; border-radius: 10px; padding: 0.95rem; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; margin-bottom: 0.6rem; }
+        .fund-modal-btn:hover { background: #3d7a5c; transform: translateY(-1px); }
+        .fund-modal-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .fund-modal-sub { text-align: center; font-size: 0.73rem; color: #6b6560; }
+
         /* ── BOTTOM TAB BAR (mobile only) ── */
         .bottom-tab-bar { display: none; }
         @media (max-width: 900px) {
@@ -493,7 +518,7 @@
             <p style="font-size: 0.78rem;">
                 <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
                 <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-                <a href="/cdn-cgi/l/email-protection#0d65686161624d616c69626a69647e7d6c796e65236e6260" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
             </p>
             <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
         </div>
@@ -535,7 +560,7 @@
         <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
     function toggleMore() {
         const drawer = document.getElementById('more-drawer');
         const overlay = document.getElementById('more-overlay');
@@ -690,9 +715,7 @@
                             </div>
                             <div class="progress-text">${percentage}% funded</div>
                         </div>
-                        <a href="${dog.givebutter_url || 'https://givebutter.com/la_dog_dispatch'}" 
-                           target="_blank" rel="noopener" class="btn-primary" 
-                           onclick="event.stopPropagation()">💛 Fund This Dog</a>
+                        <button class="btn-primary" onclick="event.stopPropagation(); openFundModal(${JSON.stringify(dog).replace(/"/g,'&quot;')})">💛 Fund This Dog</button>
                         <div class="dog-share-btns">
                             <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;')})">📱 IG Story</button>
                             <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;')})">⬇ Save</button>
@@ -932,4 +955,115 @@
                 await navigator.clipboard.writeText(caption);
                 btn.textContent = '✓ Copied!';
                 btn.classList.add('copied');
-                setTimeout(() => { btn.textContent = 'Copy Capti
+                setTimeout(() => { btn.textContent = 'Copy Caption'; btn.classList.remove('copied'); }, 2500);
+            } catch(e) { prompt('Copy this caption:', caption); }
+        }
+
+    
+    // ── FUND A DOG MODAL ──────────────────────────────────────────
+    let fundDog = null;
+    let fundAmount = 25;
+
+    function openFundModal(dog) {
+        fundDog = dog;
+        fundAmount = 25;
+        document.getElementById('fund-modal-name').textContent = dog.name || dog.shelter_id;
+        document.getElementById('fund-modal-name-inline').textContent = dog.name || 'this dog';
+        document.getElementById('fund-modal-meta').textContent =
+            `${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'} · ${Math.ceil((new Date(dog.deadline) - new Date()) / 86400000)} days left`;
+        document.getElementById('fund-custom-input').value = '';
+        document.querySelectorAll('.fund-amt-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('.fund-amt-btn')[1].classList.add('selected'); // $25 default
+        updateFundBtn(25);
+        document.getElementById('fund-modal-overlay').classList.add('open');
+    }
+
+    function closeFundModal(e) {
+        if (e.target === document.getElementById('fund-modal-overlay')) {
+            document.getElementById('fund-modal-overlay').classList.remove('open');
+        }
+    }
+
+    function selectFundAmt(amount, btn) {
+        fundAmount = amount;
+        document.querySelectorAll('.fund-amt-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('fund-custom-input').value = '';
+        updateFundBtn(amount);
+    }
+
+    function onCustomAmount(input) {
+        const val = parseFloat(input.value);
+        if (val > 0) {
+            fundAmount = val;
+            document.querySelectorAll('.fund-amt-btn').forEach(b => b.classList.remove('selected'));
+            updateFundBtn(val);
+        }
+    }
+
+    function updateFundBtn(amount) {
+        document.getElementById('fund-modal-btn-text').textContent = `Donate $${amount} →`;
+    }
+
+    async function submitFund() {
+        if (!fundDog || !fundAmount || fundAmount < 1) return;
+        const btn = document.getElementById('fund-modal-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<span>Processing...</span>';
+        try {
+            const res = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    dog_id: fundDog.id,
+                    dog_name: fundDog.name || fundDog.shelter_id,
+                    shelter_id: fundDog.shelter_id,
+                    shelter: fundDog.shelter,
+                    amount_cents: Math.round(fundAmount * 100)
+                })
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error(data.error || 'Could not start checkout');
+            }
+        } catch (err) {
+            alert(err.message || 'Something went wrong. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = `<span>Donate $${fundAmount} →</span>`;
+        }
+    }
+
+</script>
+
+<!-- ── FUND A DOG MODAL ── -->
+<div class="fund-modal-overlay" id="fund-modal-overlay" onclick="closeFundModal(event)">
+    <div class="fund-modal" id="fund-modal">
+        <button class="fund-modal-close" onclick="document.getElementById('fund-modal-overlay').classList.remove('open')">✕</button>
+        <div class="fund-modal-dog-info">
+            <p class="fund-modal-eyebrow">You're funding</p>
+            <h3 class="fund-modal-dog-name" id="fund-modal-name">—</h3>
+            <p class="fund-modal-dog-meta" id="fund-modal-meta">—</p>
+        </div>
+        <div class="fund-modal-amounts">
+            <button class="fund-amt-btn" onclick="selectFundAmt(10, this)">$10</button>
+            <button class="fund-amt-btn selected" onclick="selectFundAmt(25, this)">$25</button>
+            <button class="fund-amt-btn" onclick="selectFundAmt(50, this)">$50</button>
+            <button class="fund-amt-btn" onclick="selectFundAmt(100, this)">$100</button>
+            <button class="fund-amt-btn" onclick="selectFundAmt(200, this)">$200</button>
+        </div>
+        <div class="fund-modal-custom">
+            <span class="fund-custom-prefix">$</span>
+            <input type="number" id="fund-custom-input" placeholder="Custom amount" min="1" oninput="onCustomAmount(this)">
+        </div>
+        <p class="fund-modal-note">100% goes to the rescue that pulls <span id="fund-modal-name-inline">this dog</span>. Apple Pay &amp; Google Pay accepted.</p>
+        <button class="fund-modal-btn" id="fund-modal-btn" onclick="submitFund()">
+            <span id="fund-modal-btn-text">Donate $25 →</span>
+        </button>
+        <p class="fund-modal-sub">Secure payment via Stripe · Cancel anytime</p>
+    </div>
+</div>
+
+</body>
+</html>
