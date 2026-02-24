@@ -130,6 +130,50 @@
 
         .logo-img { height: 52px; width: auto; display: block; }
         @media (max-width: 900px) { .logo-img { height: 40px; } }
+
+        /* ── MORE SLIDE-UP DRAWER ── */
+        .more-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 190;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .more-overlay.active { display: block; }
+        .more-overlay.visible { opacity: 1; }
+        .more-drawer {
+            display: none;
+            position: fixed;
+            bottom: 64px; left: 0; right: 0;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            z-index: 195;
+            padding: 1rem 0 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
+        }
+        @media (max-width: 900px) { .more-drawer { display: block; } }
+        .more-drawer.open { transform: translateY(0); }
+        .more-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 1rem; }
+        .more-title { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: #6b6560; padding: 0 1.2rem 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .more-link {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.85rem 1.4rem;
+            text-decoration: none;
+            color: #1a1614;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-top: 1px solid #d4cfc7;
+            transition: background 0.15s;
+        }
+        .more-link:active { background: #e8e4dd; }
+        .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
+        .more-link-arrow { margin-left: auto; color: #ccc; }
     </style>
 </head>
 <body>
@@ -142,7 +186,8 @@
             <li><a href="/how-it-works.html">How It Works</a></li>
             <li><a href="/about.html">About</a></li>
             <li><a href="/network.html">Join the Network</a></li>
-            <li><a href="/donate.html" class="btn-red-nav">Fund a Dog</a></li>
+            <li><a href="/donate.html">Become a Member</a></li>
+            <li><a href="/#dogs-section" class="btn-red-nav">Fund a Dog</a></li>
         </ul>
     </div>
 </nav>
@@ -323,13 +368,59 @@
         </div>
     </footer>
 
-<nav class="bottom-tab-bar">
-    <a href="/#dogs-section" class="tab-item"><span class="tab-icon">🐕</span><span class="tab-label">Dogs</span></a>
-    <a href="/foster.html" class="tab-item"><span class="tab-icon">🏠</span><span class="tab-label">Foster</span></a>
-    <a href="/donate.html" class="tab-item tab-fund active"><span class="tab-icon">💛</span><span class="tab-label">Fund a Dog</span></a>
-    <a href="/rescue.html" class="tab-item"><span class="tab-icon">🐾</span><span class="tab-label">Rescue</span></a>
-    <button class="tab-item"><span class="tab-icon">☰</span><span class="tab-label">More</span></button>
-</nav>
+    <nav class="bottom-tab-bar">
+        <a href="/#dogs-section" class="tab-item tab-fund active">
+            <span class="tab-icon">🐕</span>
+            <span class="tab-label">Fund a Dog</span>
+        </a>
+        <a href="/foster.html" class="tab-item">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label">Foster</span>
+        </a>
+        <a href="/donate.html" class="tab-item tab-member">
+            <span class="tab-icon">💛</span>
+            <span class="tab-label">Become a Member</span>
+        </a>
+        <a href="/rescue.html" class="tab-item">
+            <span class="tab-icon">⭐</span>
+            <span class="tab-label">Rescue</span>
+        </a>
+        <button class="tab-item" onclick="toggleMore()">
+            <span class="tab-icon">☰</span>
+            <span class="tab-label">More</span>
+        </button>
+    </nav>
+
+    <!-- MORE DRAWER -->
+    <div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
+    <div class="more-drawer" id="more-drawer">
+        <div class="more-handle"></div>
+        <div class="more-title">More Pages</div>
+        <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
+        <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
+        <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
+        <a href="/social.html" class="more-link"><span class="more-link-icon">📢</span> Share on Social <span class="more-link-arrow">›</span></a>
+        <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
+    </div>
+
+    <script>
+    function toggleMore() {
+        const drawer = document.getElementById('more-drawer');
+        const overlay = document.getElementById('more-overlay');
+        const isOpen = drawer.classList.contains('open');
+        if (isOpen) {
+            drawer.classList.remove('open');
+            overlay.classList.remove('visible');
+            setTimeout(() => overlay.classList.remove('active'), 250);
+        } else {
+            overlay.classList.add('active');
+            requestAnimationFrame(() => {
+                overlay.classList.add('visible');
+                drawer.classList.add('open');
+            });
+        }
+    }
+    </script>
 
 <script>
     let selectedAmounts = { general: 50, member: 25, dog: 50 };
