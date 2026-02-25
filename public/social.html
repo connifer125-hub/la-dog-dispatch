@@ -75,6 +75,10 @@
         .btn-cap { background: var(--cream); color: var(--text); padding: 0.4rem 0.7rem; border-radius: 7px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid var(--border); cursor: pointer; font-family: inherit; transition: all 0.2s; }
         .btn-cap:hover { border-color: var(--text); }
         .btn-cap.copied { color: #166534; border-color: #86efac; background: #f0fdf4; }
+        .btn-tag { background: var(--cream); color: #3d7a5c; padding: 0.4rem 0.7rem; border-radius: 7px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid #4a8c6a; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .btn-tag:hover { border-color: #3d7a5c; }
+        .btn-tag.copied { color: #166534; border-color: #86efac; background: #f0fdf4; }
+        .btn-tag.loading { opacity: 0.6; cursor: wait; }
 
         canvas#card-canvas { display: none; }
 
@@ -384,6 +388,7 @@ function renderGrid(dogs) {
                     <button class="btn-ig" onclick='igStory(${dogJson})'>📸 IG Story</button>
                     <button class="btn-dl" onclick='downloadCard(${dogJson})'>⬇ Save</button>
                     <button class="btn-cap" id="cap-${dog.id}" onclick='copyCaption(${dogJson}, "cap-${dog.id}")'>Copy Caption</button>
+                    <button class="btn-tag" id="tag-${dog.id}" onclick='copyRescueTags(${dogJson}, "tag-${dog.id}")'>🏷 Rescues to Tag</button>
                 </div>
             </div>
         </div>`;
@@ -672,6 +677,38 @@ function copyCaption(dog, btnId) {
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = 'Copy Caption'; btn.classList.remove('copied'); }, 2500);
     });
+}
+
+async function copyRescueTags(dog, btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.textContent = '⏳ Loading...';
+    btn.classList.add('loading');
+    try {
+        const breed = encodeURIComponent(dog.breed || '');
+        const res = await fetch(`/api/rescue-directory/match?breed=${breed}`);
+        const data = await res.json();
+
+        const breedTags = (data.breed_specific || []).map(r => '@' + r.ig_handle);
+        const generalTags = (data.general || []).map(r => '@' + r.ig_handle);
+        const allTags = [...breedTags, ...generalTags];
+
+        if (allTags.length === 0) {
+            btn.textContent = '⚠ None found';
+            setTimeout(() => { btn.textContent = '🏷 Rescues to Tag'; btn.classList.remove('loading'); }, 2000);
+            return;
+        }
+
+        await navigator.clipboard.writeText(allTags.join(' '));
+        btn.textContent = `✓ ${allTags.length} Copied!`;
+        btn.classList.remove('loading');
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '🏷 Rescues to Tag'; btn.classList.remove('copied'); }, 3000);
+    } catch(e) {
+        btn.textContent = '🏷 Rescues to Tag';
+        btn.classList.remove('loading');
+        console.error('Tag copy failed:', e);
+    }
 }
 
 // Close modal on overlay click
