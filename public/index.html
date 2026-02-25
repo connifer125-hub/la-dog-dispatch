@@ -371,6 +371,9 @@
         .btn-save { background: #1a1614; color: white; padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
         .btn-caption { background: white; color: var(--color-text); padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid var(--color-border); cursor: pointer; font-family: inherit; white-space: nowrap; }
         .btn-caption.copied { background: #dcfce7; border-color: #86efac; color: #166534; }
+        .btn-tag { background: white; color: #3d7a5c; padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid #4a8c6a; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .btn-tag.copied { background: #dcfce7; border-color: #86efac; color: #166534; }
+        .btn-tag.loading { opacity: 0.6; cursor: wait; }
     </style>
 </head>
 <body>
@@ -720,6 +723,7 @@
                             <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;')})">📱 IG Story</button>
                             <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;')})">⬇ Save</button>
                             <button class="btn-caption" onclick="event.stopPropagation(); copyDogCaption(this, ${JSON.stringify(dog).replace(/"/g,'&quot;')})">Copy Caption</button>
+                            <button class="btn-tag" onclick="event.stopPropagation(); copyRescueTags(this, ${JSON.stringify(dog).replace(/"/g,'&quot;')})">🏷 Rescues to Tag</button>
                         </div>
                     </div>
                 </div>
@@ -944,6 +948,38 @@
             a.href = c.toDataURL('image/png');
             a.download = `ladogdispatch-${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`;
             a.click();
+        }
+
+
+        async function copyRescueTags(btn, dog) {
+            btn.textContent = '⏳ Loading...';
+            btn.classList.add('loading');
+            try {
+                const breed = encodeURIComponent(dog.breed || '');
+                const res = await fetch(`/api/rescue-directory/match?breed=${breed}`);
+                const data = await res.json();
+
+                const breedTags = (data.breed_specific || []).map(r => '@' + r.ig_handle);
+                const generalTags = (data.general || []).map(r => '@' + r.ig_handle);
+                const allTags = [...breedTags, ...generalTags];
+
+                if (allTags.length === 0) {
+                    btn.textContent = '⚠ None found';
+                    setTimeout(() => { btn.textContent = '🏷 Rescues to Tag'; btn.classList.remove('loading'); }, 2000);
+                    return;
+                }
+
+                const text = allTags.join(' ');
+                await navigator.clipboard.writeText(text);
+                btn.textContent = `✓ ${allTags.length} Copied!`;
+                btn.classList.remove('loading');
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = '🏷 Rescues to Tag'; btn.classList.remove('copied'); }, 3000);
+            } catch(e) {
+                btn.textContent = '🏷 Rescues to Tag';
+                btn.classList.remove('loading');
+                console.error('Tag copy failed:', e);
+            }
         }
 
         async function copyDogCaption(btn, dog) {
