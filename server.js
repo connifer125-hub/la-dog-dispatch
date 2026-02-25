@@ -104,6 +104,7 @@ app.get('/api/health', async (req, res) => {
 // ── ACTIVE ROUTES ──
 // Stripe webhook needs raw body — registered before json middleware routes
 app.use('/api/stripe', require('./routes/stripe'));
+app.use('/api/rescue-directory', require('./routes/rescue-directory'));
 app.use('/api/dogs', require('./routes/dogs'));
 app.use('/api', require('./routes/fix-photos'));
 app.use('/api', require('./routes/diagnose-photos'));
