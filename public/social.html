@@ -257,14 +257,14 @@
         <div class="ig-left">
             <span class="eyebrow" style="color:rgba(255,255,255,0.75);display:block;margin-bottom:0.5rem;">Follow us</span>
             <h2>See every dog we post — on Instagram.</h2>
-            <p>We post urgent dogs daily to <strong>@la_dog_dispatch</strong>. Follow us and turn on notifications so you never miss one that needs sharing.</p>
+            <p>We post urgent dogs daily to <strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:2px"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>@la_dog_dispatch</strong>. Follow us and turn on notifications so you never miss one that needs sharing.</p>
             <a href="https://instagram.com/la_dog_dispatch" target="_blank" class="btn-follow">📸 @la_dog_dispatch</a>
         </div>
         <div class="ig-right">
             <div>
                 <div style="font-size:2rem;">📸</div>
                 <p>Your Instagram feed will appear here.<br><br>
-                To connect: go to any post on <strong>@la_dog_dispatch</strong> → ··· → Embed → copy code → paste it here in place of this placeholder.<br><br>
+                To connect: go to any post on <strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:2px"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>@la_dog_dispatch</strong> → ··· → Embed → copy code → paste it here in place of this placeholder.<br><br>
                 Or use a service like <code>lightwidget.com</code> for a live feed widget.</p>
             </div>
         </div>
@@ -632,7 +632,26 @@ async function generateCard(dog) {
     ctx.fillText('ladogdispatch.com', 44, divY + 130, leftMax);
 
     ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 28px sans-serif';
-    ctx.fillText('@la_dog_dispatch', 44, divY + 174, leftMax);
+    (function drawIGIcon(x, y, sz) {
+        const r=sz*0.22, ix=x, iy=y-sz*0.85;
+        const igGrad=ctx.createLinearGradient(ix,iy,ix+sz,iy+sz);
+        igGrad.addColorStop(0,'#f09433'); igGrad.addColorStop(0.5,'#dc2743'); igGrad.addColorStop(1,'#bc1888');
+        ctx.save(); ctx.fillStyle=igGrad;
+        ctx.beginPath(); ctx.moveTo(ix+r,iy); ctx.lineTo(ix+sz-r,iy); ctx.quadraticCurveTo(ix+sz,iy,ix+sz,iy+r);
+        ctx.lineTo(ix+sz,iy+sz-r); ctx.quadraticCurveTo(ix+sz,iy+sz,ix+sz-r,iy+sz);
+        ctx.lineTo(ix+r,iy+sz); ctx.quadraticCurveTo(ix,iy+sz,ix,iy+sz-r);
+        ctx.lineTo(ix,iy+r); ctx.quadraticCurveTo(ix,iy,ix+r,iy); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='white'; ctx.lineWidth=sz*0.08; ctx.lineJoin='round';
+        const cx2=ix+sz/2,cy2=iy+sz/2,pw=sz*0.62,ph=sz*0.5,px=ix+(sz-pw)/2,py=iy+(sz-ph)/2,pr=sz*0.12;
+        ctx.beginPath(); ctx.moveTo(px+pr,py); ctx.lineTo(px+pw-pr,py); ctx.quadraticCurveTo(px+pw,py,px+pw,py+pr);
+        ctx.lineTo(px+pw,py+ph-pr); ctx.quadraticCurveTo(px+pw,py+ph,px+pw-pr,py+ph);
+        ctx.lineTo(px+pr,py+ph); ctx.quadraticCurveTo(px,py+ph,px,py+ph-pr);
+        ctx.lineTo(px,py+pr); ctx.quadraticCurveTo(px,py,px+pr,py); ctx.closePath(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx2,cy2,sz*0.22,0,Math.PI*2); ctx.stroke();
+        ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(px+pw-sz*0.13,py+sz*0.12,sz*0.05,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+    })(44, divY+174, 28);
+    ctx.fillText('@la_dog_dispatch', 44+28+8, divY + 174, leftMax-36);
 
     // ── BOTTOM GREEN BAR ──
     const botBar = ctx.createLinearGradient(0,0,W,0);
