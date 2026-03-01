@@ -819,108 +819,192 @@
 
             const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
             const isCritical = daysLeft <= 1;
-
-            // Background
-            const bg = ctx.createLinearGradient(0,0,W,H);
-            bg.addColorStop(0,'#1a1614'); bg.addColorStop(0.5,'#231e1b'); bg.addColorStop(1,'#1a1614');
-            ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-            ctx.save(); ctx.globalAlpha=0.07; ctx.fillStyle='#c4281c';
-            ctx.beginPath(); ctx.moveTo(W*0.5,0); ctx.lineTo(W,0); ctx.lineTo(W*0.7,H); ctx.lineTo(0.2*W,H);
-            ctx.closePath(); ctx.fill(); ctx.restore();
-
-            // Top bar + badge
-            ctx.fillStyle='#c4281c'; ctx.fillRect(0,0,W,12);
-            roundRect(ctx,44,32,224,54,27); ctx.fill();
-            ctx.fillStyle='white'; ctx.font='bold 26px sans-serif'; ctx.textAlign='center';
-            ctx.fillText(isCritical?'🚨 CRITICAL':'⚠️ URGENT', 156, 66);
-            ctx.fillStyle='rgba(255,255,255,0.38)'; ctx.font='bold 22px sans-serif'; ctx.textAlign='right';
-            ctx.fillText('LA DOG DISPATCH', W-44, 66);
-
-            // Shelter tag
-            ctx.textAlign='left';
-            if (dog.shelter) {
-                const tag = dog.shelter.toUpperCase();
-                ctx.font='bold 20px sans-serif';
-                const tagW = ctx.measureText(tag).width+36;
-                ctx.fillStyle='rgba(255,255,255,0.1)'; roundRect(ctx,44,112,tagW,42,8); ctx.fill();
-                ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.fillText(tag, 62, 140);
-            }
-
-            // Dog name
-            const name = (dog.name||dog.shelter_id||'UNKNOWN').toUpperCase();
-            let fs = 180; ctx.font=`bold ${fs}px Georgia,serif`;
-            while(ctx.measureText(name).width > W-100 && fs>70){fs-=6; ctx.font=`bold ${fs}px Georgia,serif`;}
-            ctx.fillStyle='white'; ctx.textAlign='center'; ctx.fillText(name, W/2, 330);
-            ctx.fillStyle='#4ecdc4'; ctx.fillRect(44, 348, Math.min(ctx.measureText(name).width,W-88), 7);
-
-            // Meta + deadline
-            ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.font='38px sans-serif';
-            ctx.textAlign='center';
-            ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '), W/2, 415);
-            const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
-            ctx.fillStyle=isCritical?'#f87171':'#fca5a5'; ctx.font='bold 38px sans-serif';
-            ctx.textAlign='center';
-            ctx.fillText(`Deadline: ${dlStr} — ${daysLeft<=0?'TODAY':daysLeft===1?'1 DAY LEFT':daysLeft+' DAYS LEFT'}`, W/2, 480);
-
-            // Rescue Only badge on card
             const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
-            if (isRescueOnly) {
-                ctx.fillStyle = '#fef3c7';
-                const badgeW = 440;
-                roundRect(ctx, (W-badgeW)/2, 498, badgeW, 42, 21); ctx.fill();
-                ctx.fillStyle = '#92400e'; ctx.font = 'bold 20px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', W/2, 525);
-                ctx.textAlign = 'left';
+
+            function rr(x,y,w,h,r) {
+                ctx.beginPath();
+                ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+                ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+                ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+                ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
             }
 
-            // Divider
+            function drawBubble(text, centerX, y, fontSize, maxWidth) {
+                ctx.save();
+                ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
+                ctx.textAlign = 'center'; ctx.lineJoin = 'round'; ctx.miterLimit = 2;
+                ctx.lineWidth = fontSize*0.22; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+                ctx.strokeText(text, centerX, y, maxWidth);
+                ctx.lineWidth = fontSize*0.18; ctx.strokeStyle = '#3d7a5c';
+                ctx.strokeText(text, centerX, y, maxWidth);
+                ctx.lineWidth = fontSize*0.10; ctx.strokeStyle = '#5aaa80';
+                ctx.strokeText(text, centerX, y, maxWidth);
+                ctx.lineWidth = fontSize*0.04; ctx.strokeStyle = '#a8e6c3';
+                ctx.strokeText(text, centerX, y, maxWidth);
+                const grad = ctx.createLinearGradient(0, y-fontSize, 0, y);
+                grad.addColorStop(0,'#ffffff'); grad.addColorStop(0.35,'#f0fff8'); grad.addColorStop(1,'#7ec8a0');
+                ctx.fillStyle = grad; ctx.fillText(text, centerX, y, maxWidth);
+                ctx.restore();
+            }
+
+            // BACKGROUND
+            ctx.fillStyle = '#141414'; ctx.fillRect(0,0,W,H);
+            const vignette = ctx.createRadialGradient(W/2,H/2,W*0.25,W/2,H/2,W*0.75);
+            vignette.addColorStop(0,'rgba(0,0,0,0)'); vignette.addColorStop(1,'rgba(0,0,0,0.5)');
+            ctx.fillStyle = vignette; ctx.fillRect(0,0,W,H);
+
+            // TOP GREEN BAR
+            const topBar = ctx.createLinearGradient(0,0,W,0);
+            topBar.addColorStop(0,'#3d7a5c'); topBar.addColorStop(0.5,'#7ec8a0'); topBar.addColorStop(1,'#3d7a5c');
+            ctx.fillStyle = topBar; ctx.fillRect(0,0,W,14);
+
+            // TOP ROW: URGENT | SHELTER | LOGO
+            const rowH = 76, rowMid = 14+rowH/2;
+            ctx.fillStyle = '#c4281c'; rr(36,rowMid-24,200,48,24); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(isCritical?'🚨 CRITICAL':'⚠️ URGENT', 136, rowMid+8);
+
+            ctx.fillStyle = '#a8e6c3'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('📍 '+(dog.shelter||'LA COUNTY').toUpperCase(), W/2, rowMid+9, 520);
+
+            const lr=32, lx=W-36-lr, ly=rowMid;
+            await new Promise(resolve => {
+                const logoImg = new Image();
+                logoImg.onload = () => {
+                    ctx.save(); ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2); ctx.clip();
+                    ctx.drawImage(logoImg, lx-lr, ly-lr, lr*2, lr*2); ctx.restore();
+                    ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2);
+                    ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=3; ctx.stroke();
+                    resolve();
+                };
+                logoImg.onerror = () => {
+                    ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2);
+                    ctx.fillStyle='#1a2e24'; ctx.fill();
+                    ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=3; ctx.stroke();
+                    resolve();
+                };
+                logoImg.src = '/logo-icon.png';
+            });
+
             ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
-            ctx.beginPath(); ctx.moveTo(44,550); ctx.lineTo(W-44,550); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(44,14+rowH); ctx.lineTo(W-44,14+rowH); ctx.stroke();
 
-            // CTA text
-            ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='bold 34px sans-serif';
-            ['Donate now or foster this dog;','as always, share passionately','to your followers.']
-                .forEach((line,i) => ctx.fillText(line, 44, 610+(i*52), 540));
-            ctx.fillStyle='rgba(255,255,255,0.38)'; ctx.font='28px sans-serif';
-            ctx.fillText('Fund · Foster · Rescue this dog  →', 44, 790, 540);
-            ctx.fillStyle='white'; ctx.font='bold 30px sans-serif';
-            ctx.fillText('ladogdispatch.com', 44, 834);
-            ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='26px sans-serif';
-            ctx.fillText('@la_dog_dispatch', 44, 868);
+            // NAME
+            const SAFE_W = W-80;
+            const name = (dog.name||dog.shelter_id||'UNKNOWN').toUpperCase();
+            let fontSize = 220;
+            ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
+            while(ctx.measureText(name).width > SAFE_W && fontSize > 80){ fontSize-=8; ctx.font=`900 ${fontSize}px 'Arial Black', Arial, sans-serif`; }
+            const nameY = 14+rowH+30+fontSize+10;
+            drawBubble(name, W/2, nameY, fontSize, SAFE_W);
 
-            // Dog photo thumbnail (bottom right)
+            // META
+            ctx.fillStyle='#ffffff'; ctx.font='italic 36px Georgia,serif'; ctx.textAlign='center';
+            ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '), W/2, nameY+62, SAFE_W);
+
+            // DEADLINE
+            const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+            const dlLabel = `Deadline: ${dlStr}`;
+            const dlDays = `  ·  ${daysLeft<=0?'TODAY':daysLeft===1?'1 DAY LEFT':daysLeft+' DAYS LEFT'}`;
+            let dlSize = 46; ctx.font=`bold ${dlSize}px sans-serif`;
+            while(ctx.measureText(dlLabel+dlDays).width > SAFE_W && dlSize>26){ dlSize-=2; ctx.font=`bold ${dlSize}px sans-serif`; }
+            const dlLabelW = ctx.measureText(dlLabel).width;
+            const dlDaysW  = ctx.measureText(dlDays).width;
+            const dlStartX = W/2-(dlLabelW+dlDaysW)/2;
+            ctx.fillStyle='white'; ctx.textAlign='left'; ctx.fillText(dlLabel, dlStartX, nameY+134);
+            ctx.fillStyle=isCritical?'#ff5252':'#e05555'; ctx.fillText(dlDays, dlStartX+dlLabelW, nameY+134);
+
+            if (isRescueOnly) {
+                ctx.fillStyle='rgba(254,243,199,0.1)'; rr(W/2-280,nameY+152,560,46,23); ctx.fill();
+                ctx.fillStyle='#fde68a'; ctx.font='bold 20px sans-serif'; ctx.textAlign='center';
+                ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', W/2, nameY+183, SAFE_W);
+            }
+
+            // DIVIDER
+            const divY = H/2+20;
+            const dg = ctx.createLinearGradient(44,0,W-44,0);
+            dg.addColorStop(0,'rgba(255,255,255,0)'); dg.addColorStop(0.15,'rgba(255,255,255,0.18)');
+            dg.addColorStop(0.85,'rgba(255,255,255,0.18)'); dg.addColorStop(1,'rgba(255,255,255,0)');
+            ctx.strokeStyle=dg; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(44,divY); ctx.lineTo(W-44,divY); ctx.stroke();
+
+            // BOTTOM
+            const photoSize = H-divY-28-16;
+            const photoX = W-photoSize-36;
+            const photoY = divY+14;
+            const leftMax = photoX-44-24;
+
             if (dog.photo_url) {
                 await new Promise(resolve => {
-                    const img = new Image();
-                    img.crossOrigin='anonymous';
-                    const sz=440, tx=W-sz-30, ty=555, r=20;
+                    const img = new Image(); img.crossOrigin='anonymous';
                     img.onload = () => {
-                        ctx.save();
-                        ctx.beginPath();
-                        ctx.moveTo(tx+r,ty); ctx.lineTo(tx+sz-r,ty); ctx.quadraticCurveTo(tx+sz,ty,tx+sz,ty+r);
-                        ctx.lineTo(tx+sz,ty+sz-r); ctx.quadraticCurveTo(tx+sz,ty+sz,tx+sz-r,ty+sz);
-                        ctx.lineTo(tx+r,ty+sz); ctx.quadraticCurveTo(tx,ty+sz,tx,ty+sz-r);
-                        ctx.lineTo(tx,ty+r); ctx.quadraticCurveTo(tx,ty,tx+r,ty); ctx.closePath();
-                        ctx.clip();
-                        const scale=Math.max(sz/img.width,sz/img.height);
-                        ctx.drawImage(img,tx+(sz-img.width*scale)/2,ty+(sz-img.height*scale)/2,img.width*scale,img.height*scale);
+                        ctx.save(); rr(photoX,photoY,photoSize,photoSize,20); ctx.clip();
+                        const scale=Math.max(photoSize/img.width,photoSize/img.height);
+                        const dw=img.width*scale, dh=img.height*scale;
+                        ctx.drawImage(img,photoX+(photoSize-dw)/2,photoY+(photoSize-dh)/2,dw,dh);
                         ctx.restore();
-                        ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=3;
-                        ctx.beginPath();
-                        ctx.moveTo(tx+r,ty); ctx.lineTo(tx+sz-r,ty); ctx.quadraticCurveTo(tx+sz,ty,tx+sz,ty+r);
-                        ctx.lineTo(tx+sz,ty+sz-r); ctx.quadraticCurveTo(tx+sz,ty+sz,tx+sz-r,ty+sz);
-                        ctx.lineTo(tx+r,ty+sz); ctx.quadraticCurveTo(tx,ty+sz,tx,ty+sz-r);
-                        ctx.lineTo(tx,ty+r); ctx.quadraticCurveTo(tx,ty,tx+r,ty); ctx.closePath();
-                        ctx.stroke(); resolve();
+                        rr(photoX,photoY,photoSize,photoSize,20);
+                        ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=4; ctx.stroke();
+                        resolve();
                     };
                     img.onerror = () => resolve();
                     img.src = dog.photo_url.startsWith('http') ? dog.photo_url : window.location.origin+dog.photo_url;
                 });
             }
 
-            // Bottom mint bar
-            ctx.fillStyle='#4ecdc4'; ctx.fillRect(0,H-14,W,14);
+            ctx.textAlign='left';
+            ctx.fillStyle='#ffffff'; ctx.font='28px sans-serif';
+            ctx.fillText(isRescueOnly?'Contact a rescue org to pull.':'Donate · Foster · Share.', 44, divY+68, leftMax);
+            ctx.fillStyle='#ffffff'; ctx.font='bold 42px sans-serif';
+            ctx.fillText('ladogdispatch.com', 44, divY+130, leftMax);
+
+            function drawIGHandle(x, y, fontSize) {
+                const s = fontSize * 0.9;
+                const r = s * 0.22;
+                ctx.save();
+                // Instagram gradient background circle
+                const igGrad = ctx.createLinearGradient(x, y - s, x + s, y);
+                igGrad.addColorStop(0, '#f09433');
+                igGrad.addColorStop(0.25, '#e6683c');
+                igGrad.addColorStop(0.5, '#dc2743');
+                igGrad.addColorStop(0.75, '#cc2366');
+                igGrad.addColorStop(1, '#bc1888');
+                // Rounded rect for IG icon bg
+                const ix = x, iy = y - s * 0.85;
+                ctx.fillStyle = igGrad;
+                ctx.beginPath();
+                ctx.moveTo(ix+r,iy); ctx.lineTo(ix+s-r,iy); ctx.quadraticCurveTo(ix+s,iy,ix+s,iy+r);
+                ctx.lineTo(ix+s,iy+s-r); ctx.quadraticCurveTo(ix+s,iy+s,ix+s-r,iy+s);
+                ctx.lineTo(ix+r,iy+s); ctx.quadraticCurveTo(ix,iy+s,ix,iy+s-r);
+                ctx.lineTo(ix,iy+r); ctx.quadraticCurveTo(ix,iy,ix+r,iy); ctx.closePath();
+                ctx.fill();
+                // White camera outline
+                ctx.strokeStyle = 'white'; ctx.lineWidth = s * 0.08; ctx.lineJoin = 'round';
+                const cx2 = ix + s/2, cy2 = iy + s/2, cr = s * 0.22;
+                // Outer rect
+                const pr = s*0.12, pw = s*0.62, ph = s*0.5, px = ix+(s-pw)/2, py = iy+(s-ph)/2;
+                ctx.beginPath();
+                ctx.moveTo(px+pr,py); ctx.lineTo(px+pw-pr,py); ctx.quadraticCurveTo(px+pw,py,px+pw,py+pr);
+                ctx.lineTo(px+pw,py+ph-pr); ctx.quadraticCurveTo(px+pw,py+ph,px+pw-pr,py+ph);
+                ctx.lineTo(px+pr,py+ph); ctx.quadraticCurveTo(px,py+ph,px,py+ph-pr);
+                ctx.lineTo(px,py+pr); ctx.quadraticCurveTo(px,py,px+pr,py); ctx.closePath();
+                ctx.stroke();
+                // Circle lens
+                ctx.beginPath(); ctx.arc(cx2, cy2, cr, 0, Math.PI*2); ctx.stroke();
+                // Dot top right
+                ctx.fillStyle = 'white';
+                ctx.beginPath(); ctx.arc(px+pw-s*0.13, py+s*0.12, s*0.05, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+                return x + s + fontSize * 0.15; // return x position after icon
+            }
+            ctx.fillStyle='#7ec8a0'; ctx.font='bold 28px sans-serif';
+            const igHandleX = drawIGHandle(44, divY+174, 28);
+            ctx.fillText('@la_dog_dispatch', igHandleX, divY+174, leftMax - igHandleX + 44);
+
+            // BOTTOM BAR
+            const botBar = ctx.createLinearGradient(0,0,W,0);
+            botBar.addColorStop(0,'#3d7a5c'); botBar.addColorStop(0.5,'#7ec8a0'); botBar.addColorStop(1,'#3d7a5c');
+            ctx.fillStyle=botBar; ctx.fillRect(0,H-16,W,16);
             return c;
         }
 
