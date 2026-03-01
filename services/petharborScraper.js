@@ -72,23 +72,99 @@ function truncateText(text, maxLength) {
   return text.substring(0, maxLength - 3) + '...';
 }
 
-function shortenBreed(breed) {
-  if (!breed) return 'Mixed Breed';
-  const abbreviations = {
-    'AMERICAN STAFFORDSHIRE TERRIER': 'Am. Staff',
-    'STAFFORDSHIRE': 'Staff',
-    'TERRIER': 'Terrier',
-    'SHEPHERD': 'Shepherd',
-    'RETRIEVER': 'Retriever',
-    'AND': '/',
-    '  ': ' '
-  };
-  let shortened = breed;
-  Object.keys(abbreviations).forEach(key => {
-    shortened = shortened.replace(new RegExp(key, 'gi'), abbreviations[key]);
-  });
-  return truncateText(shortened, 200);
+function cleanBreed(rawBreed) {
+  if (!rawBreed) return 'Mixed Breed';
+
+  let breed = rawBreed.toUpperCase().trim();
+
+  // Remove trailing period
+  breed = breed.replace(/\.$/, '').trim();
+
+  // Strip color words at the start (e.g. "BLACK AND WHITE", "BROWN AND GRAY", "TAN")
+  const colors = ['BLACK', 'WHITE', 'BROWN', 'TAN', 'GRAY', 'GREY', 'RED', 'YELLOW', 'CREAM', 'ORANGE', 'BLUE', 'SILVER', 'GOLD', 'GOLDEN', 'CHOCOLATE', 'TRICOLOR', 'BRINDLE', 'MERLE', 'SABLE'];
+  const colorPattern = new RegExp('^(' + colors.join('|') + ')(\\s+AND\\s+(' + colors.join('|') + '))?\\s+', 'i');
+  breed = breed.replace(colorPattern, '').trim();
+
+  // Remove standalone " DOG" suffix (e.g. "GERMAN SHEPHERD DOG" → "GERMAN SHEPHERD")
+  breed = breed.replace(/\bDOG\b$/i, '').trim();
+  breed = breed.replace(/\bDOG\b(?=\s+AND\b)/i, '').trim();
+
+  // Split on " AND " to find mixes
+  const parts = breed.split(/\s+AND\s+/i).map(p => p.trim()).filter(Boolean);
+
+  // Clean each part - remove " DOG" suffix from each part too
+  const cleaned = parts.map(p => {
+    p = p.replace(/\bDOG\b$/i, '').trim();
+    return simplifyBreed(p);
+  }).filter(Boolean);
+
+  if (cleaned.length === 0) return 'Mixed Breed';
+  if (cleaned.length === 1) return cleaned[0];
+  if (cleaned.length === 2) return cleaned[0] + ' & ' + cleaned[1];
+  // 3+ breeds = too confusing
+  return 'Mixed Breed';
 }
+
+function simplifyBreed(breed) {
+  if (!breed) return '';
+  breed = breed.trim();
+
+  // Breed simplification map
+  const simplifications = [
+    [/AMERICAN PIT BULL TERRIER/i, 'Pit Bull'],
+    [/PIT BULL TERRIER/i, 'Pit Bull'],
+    [/PIT BULL/i, 'Pit Bull'],
+    [/AMERICAN STAFFORDSHIRE TERRIER/i, 'Am. Staff'],
+    [/STAFFORDSHIRE BULL TERRIER/i, 'Staffy'],
+    [/AMERICAN BULLDOG/i, 'Bulldog'],
+    [/ENGLISH BULLDOG/i, 'Bulldog'],
+    [/FRENCH BULLDOG/i, 'French Bulldog'],
+    [/BULLDOG/i, 'Bulldog'],
+    [/GERMAN SHEPHERD DOG/i, 'German Shepherd'],
+    [/GERMAN SHEPHERD/i, 'German Shepherd'],
+    [/BELGIAN MALINOIS/i, 'Belgian Malinois'],
+    [/LABRADOR RETRIEVER/i, 'Lab'],
+    [/GOLDEN RETRIEVER/i, 'Golden Retriever'],
+    [/AUSTRALIAN SHEPHERD/i, 'Aussie'],
+    [/BORDER COLLIE/i, 'Border Collie'],
+    [/SIBERIAN HUSKY/i, 'Husky'],
+    [/ALASKAN HUSKY/i, 'Alaskan Husky'],
+    [/DOBERMAN PINSCHER/i, 'Doberman'],
+    [/MINIATURE PINSCHER/i, 'Min Pin'],
+    [/ROTTWEILER/i, 'Rottweiler'],
+    [/GREAT DANE/i, 'Great Dane'],
+    [/BOXER/i, 'Boxer'],
+    [/CHOW CHOW/i, 'Chow'],
+    [/JACK RUSSELL TERRIER/i, 'Jack Russell'],
+    [/CHIHUAHUA/i, 'Chihuahua'],
+    [/DACHSHUND/i, 'Dachshund'],
+    [/POODLE/i, 'Poodle'],
+    [/BEAGLE/i, 'Beagle'],
+    [/COCKER SPANIEL/i, 'Cocker Spaniel'],
+    [/SHIH TZU/i, 'Shih Tzu'],
+    [/MALTESE/i, 'Maltese'],
+    [/POMERANIAN/i, 'Pomeranian'],
+    [/YORKSHIRE TERRIER/i, 'Yorkie'],
+    [/BOSTON TERRIER/i, 'Boston Terrier'],
+    [/BULL TERRIER/i, 'Bull Terrier'],
+    [/TERRIER MIX/i, 'Terrier Mix'],
+    [/TERRIER/i, 'Terrier'],
+    [/SHEPHERD MIX/i, 'Shepherd Mix'],
+    [/HOUND MIX/i, 'Hound Mix'],
+    [/HOUND/i, 'Hound'],
+    [/MIXED BREED/i, 'Mixed Breed'],
+    [/MIX/i, 'Mix'],
+  ];
+
+  for (const [pattern, replacement] of simplifications) {
+    if (pattern.test(breed)) return replacement;
+  }
+
+  // Title case anything we don't recognize
+  return breed.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
+
+
 
 // Calculate human-readable duration between two dates
 function formatDuration(startDate, endDate) {
@@ -170,10 +246,10 @@ async function scrapePetHarbor() {
               name = truncateText(nameMatch[1].trim(), 100);
             }
             let breed = 'Mixed Breed';
-            const breedMatch = text.match(/A\d{7}\s*-\s*(?:NEUTERED|SPAYED)?\s*(?:MALE|FEMALE),?\s*([^\n\.]+?)(?:Shelter:|$)/is);
-            if (breedMatch) {
-              breed = breedMatch[1].trim().replace(/\s+/g, ' ');
-              breed = shortenBreed(breed);
+            // Format: "NAME A1234567 – NEUTERED MALE, BREED.Shelter:" (note em-dash)
+            const breedMatch2 = text.match(/A\d{7}\s*[-–]\s*(?:NEUTERED\s+|SPAYED\s+)?(?:MALE|FEMALE),\s*([^.]+)\./i);
+            if (breedMatch2 && breedMatch2[1]) {
+              breed = cleanBreed(breedMatch2[1].trim());
             }
             let gender = 'Unknown';
             if (text.match(/NEUTERED\s*MALE/i)) {
