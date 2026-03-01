@@ -433,190 +433,211 @@ async function generateCard(dog) {
 
     const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
     const isCritical = daysLeft <= 1;
+    const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
+
+    // ── HELPERS ──
+    function rr(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+        ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+        ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+        ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+    }
+
+    function drawBubble(text, centerX, y, fontSize, maxWidth) {
+        ctx.save();
+        ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.lineWidth = fontSize * 0.22;
+        ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+        ctx.strokeText(text, centerX, y, maxWidth);
+        ctx.lineWidth = fontSize * 0.18;
+        ctx.strokeStyle = '#3d7a5c';
+        ctx.strokeText(text, centerX, y, maxWidth);
+        ctx.lineWidth = fontSize * 0.10;
+        ctx.strokeStyle = '#5aaa80';
+        ctx.strokeText(text, centerX, y, maxWidth);
+        ctx.lineWidth = fontSize * 0.04;
+        ctx.strokeStyle = '#a8e6c3';
+        ctx.strokeText(text, centerX, y, maxWidth);
+        const grad = ctx.createLinearGradient(0, y - fontSize, 0, y);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.35, '#f0fff8');
+        grad.addColorStop(1, '#7ec8a0');
+        ctx.fillStyle = grad;
+        ctx.fillText(text, centerX, y, maxWidth);
+        ctx.restore();
+    }
 
     // ── BACKGROUND ──
-    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-    bgGrad.addColorStop(0, '#1a1614');
-    bgGrad.addColorStop(0.5, '#231e1b');
-    bgGrad.addColorStop(1, '#1a1614');
-    ctx.fillStyle = bgGrad;
+    ctx.fillStyle = '#141414';
     ctx.fillRect(0, 0, W, H);
+    const vignette = ctx.createRadialGradient(W/2, H/2, W*0.25, W/2, H/2, W*0.75);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(0,0,0,0.5)');
+    ctx.fillStyle = vignette; ctx.fillRect(0, 0, W, H);
 
-    // Diagonal red accent
-    ctx.save();
-    ctx.globalAlpha = 0.07;
+    // ── TOP GREEN BAR ──
+    const topBar = ctx.createLinearGradient(0,0,W,0);
+    topBar.addColorStop(0,'#3d7a5c'); topBar.addColorStop(0.5,'#7ec8a0'); topBar.addColorStop(1,'#3d7a5c');
+    ctx.fillStyle = topBar; ctx.fillRect(0, 0, W, 14);
+
+    // ── TOP ROW: URGENT | SHELTER | LOGO — one line ──
+    const rowH = 76, rowMid = 14 + rowH/2;
+
+    // Urgent badge left
     ctx.fillStyle = '#c4281c';
-    ctx.beginPath();
-    ctx.moveTo(W*0.5, 0); ctx.lineTo(W, 0); ctx.lineTo(W*0.7, H); ctx.lineTo(0.2*W, H);
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
+    rr(36, rowMid-24, 200, 48, 24); ctx.fill();
+    ctx.fillStyle = 'white'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(isCritical ? '🚨 CRITICAL' : '⚠️ URGENT', 136, rowMid + 8);
 
-    // ── TOP RED BAR ──
-    ctx.fillStyle = '#c4281c';
-    ctx.fillRect(0, 0, W, 12);
+    // Shelter centered
+    ctx.fillStyle = '#a8e6c3'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+    const shelterText = '📍 ' + (dog.shelter || 'LA COUNTY').toUpperCase();
+    ctx.fillText(shelterText, W/2, rowMid + 9, 520);
 
-    // ── URGENCY BADGE (top left) ──
-    const badgeText = isCritical ? '🚨 CRITICAL' : '⚠️ URGENT';
-    ctx.fillStyle = '#c4281c';
-    roundRect(ctx, 44, 32, 224, 54, 27); ctx.fill();
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 26px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(badgeText, 156, 66);
-
-    // ── LA DOG DISPATCH (top right) ──
-    ctx.fillStyle = 'rgba(255,255,255,0.38)';
-    ctx.font = 'bold 22px sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText('LA DOG DISPATCH', W - 44, 66);
-
-    // ── SHELTER TAG ──
-    ctx.textAlign = 'left';
-    if (dog.shelter) {
-        const tag = dog.shelter.toUpperCase();
-        ctx.font = 'bold 20px sans-serif';
-        ctx.font = 'bold 20px sans-serif';
-        const tagW = ctx.measureText(tag).width + 36;
-        const tagX = (W - tagW) / 2;
-        ctx.fillStyle = 'rgba(255,255,255,0.1)';
-        roundRect(ctx, tagX, 112, tagW, 42, 8); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.55)';
-        ctx.textAlign = 'center';
-        ctx.fillText(tag, W/2, 140);
-    }
-
-    // ── DOG NAME (large, top section) ──
-    const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
-    let fontSize = 180;
-    ctx.font = `bold ${fontSize}px Georgia, serif`;
-    while (ctx.measureText(name).width > W - 100 && fontSize > 70) {
-        fontSize -= 6;
-        ctx.font = `bold ${fontSize}px Georgia, serif`;
-    }
-    ctx.fillStyle = 'white';
-    ctx.fillText(name, 44, 330);
-
-    // ── MINT UNDERLINE ──
-    const nameWidth = Math.min(ctx.measureText(name).width, W - 88);
-    ctx.fillStyle = '#4ecdc4';
-    ctx.fillRect(44, 348, nameWidth, 7);
-
-    // ── BREED · GENDER · AGE ──
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.font = '38px sans-serif';
-    const meta = [dog.breed, dog.gender, dog.age].filter(Boolean).join('  ·  ');
-    ctx.fillText(meta, 44, 415);
-
-    // ── DEADLINE ──
-    const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
-    const dlText = `Deadline: ${dlStr} — ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`;
-    ctx.fillStyle = isCritical ? '#f87171' : '#fca5a5';
-    ctx.font = 'bold 38px sans-serif';
-    ctx.fillText(dlText, 44, 480);
-
-    // ── RESCUE ONLY BADGE ──
-    const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
-    if (isRescueOnly) {
-        ctx.fillStyle = '#fef3c7';
-        const badgeW = 420;
-        roundRect(ctx, (W-badgeW)/2, 500, badgeW, 46, 23); ctx.fill();
-        ctx.fillStyle = '#92400e';
-        ctx.font = 'bold 20px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', W/2, 529);
-        ctx.textAlign = 'left';
-    }
-
-    // ── DIVIDER ──
-    ctx.textAlign = 'left'; // reset for bottom half
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(44, 530); ctx.lineTo(W - 44, 530); ctx.stroke();
-
-    // ── BOTTOM HALF: LEFT = CTA text + URL, RIGHT = dog photo ──
-
-    // CTA text (left side, bottom half)
-    const ctaLines = isRescueOnly ? [
-        '🔒 Rescue orgs only — contact a',
-        'licensed rescue to pull this dog.',
-        'Share passionately to your followers.'
-    ] : [
-        'Donate now or foster this dog;',
-        'as always, share passionately',
-        'to your followers.'
-    ];
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    ctx.font = 'bold 34px sans-serif';
-    ctaLines.forEach((line, i) => {
-        ctx.fillText(line, 44, 610 + (i * 52), 540);
+    // Logo circle right — load real icon
+    const lr = 32, lx = W - 36 - lr, ly = rowMid;
+    await new Promise(resolve => {
+        const logoImg = new Image();
+        logoImg.onload = () => {
+            ctx.save();
+            ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI*2); ctx.clip();
+            ctx.drawImage(logoImg, lx-lr, ly-lr, lr*2, lr*2);
+            ctx.restore();
+            ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI*2);
+            ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 3; ctx.stroke();
+            resolve();
+        };
+        logoImg.onerror = () => {
+            // Fallback paw
+            ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI*2);
+            ctx.fillStyle = '#1a2e24'; ctx.fill();
+            ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 3; ctx.stroke();
+            ctx.fillStyle = '#7ec8a0'; ctx.font = '26px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('🐾', lx, ly + 9);
+            resolve();
+        };
+        logoImg.src = '/logo-icon.png';
     });
 
-    // Fund/Foster CTA line
-    ctx.fillStyle = 'rgba(255,255,255,0.38)';
-    ctx.font = '28px sans-serif';
-    ctx.fillText('Fund · Foster · Rescue this dog  →', 44, 790, 540);
+    // Separator
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(44, 14+rowH); ctx.lineTo(W-44, 14+rowH); ctx.stroke();
 
-    // URL
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 34px sans-serif';
-    ctx.fillText('ladogdispatch.com', 44, 834);
-    ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='26px sans-serif';
-    ctx.fillText('@la_dog_dispatch', 44, 868);
+    // ── CENTERED SECTION: Name, meta, deadline ──
+    const sectionTop = 14 + rowH + 30;
+    const SAFE_W = W - 80; // hard safe width for all text
 
-    // ── DOG PHOTO (right side, bottom half) ──
-    const thumbSize = 440;
-    const thumbX = W - thumbSize - 30;
-    const thumbY = 555;
+    // Dog name — auto-size with hard maxWidth guard
+    const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
+    let fontSize = 220;
+    ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
+    while (ctx.measureText(name).width > SAFE_W && fontSize > 80) {
+        fontSize -= 8;
+        ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
+    }
+    const nameY = sectionTop + fontSize + 10;
+    drawBubble(name, W/2, nameY, fontSize, SAFE_W);
 
+    // Breed · Gender · Age — centered, white, maxWidth enforced
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'italic 36px Georgia, serif';
+    ctx.textAlign = 'center';
+    const meta = [dog.breed, dog.gender, dog.age].filter(Boolean).join('  ·  ');
+    ctx.fillText(meta, W/2, nameY + 62, SAFE_W);
+
+    // Deadline — centered, one line, hard maxWidth
+    ctx.font = 'bold 46px sans-serif';
+    const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
+    const dlLabel = `Deadline: ${dlStr}`;
+    const dlDays  = `  ·  ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`;
+
+    // If total deadline line too wide, shrink font
+    let dlSize = 46;
+    ctx.font = `bold ${dlSize}px sans-serif`;
+    while (ctx.measureText(dlLabel + dlDays).width > SAFE_W && dlSize > 26) {
+        dlSize -= 2;
+        ctx.font = `bold ${dlSize}px sans-serif`;
+    }
+    const dlLabelW = ctx.measureText(dlLabel).width;
+    const dlDaysW  = ctx.measureText(dlDays).width;
+    const dlStartX = W/2 - (dlLabelW + dlDaysW)/2;
+    ctx.fillStyle = 'white'; ctx.textAlign = 'left';
+    ctx.fillText(dlLabel, dlStartX, nameY + 134);
+    ctx.fillStyle = isCritical ? '#ff5252' : '#e05555';
+    ctx.fillText(dlDays, dlStartX + dlLabelW, nameY + 134);
+
+    // Rescue only badge
+    if (isRescueOnly) {
+        ctx.fillStyle = 'rgba(254,243,199,0.1)';
+        rr(W/2-280, nameY+152, 560, 46, 23); ctx.fill();
+        ctx.fillStyle = '#fde68a'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', W/2, nameY+183, SAFE_W);
+    }
+
+    // ── MIDPOINT DIVIDER ──
+    const divY = H / 2 + 20;
+    const dg = ctx.createLinearGradient(44,0,W-44,0);
+    dg.addColorStop(0,'rgba(255,255,255,0)'); dg.addColorStop(0.15,'rgba(255,255,255,0.18)');
+    dg.addColorStop(0.85,'rgba(255,255,255,0.18)'); dg.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.strokeStyle = dg; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(44, divY); ctx.lineTo(W-44, divY); ctx.stroke();
+
+    // ── BOTTOM HALF: left text, right square photo ──
+    const photoSize = H - divY - 28 - 16;
+    const photoX = W - photoSize - 36;
+    const photoY = divY + 14;
+    const leftMax = photoX - 44 - 24;
+
+    // Dog photo
     if (dog.photo_url) {
-        await new Promise((resolve) => {
+        await new Promise(resolve => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
             img.onload = () => {
                 ctx.save();
-                // Rounded rect clip
                 const r = 20;
-                ctx.beginPath();
-                ctx.moveTo(thumbX+r, thumbY);
-                ctx.lineTo(thumbX+thumbSize-r, thumbY);
-                ctx.quadraticCurveTo(thumbX+thumbSize, thumbY, thumbX+thumbSize, thumbY+r);
-                ctx.lineTo(thumbX+thumbSize, thumbY+thumbSize-r);
-                ctx.quadraticCurveTo(thumbX+thumbSize, thumbY+thumbSize, thumbX+thumbSize-r, thumbY+thumbSize);
-                ctx.lineTo(thumbX+r, thumbY+thumbSize);
-                ctx.quadraticCurveTo(thumbX, thumbY+thumbSize, thumbX, thumbY+thumbSize-r);
-                ctx.lineTo(thumbX, thumbY+r);
-                ctx.quadraticCurveTo(thumbX, thumbY, thumbX+r, thumbY);
-                ctx.closePath();
-                ctx.clip();
-                const scale = Math.max(thumbSize/img.width, thumbSize/img.height);
+                rr(photoX, photoY, photoSize, photoSize, r); ctx.clip();
+                const scale = Math.max(photoSize/img.width, photoSize/img.height);
                 const dw = img.width*scale, dh = img.height*scale;
-                ctx.drawImage(img, thumbX+(thumbSize-dw)/2, thumbY+(thumbSize-dh)/2, dw, dh);
+                ctx.drawImage(img, photoX+(photoSize-dw)/2, photoY+(photoSize-dh)/2, dw, dh);
                 ctx.restore();
-                // Border
-                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(thumbX+r, thumbY);
-                ctx.lineTo(thumbX+thumbSize-r, thumbY);
-                ctx.quadraticCurveTo(thumbX+thumbSize, thumbY, thumbX+thumbSize, thumbY+r);
-                ctx.lineTo(thumbX+thumbSize, thumbY+thumbSize-r);
-                ctx.quadraticCurveTo(thumbX+thumbSize, thumbY+thumbSize, thumbX+thumbSize-r, thumbY+thumbSize);
-                ctx.lineTo(thumbX+r, thumbY+thumbSize);
-                ctx.quadraticCurveTo(thumbX, thumbY+thumbSize, thumbX, thumbY+thumbSize-r);
-                ctx.lineTo(thumbX, thumbY+r);
-                ctx.quadraticCurveTo(thumbX, thumbY, thumbX+r, thumbY);
-                ctx.closePath();
-                ctx.stroke();
+                rr(photoX, photoY, photoSize, photoSize, r);
+                ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 4; ctx.stroke();
                 resolve();
             };
-            img.onerror = () => resolve();
+            img.onerror = () => {
+                rr(photoX, photoY, photoSize, photoSize, 20);
+                ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fill();
+                ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 3; ctx.stroke();
+                resolve();
+            };
             img.src = dog.photo_url.startsWith('http') ? dog.photo_url : window.location.origin + dog.photo_url;
         });
+    } else {
+        rr(photoX, photoY, photoSize, photoSize, 20);
+        ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fill();
+        ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 3; ctx.stroke();
     }
 
-    // ── BOTTOM MINT BAR ──
-    ctx.fillStyle = '#4ecdc4';
-    ctx.fillRect(0, H - 14, W, 14);
+    // Left bottom text — left aligned, maxWidth enforced
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ffffff'; ctx.font = '28px sans-serif';
+    ctx.fillText(isRescueOnly ? 'Contact a rescue org to pull.' : 'Donate · Foster · Share.', 44, divY + 68, leftMax);
+
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 42px sans-serif';
+    ctx.fillText('ladogdispatch.com', 44, divY + 130, leftMax);
+
+    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 28px sans-serif';
+    ctx.fillText('@la_dog_dispatch', 44, divY + 174, leftMax);
+
+    // ── BOTTOM GREEN BAR ──
+    const botBar = ctx.createLinearGradient(0,0,W,0);
+    botBar.addColorStop(0,'#3d7a5c'); botBar.addColorStop(0.5,'#7ec8a0'); botBar.addColorStop(1,'#3d7a5c');
+    ctx.fillStyle = botBar; ctx.fillRect(0, H-16, W, 16);
 
     return c;
 }
