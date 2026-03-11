@@ -145,4 +145,22 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// Manually trigger a PetHarbor rescrape (admin only)
+router.post('/rescrape', async (req, res) => {
+  try {
+    const { scrapePetHarbor } = require('../services/petharborScraper');
+    console.log('🔄 Manual rescrape triggered by admin');
+    // Run in background so request returns immediately
+    scrapePetHarbor().then(dogs => {
+      console.log(`✅ Manual rescrape complete — ${dogs.length} dogs processed`);
+    }).catch(err => {
+      console.error('❌ Manual rescrape error:', err.message);
+    });
+    res.json({ success: true, message: 'Rescrape started — check Railway logs for results' });
+  } catch (error) {
+    console.error('Error triggering rescrape:', error);
+    res.status(500).json({ error: 'Failed to trigger rescrape' });
+  }
+});
+
 module.exports = router;
