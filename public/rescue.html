@@ -16,8 +16,8 @@
         body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
 
         /* NAV */
-        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px);  overflow: hidden;}
-        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px;  overflow: hidden;}
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); overflow: hidden; }
+        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; overflow: hidden; }
         .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
         .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
         .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
@@ -47,19 +47,25 @@
         /* MAIN CONTENT */
         .main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 3rem; }
 
-        /* DOG GRID */
+        /* DOG GRID — equal height rows */
         .grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.8rem; }
         .grid-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--dark); font-weight: 600; }
         .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
         .filter-chip { padding: 0.35rem 0.85rem; border: 1.5px solid var(--border); border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: white; cursor: pointer; transition: all 0.18s; color: var(--text); }
         .filter-chip:hover, .filter-chip.active { border-color: #4a8c6a; color: #4a8c6a; background: #f0f7f4; }
 
-        .dogs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-        .dog-card { background: white; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; transition: box-shadow 0.25s, transform 0.25s; }
+        .dogs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start; }
+
+        /* ── Equal-height cards: flex column, actions pinned to bottom ── */
+        .dog-card {
+            background: white; border-radius: 10px; border: 1px solid var(--border);
+            overflow: hidden; transition: box-shadow 0.25s, transform 0.25s;
+            display: flex; flex-direction: column;
+        }
         .dog-card:hover { box-shadow: 0 8px 24px rgba(26,22,20,0.1); transform: translateY(-2px); }
-        .dog-img { width: 100%; height: 180px; object-fit: cover; background: var(--tan); }
-        .dog-img-placeholder { width: 100%; height: 180px; background: var(--tan); display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-        .dog-body { padding: 0.9rem; }
+        .dog-img { width: 100%; height: 180px; object-fit: cover; background: var(--tan); flex-shrink: 0; }
+        .dog-img-placeholder { width: 100%; height: 180px; background: var(--tan); display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; }
+        .dog-body { padding: 0.9rem; display: flex; flex-direction: column; flex: 1; }
         .dog-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
         .badge { font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
         .badge-critical { background: #fee2e2; color: #b91c1c; }
@@ -69,7 +75,40 @@
         .dog-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--dark); margin-bottom: 0.2rem; }
         .dog-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
         .dog-deadline { font-size: 0.78rem; color: var(--red); font-weight: 600; margin-bottom: 0.7rem; }
-        .dog-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+        /* ── BEHAVIORAL NOTES — rescue card ── */
+        .dog-notes {
+            font-size: 0.72rem;
+            color: #78350f;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 6px;
+            padding: 0.4rem 0.55rem;
+            margin-bottom: 0.7rem;
+            line-height: 1.45;
+        }
+        .dog-notes-label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 0.15rem;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #92400e;
+        }
+        .dog-notes-disclaimer {
+            display: block;
+            font-style: italic;
+            color: #a16207;
+            margin-top: 0.28rem;
+            font-size: 0.67rem;
+            line-height: 1.4;
+            border-top: 1px solid #fde68a;
+            padding-top: 0.25rem;
+        }
+
+        /* actions always at bottom */
+        .dog-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; }
         .btn-commit { background: #4a8c6a; color: white; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; font-family: 'Source Sans 3', sans-serif; }
         .btn-commit:hover { background: #3d7a5c; }
         .btn-commit.committed { background: #166534; cursor: default; }
@@ -95,11 +134,7 @@
         .modal { background: white; border-radius: 14px; padding: 1.5rem; width: 90%; max-width: 420px; }
         .modal h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 0.4rem; }
         .modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.6; }
-        .ig-card-preview {
-            width: 100%; aspect-ratio: 1; border-radius: 10px; overflow: hidden;
-            background: var(--dark); position: relative; margin-bottom: 1rem;
-            display: flex; flex-direction: column; justify-content: flex-end;
-        }
+        .ig-card-preview { width: 100%; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--dark); position: relative; margin-bottom: 1rem; display: flex; flex-direction: column; justify-content: flex-end; }
         .ig-card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
         .ig-card-content { position: relative; z-index: 1; padding: 1rem; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); }
         .ig-card-tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); margin-bottom: 0.3rem; }
@@ -121,7 +156,7 @@
         .commit-form textarea { min-height: 70px; resize: vertical; }
         .commit-actions { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
 
-        /* NOT YET VETTED / CTA */
+        /* CONTACT BAR */
         .contact-bar { background: var(--cream); padding: 1.5rem 3rem; border-top: 1px solid var(--border); }
         .contact-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
         .contact-bar p { color: var(--text); font-size: 0.88rem; }
@@ -129,11 +164,9 @@
         .btn-contact-us { background: #4a8c6a; color: white; padding: 0.5rem 1.3rem; border-radius: 6px; font-weight: 700; font-size: 0.88rem; border: none; cursor: pointer; text-decoration: none; font-family: 'Source Sans 3', sans-serif; transition: all 0.2s; }
         .btn-contact-us:hover { opacity: 0.85; }
 
-        /* TABS content */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* EMPTY STATE */
         .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
         .empty p { font-size: 0.9rem; margin-top: 0.5rem; }
 
@@ -153,7 +186,6 @@
             body { padding-bottom: 64px; }
         }
 
-        /* BOTTOM TAB BAR */
         .bottom-tab-bar { display: none; }
         @media (max-width: 768px) {
             .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
@@ -168,46 +200,15 @@
         .logo-img { height: 52px; width: auto; display: block; }
         @media (max-width: 900px) { .logo-img { height: 40px; } }
 
-        /* ── MORE SLIDE-UP DRAWER ── */
-        .more-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            z-index: 190;
-            opacity: 0;
-            transition: opacity 0.25s ease;
-        }
+        .more-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 190; opacity: 0; transition: opacity 0.25s ease; }
         .more-overlay.active { display: block; }
         .more-overlay.visible { opacity: 1; }
-        .more-drawer {
-            display: none;
-            position: fixed;
-            bottom: 64px; left: 0; right: 0;
-            background: white;
-            border-radius: 16px 16px 0 0;
-            z-index: 195;
-            padding: 1rem 0 1rem;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-            box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
-        }
+        .more-drawer { display: none; position: fixed; bottom: 64px; left: 0; right: 0; background: white; border-radius: 16px 16px 0 0; z-index: 195; padding: 1rem 0 1rem; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -8px 30px rgba(0,0,0,0.15); }
         @media (max-width: 900px) { .more-drawer { display: block; } }
         .more-drawer.open { transform: translateY(0); }
         .more-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 1rem; }
         .more-title { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: #6b6560; padding: 0 1.2rem 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-        .more-link {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-            padding: 0.85rem 1.4rem;
-            text-decoration: none;
-            color: #1a1614;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border-top: 1px solid #d4cfc7;
-            transition: background 0.15s;
-        }
+        .more-link { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1.4rem; text-decoration: none; color: #1a1614; font-size: 0.95rem; font-weight: 500; border-top: 1px solid #d4cfc7; transition: background 0.15s; }
         .more-link:active { background: #e8e4dd; }
         .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
         .more-link-arrow { margin-left: auto; color: #ccc; }
@@ -229,7 +230,6 @@
     </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
     <div class="hero-inner">
         <div class="hero-left">
@@ -250,7 +250,6 @@
     </div>
 </div>
 
-<!-- TABS -->
 <div class="tabs-bar">
     <div class="tabs-inner">
         <button class="tab-btn active" onclick="switchTab('dogs', this)">🐕 Urgent Dogs</button>
@@ -258,10 +257,8 @@
     </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-    <!-- DOGS TAB -->
     <div class="tab-content active" id="tab-dogs">
         <div class="grid-header">
             <div class="grid-title">Dogs Needing Rescue</div>
@@ -279,7 +276,6 @@
         </div>
     </div>
 
-    <!-- FOSTERS TAB -->
     <div class="tab-content" id="tab-fosters">
         <div class="grid-header">
             <div class="grid-title">Volunteers Ready to Foster</div>
@@ -291,7 +287,6 @@
 
 </div>
 
-<!-- CONTACT BAR -->
 <div class="contact-bar">
     <div class="contact-bar-inner">
         <p><strong>Not yet a verified partner?</strong> We work with rescues directly to build trust before sharing funds and fosters.</p>
@@ -303,7 +298,7 @@
 <div class="modal-overlay" id="ig-modal" onclick="closeIgModal(event)">
     <div class="modal">
         <h3>Share to Instagram</h3>
-        <p>Screenshot or download this card and post it to your Instagram story or feed. Tag <strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:2px"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>@la_dog_dispatch</strong> so we can reshare.</p>
+        <p>Screenshot or download this card and post it to your Instagram story or feed. Tag <strong>@la_dog_dispatch</strong> so we can reshare.</p>
         <div class="ig-card-preview" id="ig-preview">
             <img class="ig-card-img" id="ig-card-img" src="" alt="">
             <div class="ig-card-content">
@@ -359,238 +354,244 @@
     </div>
 </div>
 
-<!-- MOBILE NAV -->
-
-    <!-- Footer -->
-    <footer style="background: #3d7a5c; color: white; padding: 2rem 3rem; text-align: center;">
-        <div style="max-width: 1400px; margin: 0 auto;">
-            <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
-            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
-            <p style="font-size: 0.78rem; color: rgba(255,255,255,0.3);">
-                <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
-                <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
-            </p>
-            <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <nav class="bottom-tab-bar">
-        <a href="/#dogs-section" class="tab-item tab-fund">
-            <span class="tab-icon">🐕</span>
-            <span class="tab-label">Fund a Dog</span>
-        </a>
-        <a href="/foster.html" class="tab-item">
-            <span class="tab-icon">🏠</span>
-            <span class="tab-label">Foster</span>
-        </a>
-        <a href="/donate.html" class="tab-item tab-member">
-            <span class="tab-icon">💛</span>
-            <span class="tab-label">Become a Member</span>
-        </a>
-        <a href="/rescue.html" class="tab-item active">
-            <span class="tab-icon">⭐</span>
-            <span class="tab-label">Rescue</span>
-        </a>
-        <button class="tab-item" onclick="toggleMore()">
-            <span class="tab-icon">☰</span>
-            <span class="tab-label">More</span>
-        </button>
-    </nav>
-
-    <!-- MORE DRAWER -->
-    <div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
-    <div class="more-drawer" id="more-drawer">
-        <div class="more-handle"></div>
-        <div class="more-title">More Pages</div>
-        <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
-        <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
-        <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
-        <a href="/social.html" class="more-link"><span class="more-link-icon">📢</span> Share on Social <span class="more-link-arrow">›</span></a>
-        <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
+<footer style="background: #3d7a5c; color: white; padding: 2rem 3rem; text-align: center;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+        <p style="font-size: 0.78rem; color: rgba(255,255,255,0.3);">
+            <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
+            <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
+            <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+        </p>
+        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
     </div>
+</footer>
 
-    <script>
-    function toggleMore() {
-        const drawer = document.getElementById('more-drawer');
-        const overlay = document.getElementById('more-overlay');
-        const isOpen = drawer.classList.contains('open');
-        if (isOpen) {
-            drawer.classList.remove('open');
-            overlay.classList.remove('visible');
-            setTimeout(() => overlay.classList.remove('active'), 250);
-        } else {
-            overlay.classList.add('active');
-            requestAnimationFrame(() => {
-                overlay.classList.add('visible');
-                drawer.classList.add('open');
-            });
-        }
-    }
-    </script>
+<nav class="bottom-tab-bar">
+    <a href="/#dogs-section" class="tab-item tab-fund">
+        <span class="tab-icon">🐕</span>
+        <span class="tab-label">Fund a Dog</span>
+    </a>
+    <a href="/foster.html" class="tab-item">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">Foster</span>
+    </a>
+    <a href="/donate.html" class="tab-item tab-member">
+        <span class="tab-icon">💛</span>
+        <span class="tab-label">Become a Member</span>
+    </a>
+    <a href="/rescue.html" class="tab-item active">
+        <span class="tab-icon">⭐</span>
+        <span class="tab-label">Rescue</span>
+    </a>
+    <button class="tab-item" onclick="toggleMore()">
+        <span class="tab-icon">☰</span>
+        <span class="tab-label">More</span>
+    </button>
+</nav>
+
+<div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
+<div class="more-drawer" id="more-drawer">
+    <div class="more-handle"></div>
+    <div class="more-title">More Pages</div>
+    <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
+    <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
+    <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
+    <a href="/social.html" class="more-link"><span class="more-link-icon">📢</span> Share on Social <span class="more-link-arrow">›</span></a>
+    <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
+</div>
 
 <script>
-    let allDogs = [];
-    let currentDog = null;
-    let currentFilter = 'all';
-
-    // Load dogs
-    async function loadDogs() {
-        try {
-            const res = await fetch('/api/dogs');
-            const data = await res.json();
-            allDogs = data.dogs || data || [];
-            document.getElementById('dog-count').textContent = allDogs.length;
-            renderDogs(allDogs);
-        } catch (err) {
-            document.getElementById('dogs-grid').innerHTML = '<div class="empty"><p>Unable to load dogs. Please refresh.</p></div>';
-        }
+function toggleMore() {
+    const drawer = document.getElementById('more-drawer');
+    const overlay = document.getElementById('more-overlay');
+    const isOpen = drawer.classList.contains('open');
+    if (isOpen) {
+        drawer.classList.remove('open');
+        overlay.classList.remove('visible');
+        setTimeout(() => overlay.classList.remove('active'), 250);
+    } else {
+        overlay.classList.add('active');
+        requestAnimationFrame(() => {
+            overlay.classList.add('visible');
+            drawer.classList.add('open');
+        });
     }
+}
+</script>
 
-    // Load fosters
-    async function loadFosters() {
-        try {
-            const res = await fetch('/api/fosters');
-            const data = await res.json();
-            const fosters = data.fosters || data || [];
-            document.getElementById('foster-count').textContent = fosters.length;
-            renderFosters(fosters);
-        } catch (err) {
-            document.getElementById('foster-grid').innerHTML = '<div class="empty"><p>No foster volunteers yet.</p></div>';
-        }
+<script>
+// ── DISCLAIMER (same wording as social.html) ──────────────────────
+const NOTES_DISCLAIMER = 'Shelter behavioral notes are snapshots written in stressful environments to dog & staff and may not reflect a dog\'s full personality. This dog may require behavioral training & needs a patient caregiver.';
+
+let allDogs = [];
+let currentDog = null;
+let currentFilter = 'all';
+
+async function loadDogs() {
+    try {
+        const res = await fetch('/api/dogs');
+        const data = await res.json();
+        allDogs = data.dogs || data || [];
+        document.getElementById('dog-count').textContent = allDogs.length;
+        renderDogs(allDogs);
+    } catch (err) {
+        document.getElementById('dogs-grid').innerHTML = '<div class="empty"><p>Unable to load dogs. Please refresh.</p></div>';
     }
+}
 
-    function renderDogs(dogs) {
-        const grid = document.getElementById('dogs-grid');
-        if (!dogs.length) {
-            grid.innerHTML = '<div class="empty"><div style="font-size:2rem">🐕</div><p>No dogs match this filter.</p></div>';
-            return;
-        }
-        grid.innerHTML = dogs.map(dog => {
-            const deadline = new Date(dog.deadline);
-            const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
-            const urgency = daysLeft <= 1 ? 'CRITICAL' : daysLeft <= 3 ? 'URGENT' : null;
-            const photo = dog.photo_url || '';
-            return `
-            <div class="dog-card" data-shelter="${dog.shelter || ''}">
-                ${photo
-                    ? `<img class="dog-img" src="${photo}" alt="${dog.name}" onerror="this.parentElement.querySelector('.dog-img-placeholder') && (this.style.display='none')">`
-                    : `<div class="dog-img-placeholder">🐕</div>`}
-                <div class="dog-body">
-                    <div class="dog-badges">
-                        ${urgency ? `<span class="badge badge-${urgency.toLowerCase()}">${urgency}</span>` : ''}
-                        ${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only</span>` : ''}
-                        ${dog.shelter ? `<span class="badge badge-shelter">${dog.shelter}</span>` : ''}
-                    </div>
-                    <div class="dog-name">${dog.name || dog.shelter_id}</div>
-                    <div class="dog-meta">${dog.breed || 'Mixed'} · ${dog.gender || ''} · ${dog.age || ''}</div>
-                    <div class="dog-deadline">⏰ Deadline: ${deadline.toLocaleDateString('en-US', {month:'short', day:'numeric'})} (${daysLeft <= 0 ? 'TODAY' : daysLeft + ' day' + (daysLeft !== 1 ? 's' : '')})</div>
-                    <div class="dog-actions">
-                        <button class="btn-commit" onclick="openCommitModal(${JSON.stringify(dog).replace(/"/g, '&quot;')})">Commit to Pull</button>
-                        <button class="btn-share-ig" onclick="openIgModal(${JSON.stringify(dog).replace(/"/g, '&quot;')})">📸 IG Share</button>
-                        ${dog.petharbor_url ? `<a href="${dog.petharbor_url}" target="_blank" class="btn-outline-sm">View Profile</a>` : ''}
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
+async function loadFosters() {
+    try {
+        const res = await fetch('/api/fosters');
+        const data = await res.json();
+        const fosters = data.fosters || data || [];
+        document.getElementById('foster-count').textContent = fosters.length;
+        renderFosters(fosters);
+    } catch (err) {
+        document.getElementById('foster-grid').innerHTML = '<div class="empty"><p>No foster volunteers yet.</p></div>';
     }
+}
 
-    function renderFosters(fosters) {
-        const grid = document.getElementById('foster-grid');
-        if (!fosters.length) {
-            grid.innerHTML = '<div class="empty"><div style="font-size:2rem">🏠</div><p>No foster volunteers signed up yet. Share the foster page to grow this list.</p></div>';
-            return;
-        }
-        grid.innerHTML = fosters.map(f => `
-            <div class="foster-card">
-                <div class="foster-name">${f.first_name} ${f.last_name ? f.last_name[0] + '.' : ''}</div>
-                <div class="foster-meta">
-                    📍 ${f.city || 'Los Angeles'} ${f.zip || ''}<br>
-                    📅 Available: ${f.available_date ? new Date(f.available_date).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : 'Now'}<br>
-                    ⏱ Duration: ${f.duration ? f.duration.replace(/_/g,' ') : 'Flexible'}
-                    ${f.specific_dog ? `<br>🐕 <strong>Requested: ${f.specific_dog}</strong>` : ''}
+function renderDogs(dogs) {
+    const grid = document.getElementById('dogs-grid');
+    if (!dogs.length) {
+        grid.innerHTML = '<div class="empty"><div style="font-size:2rem">🐕</div><p>No dogs match this filter.</p></div>';
+        return;
+    }
+    grid.innerHTML = dogs.map(dog => {
+        const deadline = new Date(dog.deadline);
+        const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
+        const urgency = daysLeft <= 1 ? 'CRITICAL' : daysLeft <= 3 ? 'URGENT' : null;
+        const photo = dog.photo_url || '';
+
+        // Use notes_short for card display; fall back to truncating full notes
+        const notesText = dog.notes_short || (dog.notes && dog.notes.length > 200
+            ? dog.notes.substring(0, 200) + '…'
+            : dog.notes);
+
+        const notesHtml = notesText ? `
+            <div class="dog-notes">
+                <span class="dog-notes-label">⚠️ Shelter Notes</span>
+                ${notesText}
+                <span class="dog-notes-disclaimer">${NOTES_DISCLAIMER}</span>
+            </div>` : '';
+
+        return `
+        <div class="dog-card" data-shelter="${dog.shelter || ''}">
+            ${photo
+                ? `<img class="dog-img" src="${photo}" alt="${dog.name}">`
+                : `<div class="dog-img-placeholder">🐕</div>`}
+            <div class="dog-body">
+                <div class="dog-badges">
+                    ${urgency ? `<span class="badge badge-${urgency.toLowerCase()}">${urgency}</span>` : ''}
+                    ${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only</span>` : ''}
+                    ${dog.shelter ? `<span class="badge badge-shelter">${dog.shelter}</span>` : ''}
                 </div>
-                <div class="foster-pref">
-                    ${(f.sizes || '').split(',').filter(Boolean).map(s => `<span class="pref-tag">${s.trim()}</span>`).join('')}
-                    ${(f.other_pets || '').split(',').filter(Boolean).map(p => `<span class="pref-tag">${p.trim()}</span>`).join('')}
-                    ${(f.kids || '').split(',').filter(Boolean).map(k => `<span class="pref-tag">${k.trim()}</span>`).join('')}
-                </div>
-                <div class="foster-contact">
-                    ${f.contact_pref && f.contact_pref.includes('email_ok')
-                        ? `<a href="mailto:${f.email}" class="btn-contact">✉ Email</a>` : ''}
-                    ${f.contact_pref && f.contact_pref.includes('text_ok')
-                        ? `<a href="sms:${f.phone}" class="btn-contact">📱 Text</a>` : ''}
-                    ${(!f.contact_pref || (!f.contact_pref.includes('email_ok') && !f.contact_pref.includes('text_ok')))
-                        ? `<a href="mailto:${f.email}" class="btn-contact">Contact</a>` : ''}
+                <div class="dog-name">${dog.name || dog.shelter_id}</div>
+                <div class="dog-meta">${dog.breed || 'Mixed'} · ${dog.gender || ''} · ${dog.age || ''}</div>
+                <div class="dog-deadline">⏰ Deadline: ${deadline.toLocaleDateString('en-US', {month:'short', day:'numeric'})} (${daysLeft <= 0 ? 'TODAY' : daysLeft + ' day' + (daysLeft !== 1 ? 's' : '')})</div>
+                ${notesHtml}
+                <div class="dog-actions">
+                    <button class="btn-commit" onclick="openCommitModal(${JSON.stringify(dog).replace(/"/g, '&quot;')})">Commit to Pull</button>
+                    <button class="btn-share-ig" onclick="openIgModal(${JSON.stringify(dog).replace(/"/g, '&quot;')})">📸 IG Share</button>
+                    ${dog.petharbor_url ? `<a href="${dog.petharbor_url}" target="_blank" class="btn-outline-sm">View Profile</a>` : ''}
                 </div>
             </div>
-        `).join('');
-    }
+        </div>`;
+    }).join('');
+}
 
-    function filterDogs(shelter, btn) {
-        currentFilter = shelter;
-        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        const filtered = shelter === 'all' ? allDogs : allDogs.filter(d => d.shelter && d.shelter.toUpperCase().includes(shelter.toUpperCase().replace('.','')));
-        renderDogs(filtered);
+function renderFosters(fosters) {
+    const grid = document.getElementById('foster-grid');
+    if (!fosters.length) {
+        grid.innerHTML = '<div class="empty"><div style="font-size:2rem">🏠</div><p>No foster volunteers signed up yet. Share the foster page to grow this list.</p></div>';
+        return;
     }
+    grid.innerHTML = fosters.map(f => `
+        <div class="foster-card">
+            <div class="foster-name">${f.first_name} ${f.last_name ? f.last_name[0] + '.' : ''}</div>
+            <div class="foster-meta">
+                📍 ${f.city || 'Los Angeles'} ${f.zip || ''}<br>
+                📅 Available: ${f.available_date ? new Date(f.available_date).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : 'Now'}<br>
+                ⏱ Duration: ${f.duration ? f.duration.replace(/_/g,' ') : 'Flexible'}
+                ${f.specific_dog ? `<br>🐕 <strong>Requested: ${f.specific_dog}</strong>` : ''}
+            </div>
+            <div class="foster-pref">
+                ${(f.sizes || '').split(',').filter(Boolean).map(s => `<span class="pref-tag">${s.trim()}</span>`).join('')}
+                ${(f.other_pets || '').split(',').filter(Boolean).map(p => `<span class="pref-tag">${p.trim()}</span>`).join('')}
+                ${(f.kids || '').split(',').filter(Boolean).map(k => `<span class="pref-tag">${k.trim()}</span>`).join('')}
+            </div>
+            <div class="foster-contact">
+                ${f.contact_pref && f.contact_pref.includes('email_ok')
+                    ? `<a href="mailto:${f.email}" class="btn-contact">✉ Email</a>` : ''}
+                ${f.contact_pref && f.contact_pref.includes('text_ok')
+                    ? `<a href="sms:${f.phone}" class="btn-contact">📱 Text</a>` : ''}
+                ${(!f.contact_pref || (!f.contact_pref.includes('email_ok') && !f.contact_pref.includes('text_ok')))
+                    ? `<a href="mailto:${f.email}" class="btn-contact">Contact</a>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
 
-    // Tab switching
-    function switchTab(tab, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + tab).classList.add('active');
-    }
+function filterDogs(shelter, btn) {
+    currentFilter = shelter;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = shelter === 'all' ? allDogs : allDogs.filter(d => d.shelter && d.shelter.toUpperCase().includes(shelter.toUpperCase().replace('.','')));
+    renderDogs(filtered);
+}
 
-    // IG Modal
-    function openIgModal(dog) {
-        currentDog = dog;
-        document.getElementById('ig-card-name').textContent = dog.name || dog.shelter_id;
-        document.getElementById('ig-card-meta').textContent = `${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'} · Urgent`;
-        if (dog.photo_url) document.getElementById('ig-card-img').src = dog.photo_url;
-        document.getElementById('ig-modal').classList.add('open');
-    }
-    function closeIgModal(e) {
-        if (e.target === document.getElementById('ig-modal')) document.getElementById('ig-modal').classList.remove('open');
-    }
-    function downloadIgCard() {
-        // For now, instruct to screenshot — canvas-based download can be added later
-        alert('Screenshot this card and post to your Instagram story or feed. Tag @la_dog_dispatch!');
-    }
+function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+}
 
-    // Commit Modal
-    function openCommitModal(dog) {
-        currentDog = dog;
-        document.getElementById('commit-dog-name').textContent = '— ' + (dog.name || dog.shelter_id);
-        document.getElementById('commit-modal').classList.add('open');
-    }
-    function closeCommitModal(e) {
-        if (e.target === document.getElementById('commit-modal')) document.getElementById('commit-modal').classList.remove('open');
-    }
-    async function submitCommit() {
-        const org = document.getElementById('commit-org').value;
-        const contact = document.getElementById('commit-contact').value;
-        const email = document.getElementById('commit-email').value;
-        const foster = document.getElementById('commit-foster').value;
-        const notes = document.getElementById('commit-notes').value;
-        if (!org || !contact || !email) { alert('Please fill in your organization, name, and email.'); return; }
-        try {
-            const res = await fetch('/api/rescues/commit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dog_id: currentDog.id, shelter_id: currentDog.shelter_id, dog_name: currentDog.name, org, contact, email, foster_status: foster, notes })
-            });
-            if (res.ok) {
-                document.getElementById('commit-modal').classList.remove('open');
-                alert(`✅ Commitment recorded for ${currentDog.name || currentDog.shelter_id}. We'll follow up shortly.`);
-            } else { throw new Error(); }
-        } catch { alert('Something went wrong. Please email us directly at hello@la_dog_dispatch.org'); }
-    }
+function openIgModal(dog) {
+    currentDog = dog;
+    document.getElementById('ig-card-name').textContent = dog.name || dog.shelter_id;
+    document.getElementById('ig-card-meta').textContent = `${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'} · Urgent`;
+    if (dog.photo_url) document.getElementById('ig-card-img').src = dog.photo_url;
+    document.getElementById('ig-modal').classList.add('open');
+}
+function closeIgModal(e) {
+    if (e.target === document.getElementById('ig-modal')) document.getElementById('ig-modal').classList.remove('open');
+}
+function downloadIgCard() {
+    alert('Screenshot this card and post to your Instagram story or feed. Tag @la_dog_dispatch!');
+}
 
-    // Init
-    loadDogs();
-    loadFosters();
+function openCommitModal(dog) {
+    currentDog = dog;
+    document.getElementById('commit-dog-name').textContent = '— ' + (dog.name || dog.shelter_id);
+    document.getElementById('commit-modal').classList.add('open');
+}
+function closeCommitModal(e) {
+    if (e.target === document.getElementById('commit-modal')) document.getElementById('commit-modal').classList.remove('open');
+}
+async function submitCommit() {
+    const org = document.getElementById('commit-org').value;
+    const contact = document.getElementById('commit-contact').value;
+    const email = document.getElementById('commit-email').value;
+    const foster = document.getElementById('commit-foster').value;
+    const notes = document.getElementById('commit-notes').value;
+    if (!org || !contact || !email) { alert('Please fill in your organization, name, and email.'); return; }
+    try {
+        const res = await fetch('/api/rescues/commit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dog_id: currentDog.id, shelter_id: currentDog.shelter_id, dog_name: currentDog.name, org, contact, email, foster_status: foster, notes })
+        });
+        if (res.ok) {
+            document.getElementById('commit-modal').classList.remove('open');
+            alert(`✅ Commitment recorded for ${currentDog.name || currentDog.shelter_id}. We'll follow up shortly.`);
+        } else { throw new Error(); }
+    } catch { alert('Something went wrong. Please email us directly at hello@la_dog_dispatch.org'); }
+}
+
+loadDogs();
+loadFosters();
 </script>
 
 </body>
