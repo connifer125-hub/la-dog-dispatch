@@ -54,10 +54,11 @@
         .section-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--dark); font-weight: 700; margin-bottom: 1rem; }
         .share-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
 
-        .share-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-        .card-img { width: 100%; height: 195px; object-fit: cover; background: var(--tan); display: block; }
-        .card-img-ph { width: 100%; height: 195px; background: var(--tan); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
-        .card-body { padding: 0.85rem 0.95rem; }
+        .share-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
+        .card-img { width: 100%; height: 195px; object-fit: cover; background: var(--tan); display: block; flex-shrink: 0; }
+        .card-img-ph { width: 100%; height: 195px; background: var(--tan); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; flex-shrink: 0; }
+        .card-body { padding: 0.85rem 0.95rem; display: flex; flex-direction: column; flex: 1; }
+        .card-actions { margin-top: auto; }
         .card-badges { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
         .badge { font-size: 0.63rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
         .badge-critical { background: #fee2e2; color: #b91c1c; }
@@ -65,7 +66,37 @@
         .badge-rescue { background: #fef3c7; color: #92400e; }
         .card-name { font-family: 'Playfair Display', serif; font-size: 0.98rem; font-weight: 700; color: var(--dark); margin-bottom: 0.15rem; }
         .card-meta { font-size: 0.76rem; color: var(--muted); margin-bottom: 0.35rem; }
-        .card-deadline { font-size: 0.76rem; color: var(--red); font-weight: 700; margin-bottom: 0.7rem; }
+        .card-deadline { font-size: 0.76rem; color: var(--red); font-weight: 700; margin-bottom: 0.5rem; }
+
+        /* ── BEHAVIORAL NOTES — card UI ── */
+        .card-notes {
+            font-size: 0.72rem;
+            color: #78350f;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 6px;
+            padding: 0.4rem 0.55rem;
+            margin-bottom: 0.6rem;
+            line-height: 1.45;
+        }
+        .card-notes-label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 0.15rem;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #92400e;
+        }
+        .card-notes-disclaimer {
+            display: block;
+            font-style: italic;
+            color: #a16207;
+            margin-top: 0.25rem;
+            font-size: 0.67rem;
+            line-height: 1.4;
+        }
+
         .card-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 
         .btn-ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; padding: 0.4rem 0.8rem; border-radius: 7px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 0.3rem; transition: opacity 0.2s; }
@@ -339,6 +370,9 @@
     </script>
 
 <script>
+// ── DISCLAIMER ────────────────────────────────────────────────────
+const NOTES_DISCLAIMER = 'Shelter behavioral notes are snapshots written in stressful environments to dog & staff and may not reflect a dog\'s full personality. This dog may require behavioral training & needs a patient caregiver.';
+
 // ── LOAD DOGS ─────────────────────────────────────────────────────
 let allDogs = [];
 let currentFilter = 'all';
@@ -375,6 +409,15 @@ function renderGrid(dogs) {
         const urgency = daysLeft <= 1 ? 'critical' : daysLeft <= 3 ? 'urgent' : null;
         const dl = deadline.toLocaleDateString('en-US', {month:'short', day:'numeric'});
         const dogJson = JSON.stringify(dog).replace(/"/g, '&quot;');
+
+        // ── BEHAVIORAL NOTES block (only rendered if dog.notes exists) ──
+        const notesHtml = dog.notes ? `
+            <div class="card-notes">
+                <span class="card-notes-label">⚠️ Shelter Notes</span>
+                ${dog.notes.length > 100 ? dog.notes.substring(0, 100) + '…' : dog.notes}
+                <span class="card-notes-disclaimer">${NOTES_DISCLAIMER}</span>
+            </div>` : '';
+
         return `<div class="share-card">
             ${dog.photo_url ? `<img class="card-img" src="${dog.photo_url}" alt="${dog.name}" loading="lazy">` : `<div class="card-img-ph">🐕</div>`}
             <div class="card-body">
@@ -384,6 +427,7 @@ function renderGrid(dogs) {
                 <div class="card-name">${dog.name || dog.shelter_id}</div>
                 <div class="card-meta">${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'}</div>
                 <div class="card-deadline">⏰ ${dl} · ${daysLeft <= 0 ? 'TODAY' : daysLeft + 'd left'}</div>
+                ${notesHtml}
                 <div class="card-actions">
                     <button class="btn-ig" onclick='igStory(${dogJson})'>📸 IG Story</button>
                     <button class="btn-dl" onclick='downloadCard(${dogJson})'>⬇ Save</button>
@@ -399,13 +443,11 @@ function renderGrid(dogs) {
 function loadImg(src) {
     return new Promise((res, rej) => {
         const img = new Image();
-        // Route through server proxy to avoid CORS blocking canvas export
         const proxied = src.startsWith('http')
             ? `/api/image-proxy?url=${encodeURIComponent(src)}`
             : src;
         img.onload = () => res(img);
         img.onerror = () => {
-            // Fallback: try original URL directly
             const img2 = new Image();
             img2.crossOrigin = 'anonymous';
             img2.onload = () => res(img2);
@@ -434,8 +476,8 @@ async function generateCard(dog) {
     const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
     const isCritical = daysLeft <= 1;
     const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
+    const hasNotes = dog.notes && dog.notes.trim().length > 0;
 
-    // ── HELPERS ──
     function rr(x, y, w, h, r) {
         ctx.beginPath();
         ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
@@ -484,21 +526,18 @@ async function generateCard(dog) {
     topBar.addColorStop(0,'#3d7a5c'); topBar.addColorStop(0.5,'#7ec8a0'); topBar.addColorStop(1,'#3d7a5c');
     ctx.fillStyle = topBar; ctx.fillRect(0, 0, W, 14);
 
-    // ── TOP ROW: URGENT | SHELTER | LOGO — one line ──
+    // ── TOP ROW ──
     const rowH = 76, rowMid = 14 + rowH/2;
 
-    // Urgent badge left
     ctx.fillStyle = '#c4281c';
     rr(36, rowMid-24, 200, 48, 24); ctx.fill();
     ctx.fillStyle = 'white'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(isCritical ? '🚨 CRITICAL' : '⚠️ URGENT', 136, rowMid + 8);
 
-    // Shelter centered
     ctx.fillStyle = '#a8e6c3'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
     const shelterText = '📍 ' + (dog.shelter || 'LA COUNTY').toUpperCase();
     ctx.fillText(shelterText, W/2, rowMid + 9, 520);
 
-    // Logo circle right — load real icon
     const lr = 32, lx = W - 36 - lr, ly = rowMid;
     await new Promise(resolve => {
         const logoImg = new Image();
@@ -512,7 +551,6 @@ async function generateCard(dog) {
             resolve();
         };
         logoImg.onerror = () => {
-            // Fallback paw
             ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI*2);
             ctx.fillStyle = '#1a2e24'; ctx.fill();
             ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 3; ctx.stroke();
@@ -523,15 +561,13 @@ async function generateCard(dog) {
         logoImg.src = '/logo-icon.png';
     });
 
-    // Separator
     ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(44, 14+rowH); ctx.lineTo(W-44, 14+rowH); ctx.stroke();
 
     // ── CENTERED SECTION: Name, meta, deadline ──
     const sectionTop = 14 + rowH + 30;
-    const SAFE_W = W - 80; // hard safe width for all text
+    const SAFE_W = W - 80;
 
-    // Dog name — auto-size with hard maxWidth guard
     const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
     let fontSize = 220;
     ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
@@ -542,20 +578,16 @@ async function generateCard(dog) {
     const nameY = sectionTop + fontSize + 10;
     drawBubble(name, W/2, nameY, fontSize, SAFE_W);
 
-    // Breed · Gender · Age — centered, white, maxWidth enforced
     ctx.fillStyle = '#ffffff';
     ctx.font = 'italic 36px Georgia, serif';
     ctx.textAlign = 'center';
     const meta = [dog.breed, dog.gender, dog.age].filter(Boolean).join('  ·  ');
     ctx.fillText(meta, W/2, nameY + 62, SAFE_W);
 
-    // Deadline — centered, one line, hard maxWidth
     ctx.font = 'bold 46px sans-serif';
     const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
     const dlLabel = `Deadline: ${dlStr}`;
     const dlDays  = `  ·  ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`;
-
-    // If total deadline line too wide, shrink font
     let dlSize = 46;
     ctx.font = `bold ${dlSize}px sans-serif`;
     while (ctx.measureText(dlLabel + dlDays).width > SAFE_W && dlSize > 26) {
@@ -592,7 +624,6 @@ async function generateCard(dog) {
     const photoY = divY + 14;
     const leftMax = photoX - 44 - 24;
 
-    // Dog photo
     if (dog.photo_url) {
         await new Promise(resolve => {
             const img = new Image();
@@ -623,7 +654,6 @@ async function generateCard(dog) {
         ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 3; ctx.stroke();
     }
 
-    // Left bottom text — left aligned, maxWidth enforced
     ctx.textAlign = 'left';
     ctx.fillStyle = '#ffffff'; ctx.font = '28px sans-serif';
     ctx.fillText(isRescueOnly ? 'Contact a rescue org to pull.' : 'Donate · Foster · Share.', 44, divY + 68, leftMax);
@@ -645,13 +675,64 @@ async function generateCard(dog) {
         const cx2=ix+sz/2,cy2=iy+sz/2,pw=sz*0.62,ph=sz*0.5,px=ix+(sz-pw)/2,py=iy+(sz-ph)/2,pr=sz*0.12;
         ctx.beginPath(); ctx.moveTo(px+pr,py); ctx.lineTo(px+pw-pr,py); ctx.quadraticCurveTo(px+pw,py,px+pw,py+pr);
         ctx.lineTo(px+pw,py+ph-pr); ctx.quadraticCurveTo(px+pw,py+ph,px+pw-pr,py+ph);
-        ctx.lineTo(px+pr,py+ph); ctx.quadraticCurveTo(px,py+ph,px,py+ph-pr);
+        ctx.lineTo(px+pr,py+ph); ctx.quadraticCurveTo(px,py+ph,px,py+ph-r);
         ctx.lineTo(px,py+pr); ctx.quadraticCurveTo(px,py,px+pr,py); ctx.closePath(); ctx.stroke();
         ctx.beginPath(); ctx.arc(cx2,cy2,sz*0.22,0,Math.PI*2); ctx.stroke();
         ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(px+pw-sz*0.13,py+sz*0.12,sz*0.05,0,Math.PI*2); ctx.fill();
         ctx.restore();
     })(44, divY+174, 28);
     ctx.fillText('@la_dog_dispatch', 44+28+8, divY + 174, leftMax-36);
+
+    // ── BEHAVIORAL NOTES — bottom left, below IG handle ──
+    if (hasNotes) {
+        const noteStartY = divY + 228;
+
+        const PAD_L = 44;
+        const PAD_R = 20;
+        const boxW = leftMax - PAD_R;
+        const innerW = boxW - 28;
+
+        function wrapNoteLines(text, font, maxW, maxLines) {
+            ctx.font = font;
+            const words = text.split(' ');
+            let line = '', result = [];
+            for (const w of words) {
+                const test = line + w + ' ';
+                if (ctx.measureText(test).width > maxW && line) {
+                    result.push(line.trim());
+                    if (result.length >= maxLines) return result;
+                    line = w + ' ';
+                } else { line = test; }
+            }
+            if (result.length < maxLines) result.push(line.trim());
+            return result;
+        }
+
+        const noteFont = '19px sans-serif';
+        const noteLines = wrapNoteLines(dog.notes, noteFont, innerW, 3);
+        const lineH = 24;
+        const boxH = 36 + noteLines.length * lineH + 10 + 20 + 8;
+
+        ctx.fillStyle = 'rgba(251,191,36,0.10)';
+        rr(PAD_L, noteStartY, boxW, boxH, 8); ctx.fill();
+        ctx.strokeStyle = 'rgba(251,191,36,0.4)'; ctx.lineWidth = 1.2;
+        rr(PAD_L, noteStartY, boxW, boxH, 8); ctx.stroke();
+
+        const textX = PAD_L + 14;
+
+        ctx.fillStyle = '#fcd34d'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText('⚠️  SHELTER NOTES', textX, noteStartY + 22);
+
+        ctx.strokeStyle = 'rgba(251,191,36,0.25)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(textX, noteStartY + 30); ctx.lineTo(PAD_L + boxW - 14, noteStartY + 30); ctx.stroke();
+
+        ctx.fillStyle = '#fef3c7'; ctx.font = noteFont; ctx.textAlign = 'left';
+        noteLines.forEach((l, i) => ctx.fillText(l, textX, noteStartY + 52 + i * lineH, innerW));
+
+        ctx.fillStyle = 'rgba(253,230,138,0.6)'; ctx.font = 'italic 15px sans-serif';
+        const discY = noteStartY + 52 + noteLines.length * lineH + 8;
+        ctx.fillText('May require behavioral training & needs a patient caregiver.', textX, discY, innerW);
+    }
 
     // ── BOTTOM GREEN BAR ──
     const botBar = ctx.createLinearGradient(0,0,W,0);
@@ -690,7 +771,6 @@ async function igStory(dog) {
                 if (navigator.share && navigator.canShare({files:[file]})) {
                     await navigator.share({ files:[file], title:`${dog.name} needs rescue — LA Dog Dispatch` });
                 } else {
-                    // IG Stories deep link with sticker
                     const photoUrl = encodeURIComponent(`https://la-dog-dispatch-production.up.railway.app${dog.photo_url||''}`);
                     window.location.href = `instagram://story-camera?sticker_image_url=${photoUrl}`;
                     setTimeout(() => downloadCard(dog), 1500);
@@ -698,7 +778,6 @@ async function igStory(dog) {
             }, 'image/png');
         } catch(e) { downloadCard(dog); }
     } else {
-        // Desktop modal
         document.getElementById('modal-dog-name').textContent = dog.name || dog.shelter_id;
         document.getElementById('share-modal').classList.add('open');
     }
@@ -709,7 +788,14 @@ function copyCaption(dog, btnId) {
     const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
     const dl = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
     const isRO = dog.rescue_only === true || dog.rescue_only === 'true' || dog.rescue_only === 1;
-    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n\n':''}${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\nFund, foster, or share → ladogdispatch.com  @la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+
+    // ── Behavioral notes block with disclaimer ──
+    const notesBlock = dog.notes
+        ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 Note: ${NOTES_DISCLAIMER}\n`
+        : '';
+
+    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n\n':''}${notesBlock}${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\nFund, foster, or share → ladogdispatch.com  @la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+
     navigator.clipboard.writeText(caption).then(() => {
         const btn = document.getElementById(btnId);
         if (!btn) return;
@@ -784,11 +870,6 @@ loadDogs();
         <p style="font-size: 0.78rem;">
             <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
             <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-            <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+            <a href="/cdn-cgi/l/email-protection#3159545d5d5e715d50555e5655584241504552591f525e5c" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
         </p>
-        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
-    </div>
-</footer>
-
-</body>
-</html>
+        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserv
