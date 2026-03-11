@@ -11,6 +11,7 @@ router.get('/', async (req, res) => {
         deadline, photo_url, petharbor_url, description,
         source, category, goal_amount, raised_amount,
         rescue_only, intake_date, list_date,
+        notes, notes_short,
         created_at
       FROM dogs
       WHERE deadline >= NOW() - INTERVAL '1 day'
@@ -35,7 +36,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/dogs/:id — single dog
+// GET /api/dogs/:id — single dog (SELECT * includes notes automatically)
 router.get('/:id', async (req, res) => {
   try {
     const result = await db.query(
