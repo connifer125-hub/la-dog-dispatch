@@ -8,10 +8,12 @@ const BASE_URL = 'https://petharbor.com/results.asp?WHERE=type_DOG&searchtype=AL
 
 const SOUTH_LA_ONLY = false;
 
+// ── NOTES: max chars to store in notes_short ──────────────────────
+const NOTES_SHORT_MAX = 280;
+
 // ── TWILIO SMS ALERTS ──────────────────────────────────────────────
 async function sendNewDogAlert(dog) {
   try {
-    // Only send texts between 7am and 9pm Pacific time
     const now = new Date();
     const hour = parseInt(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hour12: false }));
     const alertStart = parseInt(process.env.SMS_ALERT_START_HOUR || '7');
@@ -40,8 +42,9 @@ async function sendNewDogAlert(dog) {
       `${dog.shelter} · ${dog.breed || 'Mixed'} · ${dog.age || ''}`,
       `Deadline: ${dlStr} (${daysLeft} day${daysLeft !== 1 ? 's' : ''})`,
       dog.rescue_only ? '🔒 Rescue pull only' : '✅ Foster/adopt eligible',
+      dog.notes_short ? `⚠️ ${dog.notes_short}` : '',
       `ladogdispatch.com`
-    ].join('\n');
+    ].filter(Boolean).join('\n');
 
     const client = require('twilio')(sid, token);
     for (const to of adminNumbers) {
@@ -52,8 +55,6 @@ async function sendNewDogAlert(dog) {
     console.error('❌ SMS alert failed:', err.message);
   }
 }
-
-
 
 const SHELTER_PRIORITY = {
   'SOUTH L.A.': 1,
@@ -72,27 +73,70 @@ function truncateText(text, maxLength) {
   return text.substring(0, maxLength - 3) + '...';
 }
 
+// ── NOTES: extract and clean behavioral notes from Pet Harbor text ─
+function parseNotes(text) {
+  if (!text) return { notes: null, notes_short: null };
+
+  // Pet Harbor puts notes/comments in a "Comments:" or "Special Needs:" block
+  // Try several known label patterns
+  const patterns = [
+    /Comments?:\s*([^\n]{10,})/i,
+    /Special\s+Needs?:\s*([^\n]{5,})/i,
+    /Behavior\s+Notes?:\s*([^\n]{5,})/i,
+    /Staff\s+Notes?:\s*([^\n]{5,})/i,
+    /Notes?:\s*([^\n]{10,})/i,
+  ];
+
+  let rawNotes = null;
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      rawNotes = match[1].trim();
+      break;
+    }
+  }
+
+  if (!rawNotes) return { notes: null, notes_short: null };
+
+  // Clean up common shelter shorthand artifacts
+  const cleaned = rawNotes
+    .replace(/\s+/g, ' ')           // collapse whitespace
+    .replace(/[<>]/g, '')           // strip any stray HTML
+    .trim();
+
+  if (cleaned.length < 5) return { notes: null, notes_short: null };
+
+  // Full notes saved as-is (no truncation — rescues need complete info)
+  const notes = cleaned;
+
+  // notes_short: truncate at word boundary for card/canvas display
+  let notes_short = cleaned;
+  if (cleaned.length > NOTES_SHORT_MAX) {
+    notes_short = cleaned.substring(0, NOTES_SHORT_MAX);
+    // Back up to last full word
+    const lastSpace = notes_short.lastIndexOf(' ');
+    if (lastSpace > NOTES_SHORT_MAX * 0.8) notes_short = notes_short.substring(0, lastSpace);
+    notes_short = notes_short + '…';
+  }
+
+  return { notes, notes_short };
+}
+
 function cleanBreed(rawBreed) {
   if (!rawBreed) return 'Mixed Breed';
 
   let breed = rawBreed.toUpperCase().trim();
-
-  // Remove trailing period
   breed = breed.replace(/\.$/, '').trim();
 
-  // Strip color words at the start (e.g. "BLACK AND WHITE", "BROWN AND GRAY", "TAN")
   const colors = ['BLACK', 'WHITE', 'BROWN', 'TAN', 'GRAY', 'GREY', 'RED', 'YELLOW', 'CREAM', 'ORANGE', 'BLUE', 'SILVER', 'GOLD', 'GOLDEN', 'CHOCOLATE', 'TRICOLOR', 'BRINDLE', 'MERLE', 'SABLE'];
   const colorPattern = new RegExp('^(' + colors.join('|') + ')(\\s+AND\\s+(' + colors.join('|') + '))?\\s+', 'i');
   breed = breed.replace(colorPattern, '').trim();
 
-  // Remove standalone " DOG" suffix (e.g. "GERMAN SHEPHERD DOG" → "GERMAN SHEPHERD")
   breed = breed.replace(/\bDOG\b$/i, '').trim();
   breed = breed.replace(/\bDOG\b(?=\s+AND\b)/i, '').trim();
 
-  // Split on " AND " to find mixes
   const parts = breed.split(/\s+AND\s+/i).map(p => p.trim()).filter(Boolean);
 
-  // Clean each part - remove " DOG" suffix from each part too
   const cleaned = parts.map(p => {
     p = p.replace(/\bDOG\b$/i, '').trim();
     return simplifyBreed(p);
@@ -101,7 +145,6 @@ function cleanBreed(rawBreed) {
   if (cleaned.length === 0) return 'Mixed Breed';
   if (cleaned.length === 1) return cleaned[0];
   if (cleaned.length === 2) return cleaned[0] + ' & ' + cleaned[1];
-  // 3+ breeds = too confusing
   return 'Mixed Breed';
 }
 
@@ -109,7 +152,6 @@ function simplifyBreed(breed) {
   if (!breed) return '';
   breed = breed.trim();
 
-  // Breed simplification map
   const simplifications = [
     [/AMERICAN PIT BULL TERRIER/i, 'Pit Bull'],
     [/PIT BULL TERRIER/i, 'Pit Bull'],
@@ -160,13 +202,9 @@ function simplifyBreed(breed) {
     if (pattern.test(breed)) return replacement;
   }
 
-  // Title case anything we don't recognize
   return breed.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
-
-
-// Calculate human-readable duration between two dates
 function formatDuration(startDate, endDate) {
   const start = new Date(startDate);
   const end = new Date(endDate);
@@ -181,7 +219,6 @@ function formatDuration(startDate, endDate) {
   return `${months} month${months !== 1 ? 's' : ''}`;
 }
 
-// Format date as M/DD/YY
 function formatShortDate(dateStr) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
@@ -191,40 +228,40 @@ function formatShortDate(dateStr) {
 async function scrapePetHarbor() {
   try {
     console.log('🔍 Scraping PetHarbor for urgent dogs...');
-    if (SOUTH_LA_ONLY) {
-      console.log('📍 SOUTH LA ONLY mode enabled');
-    }
+    if (SOUTH_LA_ONLY) console.log('📍 SOUTH LA ONLY mode enabled');
+
     const dogs = [];
+
     for (let page = 1; page <= 5; page++) {
       const pageUrl = `${BASE_URL}&PAGE=${page}`;
       try {
         const response = await axios.get(pageUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          },
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
           timeout: 15000
         });
         const $ = cheerio.load(response.data);
         let foundOnPage = 0;
+
         $('table.ResultsTable tr').each((rowIndex, row) => {
           try {
             const $row = $(row);
             const $cells = $row.find('td');
             if ($cells.length < 2) return;
+
             const $textCell = $cells.eq(1);
             const text = $textCell.text();
             const html = $textCell.html();
+
             const idMatch = text.match(/A\d{7}/);
             if (!idMatch) return;
             const animalId = idMatch[0];
+
             let shelter = 'LA County';
             const shelterMatch = text.match(/Shelter:\s*([A-Z\s\.]+?)\s+Age:/i);
-            if (shelterMatch) {
-              shelter = truncateText(shelterMatch[1].trim(), 100);
-            }
-            if (SOUTH_LA_ONLY && !shelter.includes('SOUTH')) {
-              return;
-            }
+            if (shelterMatch) shelter = truncateText(shelterMatch[1].trim(), 100);
+
+            if (SOUTH_LA_ONLY && !shelter.includes('SOUTH')) return;
+
             const $photoCell = $cells.eq(0);
             const img = $photoCell.find('img').first();
             let petharborPhotoUrl = null;
@@ -240,32 +277,25 @@ async function scrapePetHarbor() {
                 }
               }
             }
+
             let name = truncateText(animalId, 100);
             const nameMatch = html.match(/<strong><u>([^<]+)<\/u><\/strong>/i);
-            if (nameMatch) {
-              name = truncateText(nameMatch[1].trim(), 100);
-            }
+            if (nameMatch) name = truncateText(nameMatch[1].trim(), 100);
+
             let breed = 'Mixed Breed';
-            // Format: "NAME A1234567 – NEUTERED MALE, BREED.Shelter:" (note em-dash)
             const breedMatch2 = text.match(/A\d{7}\s*[-–]\s*(?:NEUTERED\s+|SPAYED\s+)?(?:MALE|FEMALE),\s*([^.]+)\./i);
-            if (breedMatch2 && breedMatch2[1]) {
-              breed = cleanBreed(breedMatch2[1].trim());
-            }
+            if (breedMatch2 && breedMatch2[1]) breed = cleanBreed(breedMatch2[1].trim());
+
             let gender = 'Unknown';
-            if (text.match(/NEUTERED\s*MALE/i)) {
-              gender = 'Male';
-            } else if (text.match(/SPAYED\s*FEMALE/i)) {
-              gender = 'Female';
-            } else if (text.match(/(?<!NEUTERED\s)MALE/i)) {
-              gender = 'Male';
-            } else if (text.match(/(?<!SPAYED\s)FEMALE/i)) {
-              gender = 'Female';
-            }
+            if (text.match(/NEUTERED\s*MALE/i)) gender = 'Male';
+            else if (text.match(/SPAYED\s*FEMALE/i)) gender = 'Female';
+            else if (text.match(/(?<!NEUTERED\s)MALE/i)) gender = 'Male';
+            else if (text.match(/(?<!SPAYED\s)FEMALE/i)) gender = 'Female';
+
             let age = 'Unknown';
             const ageMatch = text.match(/Age:\s*([^\n]+?)(?:Weight:|$)/i);
-            if (ageMatch) {
-              age = truncateText(ageMatch[1].trim(), 50);
-            }
+            if (ageMatch) age = truncateText(ageMatch[1].trim(), 50);
+
             let deadline = null;
             const euthMatch = text.match(/Scheduled\s+Euthanasia\s+Date:\s*(\d{1,2})\/(\d{1,2})\/(\d{2,4})/i);
             if (euthMatch) {
@@ -280,12 +310,8 @@ async function scrapePetHarbor() {
             }
 
             // ── RESCUE ONLY ──
-            // "This animal is only available to a rescue: Yes"
             let rescue_only = false;
-            // Normalize whitespace in text for more reliable matching
             const normalizedText = text.replace(/\s+/g, ' ');
-            // PetHarbor text runs together: "rescue: YesThis animal..." with no space
-            // So we match Yes or No at the START of whatever follows the colon
             const rescueMatch = normalizedText.match(/only available to a rescue:\s*(Yes|No)/i);
             if (rescueMatch) {
               const val = rescueMatch[1].trim().toLowerCase();
@@ -294,7 +320,6 @@ async function scrapePetHarbor() {
             }
 
             // ── INTAKE DATE ──
-            // "This animal has been at the shelter since 01/24/2026 and on this list since 02/13/2026"
             let intake_date = null;
             let list_date = null;
             const intakeMatch = text.match(/at the shelter since\s+(\d{1,2})\/(\d{1,2})\/(\d{4})/i);
@@ -308,6 +333,10 @@ async function scrapePetHarbor() {
               list_date = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
             }
 
+            // ── BEHAVIORAL NOTES ──
+            const { notes, notes_short } = parseNotes(text);
+            if (notes) console.log(`📋 Notes found for ${animalId}: "${notes_short}"`);
+
             const description = truncateText(
               `${name} is on the euthanasia list at ${shelter}. Urgent rescue needed by ${deadline}.`,
               200
@@ -316,30 +345,19 @@ async function scrapePetHarbor() {
             const shelterPriority = SHELTER_PRIORITY[shelter.toUpperCase()] || 99;
 
             dogs.push({
-              name,
-              breed,
-              age,
-              gender,
-              shelter,
-              shelter_id: animalId,
-              deadline,
-              daysUntil,
-              shelterPriority,
-              petharborPhotoUrl,
+              name, breed, age, gender, shelter, shelter_id: animalId,
+              deadline, daysUntil, shelterPriority, petharborPhotoUrl,
               petharbor_url: `https://petharbor.com/pet.asp?uaid=${animalId.substring(1)}`,
-              description,
-              source: 'petharbor',
-              category: 'general',
-              goal_amount: 500.00,
-              rescue_only,
-              intake_date,
-              list_date
+              description, source: 'petharbor', category: 'general',
+              goal_amount: 500.00, rescue_only, intake_date, list_date,
+              notes, notes_short
             });
             foundOnPage++;
           } catch (err) {
             console.error('Error parsing entry:', err.message);
           }
         });
+
         console.log(`📄 Page ${page}: Found ${foundOnPage} dogs`);
         if (foundOnPage === 0) break;
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -356,9 +374,7 @@ async function scrapePetHarbor() {
     });
 
     const shelterCounts = {};
-    dogs.forEach(dog => {
-      shelterCounts[dog.shelter] = (shelterCounts[dog.shelter] || 0) + 1;
-    });
+    dogs.forEach(dog => { shelterCounts[dog.shelter] = (shelterCounts[dog.shelter] || 0) + 1; });
     console.log('📊 Dogs by shelter:', shelterCounts);
 
     let addedCount = 0;
@@ -368,39 +384,46 @@ async function scrapePetHarbor() {
         if (dog.petharborPhotoUrl) {
           localPhotoUrl = await downloadAndSaveImage(dog.petharborPhotoUrl, dog.shelter_id);
         }
+
         const existing = await db.query(
           'SELECT id FROM dogs WHERE shelter_id = $1',
           [dog.shelter_id]
         );
+
         if (existing.rows.length === 0) {
+          // ── INSERT — includes notes and notes_short ──
           await db.query(
             `INSERT INTO dogs (
               name, breed, age, gender, shelter, shelter_id, deadline,
               photo_url, petharbor_url, description, source, category, goal_amount,
-              rescue_only, intake_date, list_date
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
+              rescue_only, intake_date, list_date, notes, notes_short
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
             [
               dog.name, dog.breed, dog.age, dog.gender, dog.shelter,
               dog.shelter_id, dog.deadline, localPhotoUrl, dog.petharbor_url,
               dog.description, dog.source, dog.category, dog.goal_amount,
-              dog.rescue_only, dog.intake_date, dog.list_date
+              dog.rescue_only, dog.intake_date, dog.list_date,
+              dog.notes, dog.notes_short
             ]
           );
           addedCount++;
-          console.log(`➕ ${dog.name} (${dog.shelter_id}) - ${dog.shelter} - ${dog.daysUntil} days${dog.rescue_only ? ' - RESCUE ONLY' : ''}`);
+          console.log(`➕ ${dog.name} (${dog.shelter_id}) - ${dog.shelter} - ${dog.daysUntil} days${dog.rescue_only ? ' - RESCUE ONLY' : ''}${dog.notes ? ' - HAS NOTES' : ''}`);
           await sendNewDogAlert(dog);
         } else {
-          console.log(`✏️ UPDATE ${dog.shelter_id} ${dog.name} rescue_only=${dog.rescue_only} (type: ${typeof dog.rescue_only})`);
+          // ── UPDATE — includes notes and notes_short ──
+          console.log(`✏️ UPDATE ${dog.shelter_id} ${dog.name} rescue_only=${dog.rescue_only}${dog.notes ? ' notes updated' : ''}`);
           await db.query(
             `UPDATE dogs SET 
               name = $1, breed = $2, age = $3, gender = $4, shelter = $5,
               deadline = $6, photo_url = $7, description = $8,
-              rescue_only = $9, intake_date = $10, list_date = $11
-            WHERE shelter_id = $12`,
+              rescue_only = $9, intake_date = $10, list_date = $11,
+              notes = $12, notes_short = $13
+            WHERE shelter_id = $14`,
             [
               dog.name, dog.breed, dog.age, dog.gender, dog.shelter,
               dog.deadline, localPhotoUrl, dog.description,
               dog.rescue_only, dog.intake_date, dog.list_date,
+              dog.notes, dog.notes_short,
               dog.shelter_id
             ]
           );
@@ -430,18 +453,29 @@ async function scrapePetHarbor() {
   }
 }
 
-function startScraper() {
-  const intervalMinutes = process.env.PETHARBOR_SCRAPE_INTERVAL || 60;
-  setTimeout(() => {
-    scrapePetHarbor();
-  }, 5000);
-  cron.schedule(`*/${intervalMinutes} * * * *`, () => {
-    scrapePetHarbor();
-  });
-  console.log(`⏰ PetHarbor scraper scheduled to run every ${intervalMinutes} minutes`);
+// ── AUTO-MIGRATION: add notes columns if they don't exist ─────────
+async function runMigrations() {
+  try {
+    await db.query(`
+      ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT;
+    `);
+    await db.query(`
+      ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300);
+    `);
+    console.log('✅ DB migration: notes columns ready');
+  } catch (err) {
+    console.error('⚠️ Migration warning (non-fatal):', err.message);
+  }
 }
 
-module.exports = {
-  scrapePetHarbor,
-  startScraper
-};
+function startScraper() {
+  const intervalMinutes = process.env.PETHARBOR_SCRAPE_INTERVAL || 60;
+  // Run migrations first, then start scraping
+  runMigrations().then(() => {
+    setTimeout(() => { scrapePetHarbor(); }, 5000);
+    cron.schedule(`*/${intervalMinutes} * * * *`, () => { scrapePetHarbor(); });
+    console.log(`⏰ PetHarbor scraper scheduled to run every ${intervalMinutes} minutes`);
+  });
+}
+
+module.exports = { scrapePetHarbor, startScraper };
