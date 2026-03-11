@@ -77,9 +77,11 @@ function truncateText(text, maxLength) {
 function parseNotes(text) {
   if (!text) return { notes: null, notes_short: null };
 
-  // Pet Harbor puts notes/comments in a "Comments:" or "Special Needs:" block
-  // Try several known label patterns
+  // LAAS Pet Harbor uses "Euthanasia Reason - Reason for euthanasia:" as the label
+  // Also try fallback patterns in case format varies
   const patterns = [
+    /Reason for euthanasia:\s*(.+?)(?=At Risk Category:|$)/is,
+    /Euthanasia Reason[^:]*:\s*(.+?)(?=At Risk Category:|$)/is,
     /Comments?:\s*([^\n]{10,})/i,
     /Special\s+Needs?:\s*([^\n]{5,})/i,
     /Behavior\s+Notes?:\s*([^\n]{5,})/i,
