@@ -48,7 +48,9 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE",
       "ALTER TABLE dogs ALTER COLUMN rescue_only SET DEFAULT FALSE",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE",
-      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE"
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)"
     ];
     
     for (const migration of migrations) {
@@ -115,6 +117,8 @@ app.get('/api/run-migrations', async (req, res) => {
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE");
+    await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT");
+    await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)");
     res.json({ message: 'Migrations complete - columns added' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -158,6 +162,57 @@ app.get('/api/debug-petharbor', async (req, res) => {
       });
     });
     res.json(samples);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Debug: test parseNotes against live Pet Harbor data
+app.get('/api/test-notes', async (req, res) => {
+  try {
+    const axios = require('axios');
+    const cheerio = require('cheerio');
+    const url = 'https://petharbor.com/results.asp?WHERE=type_DOG&searchtype=ALL&friends=1&samaritans=1&nosuccess=0&rows=10&view=sysadm.v_lact_alert_euth&SHELTERLIST=%27LACT%27,%27LACT1%27,%27LACT4%27,%27LACT3%27,%27LACT2%27,%27LACT5%27,%27LACT6%27';
+    const response = await axios.get(url, { timeout: 15000, headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const $ = cheerio.load(response.data);
+    const results = [];
+
+    $('table.ResultsTable tr').each((i, row) => {
+      if (results.length >= 5) return;
+      const text = $(row).find('td').eq(1).text();
+      if (!text.match(/A\d{7}/)) return;
+
+      const id = (text.match(/A\d{7}/) || [])[0];
+
+      // Run parseNotes inline (same logic as scraper)
+      const NOTES_SHORT_MAX = 280;
+      const patterns = [
+        /Reason for euthanasia:\s*(.+?)(?=At Risk Category:|$)/is,
+        /Euthanasia Reason[^:]*:\s*(.+?)(?=At Risk Category:|$)/is,
+      ];
+      let rawNotes = null;
+      for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match && match[1]) { rawNotes = match[1].trim(); break; }
+      }
+
+      const hasEuthReason = text.includes('Reason for euthanasia:');
+      const euthReasonIndex = text.indexOf('Reason for euthanasia:');
+      const rawEuthSnippet = euthReasonIndex >= 0
+        ? text.substring(euthReasonIndex, euthReasonIndex + 200)
+        : 'NOT FOUND IN TEXT';
+
+      results.push({
+        id,
+        has_euthanasia_reason_text: hasEuthReason,
+        raw_euthanasia_snippet: rawEuthSnippet,
+        parse_notes_result: rawNotes || 'NO MATCH',
+        full_text_length: text.length,
+        full_text: text  // full untruncated text
+      });
+    });
+
+    res.json(results);
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
