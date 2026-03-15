@@ -100,7 +100,7 @@ async function generateCard(dog) {
     let fontSize = 220;
     ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
     while(ctx.measureText(name).width > SAFE_W && fontSize > 80){ fontSize-=8; ctx.font=`900 ${fontSize}px 'Arial Black', Arial, sans-serif`; }
-    const nameY = 14+rowH+30+fontSize+10;
+    const nameY = 14+rowH+10+fontSize+10;
     drawBubble(name, W/2, nameY, fontSize, SAFE_W);
 
     ctx.fillStyle='#ffffff'; ctx.font='italic 36px Georgia,serif'; ctx.textAlign='center';
@@ -239,7 +239,7 @@ async function generateCard(dog) {
         ctx.fillStyle = '#fef3c7'; ctx.font = noteFont; ctx.textAlign = 'left';
         noteLines.forEach((l, i) => ctx.fillText(l, textX, noteStartY+52+i*lineH, innerW));
 
-        ctx.fillStyle = 'rgba(253,230,138,0.6)'; ctx.font = 'italic 17px sans-serif';
+        ctx.fillStyle = 'rgba(253,230,138,0.6)'; ctx.font = 'italic 19px sans-serif';
         ctx.fillText(disclaimerText, textX, noteStartY+52+noteLines.length*lineH+10, innerW);
     }
 
