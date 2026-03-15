@@ -196,30 +196,40 @@ async function generateCard(dog) {
         const boxW = leftMax - PAD_R;
         const innerW = boxW - 28;
 
-        function wrapNoteLines(text, font, maxW, maxLines) {
+        function wrapText(text, font, maxW) {
             ctx.font = font;
             const words = text.split(' ');
             let line = '', result = [];
             for (const w of words) {
-                const test = line + w + ' ';
+                const test = line ? line + ' ' + w : w;
                 if (ctx.measureText(test).width > maxW && line) {
-                    result.push(line.trim());
-                    if (result.length >= maxLines) return result;
-                    line = w + ' ';
+                    result.push(line);
+                    line = w;
                 } else { line = test; }
             }
-            if (result.length < maxLines) result.push(line.trim());
+            if (line) result.push(line);
             return result;
         }
 
         const noteFont = '19px sans-serif';
-        const noteLines = wrapNoteLines(dog.notes, noteFont, innerW, 3);
-        const lineH = 24;
+        const discFont = 'italic 17px sans-serif';
+        const noteLines = wrapText(dog.notes, noteFont, innerW).slice(0, 3);
         const disclaimerText = "Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.";
-        const boxH = 36 + noteLines.length * lineH + 10 + 22 + 8;
+        const discLines = wrapText(disclaimerText, discFont, innerW);
+        const lineH = 26;
+        const discLineH = 22;
+
+        // Calculate total box height dynamically based on actual wrapped lines
+        const boxH = 14          // top padding
+            + 22                 // label height
+            + 10                 // divider gap
+            + noteLines.length * lineH  // note lines
+            + 12                 // gap before disclaimer
+            + discLines.length * discLineH  // disclaimer lines
+            + 14;                // bottom padding
 
         // Vertically center the box between the IG handle baseline and the bottom bar
-        const igHandleBottom = divY + 174 + 10; // a bit below the IG handle text
+        const igHandleBottom = divY + 174 + 10;
         const bottomBarTop = H - 16;
         const availableSpace = bottomBarTop - igHandleBottom;
         const noteStartY = igHandleBottom + Math.round((availableSpace - boxH) / 2);
@@ -230,17 +240,33 @@ async function generateCard(dog) {
         rr(PAD_L, noteStartY, boxW, boxH, 8); ctx.stroke();
 
         const textX = PAD_L + 14;
+        let curY = noteStartY + 14;
+
+        // Label
         ctx.fillStyle = '#fcd34d'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'left';
-        ctx.fillText('⚠️  SHELTER NOTES', textX, noteStartY+22);
+        curY += 18;
+        ctx.fillText('⚠️  SHELTER NOTES', textX, curY);
 
+        // Divider line
+        curY += 8;
         ctx.strokeStyle = 'rgba(251,191,36,0.25)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(textX, noteStartY+30); ctx.lineTo(PAD_L+boxW-14, noteStartY+30); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(textX, curY); ctx.lineTo(PAD_L+boxW-14, curY); ctx.stroke();
+        curY += 6;
 
+        // Note lines
         ctx.fillStyle = '#fef3c7'; ctx.font = noteFont; ctx.textAlign = 'left';
-        noteLines.forEach((l, i) => ctx.fillText(l, textX, noteStartY+52+i*lineH, innerW));
+        noteLines.forEach(l => {
+            curY += lineH;
+            ctx.fillText(l, textX, curY, innerW);
+        });
 
-        ctx.fillStyle = 'rgba(253,230,138,0.6)'; ctx.font = 'italic 19px sans-serif';
-        ctx.fillText(disclaimerText, textX, noteStartY+52+noteLines.length*lineH+10, innerW);
+        // Disclaimer lines
+        curY += 12;
+        ctx.fillStyle = 'rgba(253,230,138,0.75)'; ctx.font = discFont;
+        discLines.forEach(l => {
+            curY += discLineH;
+            ctx.fillText(l, textX, curY, innerW);
+        });
     }
 
     // ── BOTTOM GREEN BAR ──
