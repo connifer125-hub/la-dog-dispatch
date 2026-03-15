@@ -702,7 +702,7 @@
         const notesBlock = dog.notes
             ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 ${NOTES_DISCLAIMER}\n`
             : '';
-        const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${isRO ? '🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n\n' : ''}${notesBlock}${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO ? '' : ' Fosters and donors welcome.'}\n\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue ${dog.rescue_only ? '#rescueonly ' : '#fosterdog '}#adoptdontshop`;
+        const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO ? '' : ' Fosters and donors welcome.'}\n\n${isRO ? '🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n' : ''}${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
         try {
             await navigator.clipboard.writeText(caption);
             btn.textContent = '✓ Copied!';
@@ -756,31 +756,23 @@
         document.getElementById('fund-modal-btn-text').textContent = `Donate $${amount} →`;
     }
 
-    async function submitFund() {
-        if (!fundDog || !fundAmount || fundAmount < 1) return;
-        const btn = document.getElementById('fund-modal-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<span>Processing...</span>';
-        try {
-            const res = await fetch('/api/stripe/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    dog_id: fundDog.id,
-                    dog_name: fundDog.name || fundDog.shelter_id,
-                    shelter_id: fundDog.shelter_id,
-                    shelter: fundDog.shelter,
-                    amount_cents: Math.round(fundAmount * 100)
-                })
-            });
-            const data = await res.json();
-            if (data.url) { window.location.href = data.url; }
-            else { throw new Error(data.error || 'Could not start checkout'); }
-        } catch (err) {
-            alert(err.message || 'Something went wrong. Please try again.');
-            btn.disabled = false;
-            btn.innerHTML = `<span>Donate $${fundAmount} →</span>`;
+    // ── Static Stripe payment links by amount ──
+    const STRIPE_LINKS = {
+        10:  'https://buy.stripe.com/9B69ATdxH32M3mB5jD4ow08',
+        25:  'https://buy.stripe.com/7sYcN5ctDbzi8GVfYh4ow09',
+        50:  'https://buy.stripe.com/4gM28rbpzcDm7CR9zT4ow0a',
+        100: 'https://buy.stripe.com/7sY8wPctD7j21et5jD4ow0b',
+        200: 'https://buy.stripe.com/3cI3cv3X7eLug9n4fz4ow0c'
+    };
+
+    function submitFund() {
+        const link = STRIPE_LINKS[fundAmount];
+        if (!link) {
+            alert('Please select a donation amount.');
+            return;
         }
+        window.open(link, '_blank');
+        document.getElementById('fund-modal-overlay').classList.remove('open');
     }
     </script>
 
@@ -799,10 +791,6 @@
                 <button class="fund-amt-btn" onclick="selectFundAmt(50, this)">$50</button>
                 <button class="fund-amt-btn" onclick="selectFundAmt(100, this)">$100</button>
                 <button class="fund-amt-btn" onclick="selectFundAmt(200, this)">$200</button>
-            </div>
-            <div class="fund-modal-custom">
-                <span class="fund-custom-prefix">$</span>
-                <input type="number" id="fund-custom-input" placeholder="Custom amount" min="1" oninput="onCustomAmount(this)">
             </div>
             <p class="fund-modal-note">100% goes to the rescue that pulls <span id="fund-modal-name-inline">this dog</span>. Apple Pay &amp; Google Pay accepted.</p>
             <button class="fund-modal-btn" id="fund-modal-btn" onclick="submitFund()">
