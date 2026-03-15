@@ -722,7 +722,6 @@
         document.getElementById('fund-modal-name-inline').textContent = dog.name || 'this dog';
         document.getElementById('fund-modal-meta').textContent =
             `${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'} · ${Math.ceil((new Date(dog.deadline) - new Date()) / 86400000)} days left`;
-        document.getElementById('fund-custom-input').value = '';
         document.querySelectorAll('.fund-amt-btn').forEach(b => b.classList.remove('selected'));
         document.querySelectorAll('.fund-amt-btn')[1].classList.add('selected');
         updateFundBtn(25);
@@ -739,17 +738,7 @@
         fundAmount = amount;
         document.querySelectorAll('.fund-amt-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        document.getElementById('fund-custom-input').value = '';
         updateFundBtn(amount);
-    }
-
-    function onCustomAmount(input) {
-        const val = parseFloat(input.value);
-        if (val > 0) {
-            fundAmount = val;
-            document.querySelectorAll('.fund-amt-btn').forEach(b => b.classList.remove('selected'));
-            updateFundBtn(val);
-        }
     }
 
     function updateFundBtn(amount) {
