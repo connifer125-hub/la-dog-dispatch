@@ -239,7 +239,7 @@ async function generateCard(dog) {
         ctx.fillStyle = '#fef3c7'; ctx.font = noteFont; ctx.textAlign = 'left';
         noteLines.forEach((l, i) => ctx.fillText(l, textX, noteStartY+52+i*lineH, innerW));
 
-        ctx.fillStyle = 'rgba(253,230,138,0.6)'; ctx.font = 'italic 14px sans-serif';
+        ctx.fillStyle = 'rgba(253,230,138,0.6)'; ctx.font = 'italic 17px sans-serif';
         ctx.fillText(disclaimerText, textX, noteStartY+52+noteLines.length*lineH+10, innerW);
     }
 
