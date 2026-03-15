@@ -427,7 +427,7 @@
             <p style="font-size: 0.78rem;">
                 <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
                 <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+                <a href="/cdn-cgi/l/email-protection#d6beb3babab996bab7b2b9b1b2bfa5a6b7a2b5bef8b5b9bb" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
             </p>
             <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
         </div>
@@ -469,7 +469,7 @@
         <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ── NOTES DISCLAIMER ─────────────────────────────────────────
     const NOTES_DISCLAIMER = "Shelter behavioral notes are snapshots written in stressful environments to dog & staff and may not reflect a dog's full personality. This dog may require behavioral training & needs a patient caregiver.";
 
@@ -569,12 +569,12 @@
                         </div>
                         <div class="progress-text">${percentage}% funded</div>
                     </div>
-                    <button class="btn-primary" onclick="event.stopPropagation(); openFundModal(${JSON.stringify(dog).replace(/"/g,'&quot;')})">💛 Fund This Dog</button>
+                    <button class="btn-primary" onclick="event.stopPropagation(); openFundModal(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">💛 Fund This Dog</button>
                     <div class="dog-share-btns">
-                        <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;')})">📱 IG Story</button>
-                        <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;')})">⬇ Save</button>
-                        <button class="btn-caption" onclick="event.stopPropagation(); copyDogCaption(this, ${JSON.stringify(dog).replace(/"/g,'&quot;')})">Copy Caption</button>
-                        <button class="btn-tag" onclick="event.stopPropagation(); copyRescueTags(this, ${JSON.stringify(dog).replace(/"/g,'&quot;')})">🏷 Rescues to Tag</button>
+                        <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📱 IG Story</button>
+                        <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">⬇ Save</button>
+                        <button class="btn-caption" onclick="event.stopPropagation(); copyDogCaption(this, ${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">Copy Caption</button>
+                        <button class="btn-tag" onclick="event.stopPropagation(); copyRescueTags(this, ${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">🏷 Rescues to Tag</button>
                     </div>
                 </div>
             </div>
@@ -798,6 +798,75 @@
         ctx.fillStyle='#7ec8a0'; ctx.font='bold 28px sans-serif';
         const igHandleX = drawIGHandle(44, divY+174, 28);
         ctx.fillText('@la_dog_dispatch', igHandleX, divY+174, leftMax - igHandleX + 44);
+
+        // ── SHELTER NOTES (bottom-left, below IG handle) ──
+        if (dog.notes_short || dog.notes) {
+            const notesText = dog.notes_short || (dog.notes.length > 200 ? dog.notes.substring(0, 200) + '…' : dog.notes);
+            const notesFontSize = 22;
+            const notesX = 44;
+            const notesStartY = divY + 210;
+            const notesMaxW = leftMax - 8;
+            const notesLineH = notesFontSize * 1.45;
+            const maxLines = 3;
+
+            // Word-wrap helper
+            function wrapNoteLines(text, font, maxWidth, maxLines) {
+                ctx.font = font;
+                const words = text.split(' ');
+                const lines = [];
+                let line = '';
+                for (const word of words) {
+                    const test = line ? line + ' ' + word : word;
+                    if (ctx.measureText(test).width > maxWidth && line) {
+                        lines.push(line);
+                        if (lines.length >= maxLines) break;
+                        line = word;
+                    } else {
+                        line = test;
+                    }
+                }
+                if (line && lines.length < maxLines) lines.push(line);
+                // Truncate last line with ellipsis if text was cut
+                if (lines.join(' ').length < text.trim().length) {
+                    let last = lines[lines.length - 1];
+                    while (ctx.measureText(last + '…').width > maxWidth && last.length > 0) {
+                        last = last.slice(0, last.lastIndexOf(' '));
+                    }
+                    lines[lines.length - 1] = last + '…';
+                }
+                return lines;
+            }
+
+            const noteFont = `${notesFontSize}px sans-serif`;
+            const noteLines = wrapNoteLines(notesText, noteFont, notesMaxW, maxLines);
+            const boxH = noteLines.length * notesLineH + 36;
+
+            // Amber background box
+            ctx.save();
+            ctx.fillStyle = 'rgba(254, 243, 199, 0.12)';
+            rr(notesX - 8, notesStartY - notesFontSize - 8, notesMaxW + 16, boxH, 8);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(252, 211, 77, 0.4)';
+            ctx.lineWidth = 1.5;
+            rr(notesX - 8, notesStartY - notesFontSize - 8, notesMaxW + 16, boxH, 8);
+            ctx.stroke();
+            ctx.restore();
+
+            // Label
+            ctx.fillStyle = '#fcd34d';
+            ctx.font = `bold ${notesFontSize * 0.78}px sans-serif`;
+            ctx.textAlign = 'left';
+            ctx.fillText('⚠ SHELTER NOTES', notesX, notesStartY - notesFontSize + 2);
+
+            // Note lines
+            ctx.fillStyle = '#fef3c7';
+            ctx.font = noteFont;
+            noteLines.forEach((line, i) => {
+                ctx.fillText(line, notesX, notesStartY + (i * notesLineH), notesMaxW);
+            });
+            ctx.restore();
+        }
+
         const botBar = ctx.createLinearGradient(0,0,W,0);
         botBar.addColorStop(0,'#3d7a5c'); botBar.addColorStop(0.5,'#7ec8a0'); botBar.addColorStop(1,'#3d7a5c');
         ctx.fillStyle=botBar; ctx.fillRect(0,H-16,W,16);
@@ -964,11 +1033,4 @@
             </div>
             <p class="fund-modal-note">100% goes to the rescue that pulls <span id="fund-modal-name-inline">this dog</span>. Apple Pay &amp; Google Pay accepted.</p>
             <button class="fund-modal-btn" id="fund-modal-btn" onclick="submitFund()">
-                <span id="fund-modal-btn-text">Donate $25 →</span>
-            </button>
-            <p class="fund-modal-sub">Secure payment via Stripe · Cancel anytime</p>
-        </div>
-    </div>
-
-</body>
-</html>
+                <span id="fund-modal-btn-text">Donate $25 →</spa
