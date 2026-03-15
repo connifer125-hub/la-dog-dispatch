@@ -211,13 +211,13 @@ async function generateCard(dog) {
             return result;
         }
 
-        const noteFont = '22px sans-serif';
-        const discFont = 'italic 19px sans-serif';
+        const noteFont = '24px sans-serif';
+        const discFont = 'italic 20px sans-serif';
         const noteLines = wrapText(dog.notes, noteFont, innerW).slice(0, 3);
         const disclaimerText = "Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.";
         const discLines = wrapText(disclaimerText, discFont, innerW);
-        const lineH = 30;
-        const discLineH = 26;
+        const lineH = 32;
+        const discLineH = 28;
 
         // Calculate total box height dynamically based on actual wrapped lines
         const boxH = 14          // top padding
@@ -254,7 +254,7 @@ async function generateCard(dog) {
         curY += 6;
 
         // Note lines
-        ctx.fillStyle = '#fef3c7'; ctx.font = noteFont; ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff'; ctx.font = noteFont; ctx.textAlign = 'left';
         noteLines.forEach(l => {
             curY += lineH;
             ctx.fillText(l, textX, curY, innerW);
@@ -262,7 +262,7 @@ async function generateCard(dog) {
 
         // Disclaimer lines
         curY += 12;
-        ctx.fillStyle = 'rgba(253,230,138,0.75)'; ctx.font = discFont;
+        ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = discFont;
         discLines.forEach(l => {
             curY += discLineH;
             ctx.fillText(l, textX, curY, innerW);
