@@ -408,7 +408,7 @@ function renderGrid(dogs) {
         const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
         const urgency = daysLeft <= 1 ? 'critical' : daysLeft <= 3 ? 'urgent' : null;
         const dl = deadline.toLocaleDateString('en-US', {month:'short', day:'numeric'});
-        const dogJson = JSON.stringify(dog).replace(/"/g, '&quot;');
+        const dogJson = JSON.stringify(dog).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
         // ── BEHAVIORAL NOTES block (only rendered if dog.notes exists) ──
         const notesHtml = dog.notes ? `
