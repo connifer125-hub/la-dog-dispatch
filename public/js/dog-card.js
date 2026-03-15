@@ -163,9 +163,9 @@ async function generateCard(dog) {
 
     ctx.textAlign='left';
     ctx.fillStyle='#ffffff'; ctx.font='28px sans-serif';
-    ctx.fillText(isRescueOnly?'Contact a rescue org to pull.':'Donate · Foster · Share.', 44, divY+68, leftMax);
+    ctx.fillText(isRescueOnly?'Contact a rescue org to pull.':'Donate · Foster · Share.', 44, divY+30, leftMax);
     ctx.fillStyle='#ffffff'; ctx.font='bold 42px sans-serif';
-    ctx.fillText('ladogdispatch.com', 44, divY+130, leftMax);
+    ctx.fillText('ladogdispatch.com', 44, divY+86, leftMax);
 
     // ── IG HANDLE ──
     ctx.fillStyle='#7ec8a0'; ctx.font='bold 28px sans-serif';
@@ -187,8 +187,8 @@ async function generateCard(dog) {
         ctx.beginPath(); ctx.arc(cx2,cy2,sz*0.22,0,Math.PI*2); ctx.stroke();
         ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(px+pw-sz*0.13,py+sz*0.12,sz*0.05,0,Math.PI*2); ctx.fill();
         ctx.restore();
-    })(44, divY+174, 28);
-    ctx.fillText('@la_dog_dispatch', 44+28+8, divY+174, leftMax-36);
+    })(44, divY+130, 28);
+    ctx.fillText('@la_dog_dispatch', 44+28+8, divY+130, leftMax-36);
 
     // ── SHELTER NOTES (bottom-left, below IG handle, vertically centered in remaining space) ──
     if (hasNotes) {
@@ -229,7 +229,7 @@ async function generateCard(dog) {
             + 14;                // bottom padding
 
         // Vertically center the box between the IG handle baseline and the bottom bar
-        const igHandleBottom = divY + 174 + 10;
+        const igHandleBottom = divY + 130 + 10;
         const bottomBarTop = H - 16;
         const availableSpace = bottomBarTop - igHandleBottom;
         const noteStartY = igHandleBottom + Math.round((availableSpace - boxH) / 2);
