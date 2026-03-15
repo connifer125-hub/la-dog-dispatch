@@ -713,18 +713,22 @@
 
     // ── FUND A DOG MODAL ──────────────────────────────────────────
     let fundDog = null;
-    let fundAmount = 25;
+
+    // ── Static Stripe links (temporary until Stripe keys configured) ──
+    const STRIPE_LINKS = {
+        10:  'https://buy.stripe.com/9B69ATdxH32M3mB5jD4ow08',
+        25:  'https://buy.stripe.com/7sYcN5ctDbzi8GVfYh4ow09',
+        50:  'https://buy.stripe.com/4gM28rbpzcDm7CR9zT4ow0a',
+        100: 'https://buy.stripe.com/7sY8wPctD7j21et5jD4ow0b',
+        200: 'https://buy.stripe.com/3cI3cv3X7eLug9n4fz4ow0c'
+    };
 
     function openFundModal(dog) {
         fundDog = dog;
-        fundAmount = 25;
         document.getElementById('fund-modal-name').textContent = dog.name || dog.shelter_id;
         document.getElementById('fund-modal-name-inline').textContent = dog.name || 'this dog';
         document.getElementById('fund-modal-meta').textContent =
             `${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'} · ${Math.ceil((new Date(dog.deadline) - new Date()) / 86400000)} days left`;
-        document.querySelectorAll('.fund-amt-btn').forEach(b => b.classList.remove('selected'));
-        document.querySelectorAll('.fund-amt-btn')[1].classList.add('selected');
-        updateFundBtn(25);
         document.getElementById('fund-modal-overlay').classList.add('open');
     }
 
@@ -734,34 +738,12 @@
         }
     }
 
-    function selectFundAmt(amount, btn) {
-        fundAmount = amount;
-        document.querySelectorAll('.fund-amt-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        updateFundBtn(amount);
-    }
-
-    function updateFundBtn(amount) {
-        document.getElementById('fund-modal-btn-text').textContent = `Donate $${amount} →`;
-    }
-
-    // ── Static Stripe payment links by amount ──
-    const STRIPE_LINKS = {
-        10:  'https://buy.stripe.com/9B69ATdxH32M3mB5jD4ow08',
-        25:  'https://buy.stripe.com/7sYcN5ctDbzi8GVfYh4ow09',
-        50:  'https://buy.stripe.com/4gM28rbpzcDm7CR9zT4ow0a',
-        100: 'https://buy.stripe.com/7sY8wPctD7j21et5jD4ow0b',
-        200: 'https://buy.stripe.com/3cI3cv3X7eLug9n4fz4ow0c'
-    };
-
-    function submitFund() {
-        const link = STRIPE_LINKS[fundAmount];
-        if (!link) {
-            alert('Please select a donation amount.');
-            return;
+    function donateDirect(amount) {
+        const link = STRIPE_LINKS[amount];
+        if (link) {
+            window.open(link, '_blank');
+            document.getElementById('fund-modal-overlay').classList.remove('open');
         }
-        window.open(link, '_blank');
-        document.getElementById('fund-modal-overlay').classList.remove('open');
     }
     </script>
 
@@ -774,18 +756,16 @@
                 <h3 class="fund-modal-dog-name" id="fund-modal-name">—</h3>
                 <p class="fund-modal-dog-meta" id="fund-modal-meta">—</p>
             </div>
+            <p style="font-size:0.8rem; font-weight:700; color:#1a1614; margin-bottom:0.6rem; font-family:'Source Sans 3',sans-serif;">Select an amount to donate:</p>
             <div class="fund-modal-amounts">
-                <button class="fund-amt-btn" onclick="selectFundAmt(10, this)">$10</button>
-                <button class="fund-amt-btn selected" onclick="selectFundAmt(25, this)">$25</button>
-                <button class="fund-amt-btn" onclick="selectFundAmt(50, this)">$50</button>
-                <button class="fund-amt-btn" onclick="selectFundAmt(100, this)">$100</button>
-                <button class="fund-amt-btn" onclick="selectFundAmt(200, this)">$200</button>
+                <button class="fund-amt-btn" onclick="donateDirect(10)">$10</button>
+                <button class="fund-amt-btn" onclick="donateDirect(25)">$25</button>
+                <button class="fund-amt-btn" onclick="donateDirect(50)">$50</button>
+                <button class="fund-amt-btn" onclick="donateDirect(100)">$100</button>
+                <button class="fund-amt-btn" onclick="donateDirect(200)">$200</button>
             </div>
-            <p class="fund-modal-note">100% goes to the rescue that pulls <span id="fund-modal-name-inline">this dog</span>. Apple Pay &amp; Google Pay accepted.</p>
-            <button class="fund-modal-btn" id="fund-modal-btn" onclick="submitFund()">
-                <span id="fund-modal-btn-text">Donate $25 →</span>
-            </button>
-            <p class="fund-modal-sub">Secure payment via Stripe · Cancel anytime</p>
+            <p class="fund-modal-note">Your donation is earmarked for <span id="fund-modal-name-inline">this dog</span>. If rescued, we'll send you an update. If the dog is pulled before reaching their goal or by an untracked rescue, your donation supports the next urgent dog in line. Apple Pay &amp; Google Pay accepted.</p>
+            <p class="fund-modal-sub">Secure payment via Stripe</p>
         </div>
     </div>
 
