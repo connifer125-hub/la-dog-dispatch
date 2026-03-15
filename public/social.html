@@ -504,12 +504,11 @@ function copyCaption(dog, btnId) {
     const dl = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
     const isRO = dog.rescue_only === true || dog.rescue_only === 'true' || dog.rescue_only === 1;
 
-    // ── Behavioral notes block with disclaimer ──
     const notesBlock = dog.notes
-        ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 Note: ${NOTES_DISCLAIMER}\n`
+        ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 ${NOTES_DISCLAIMER}\n`
         : '';
 
-    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n\n':''}${notesBlock}${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\nFund, foster, or share → ladogdispatch.com  @la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #fosterdog #adoptdontshop`;
+    const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n':''}${notesBlock}\nFund, foster, or share → ladogdispatch.com  @la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
 
     navigator.clipboard.writeText(caption).then(() => {
         const btn = document.getElementById(btnId);
