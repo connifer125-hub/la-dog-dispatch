@@ -208,7 +208,7 @@ app.get('/api/test-notes', async (req, res) => {
         raw_euthanasia_snippet: rawEuthSnippet,
         parse_notes_result: rawNotes || 'NO MATCH',
         full_text_length: text.length,
-        full_text: text  // full untruncated text
+        full_text: text
       });
     });
 
@@ -300,7 +300,12 @@ app.get('/api/test-sms', async (req, res) => {
   }
 });
 
-// Serve frontend
+// ── STATIC PAGE ROUTES ──
+app.get('/SouthLAComplaint', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'SouthLAComplaint.html'));
+});
+
+// Serve frontend (catch-all — must stay LAST)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
