@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Social Sharer — LA Dog Dispatch</title>
+    <link rel="icon" type="image/png" href="/logo-icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --red: #c4281c; --dark: #1a1614; --cream: #f8f6f3; --tan: #e8e4dd; --text: #3a3632; --muted: #6b6560; --border: #d4cfc7; --green: #4a8c6a; --green-dark: #3d7a5c; }
+        body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
+
+        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; }
+        .logo-img { height: 38px; width: auto; display: block; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--red); }
+        .btn-red-nav { background: var(--green); color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
+
+        .hero { background: var(--green); padding: 2.5rem 3rem; text-align: center; }
+        .hero-inner { max-width: 620px; margin: 0 auto; }
+        .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 0.6rem; display: block; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: white; font-weight: 700; line-height: 1.2; margin-bottom: 0.6rem; }
+        .hero-sub { font-size: 0.9rem; color: rgba(255,255,255,0.85); line-height: 1.7; }
+
+        /* Impact strip */
+        .impact-strip { background: white; border-bottom: 1px solid var(--border); padding: 1rem 3rem; }
+        .impact-inner { max-width: 800px; margin: 0 auto; display: flex; gap: 0; }
+        .impact-item { flex: 1; text-align: center; padding: 0 1rem; border-right: 1px solid var(--border); }
+        .impact-item:last-child { border-right: none; }
+        .impact-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--green); font-weight: 700; display: block; line-height: 1; margin-bottom: 0.2rem; }
+        .impact-label { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+
+        /* Form card */
+        .form-wrap { max-width: 580px; margin: 2.5rem auto; padding: 0 1.5rem 3rem; }
+        .form-card { background: white; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .form-card-header { background: var(--green); padding: 1.2rem 1.8rem; }
+        .form-card-header h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: white; font-weight: 700; }
+        .form-card-header p { font-size: 0.8rem; color: rgba(255,255,255,0.8); margin-top: 0.2rem; }
+        .form-body { padding: 1.6rem 1.8rem; display: flex; flex-direction: column; gap: 1.2rem; }
+
+        .field { display: flex; flex-direction: column; gap: 0.35rem; }
+        .field label { font-size: 0.78rem; font-weight: 700; color: var(--dark); text-transform: uppercase; letter-spacing: 0.06em; }
+        .field label span { color: var(--red); margin-left: 2px; }
+        .field input, .field select { padding: 0.6rem 0.9rem; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; font-family: inherit; background: var(--cream); color: var(--dark); transition: border-color 0.2s; }
+        .field input:focus, .field select:focus { outline: none; border-color: var(--green); background: white; box-shadow: 0 0 0 3px rgba(74,140,106,0.1); }
+        .field input::placeholder { color: #bbb; }
+        .field-hint { font-size: 0.73rem; color: var(--muted); line-height: 1.5; margin-top: 0.1rem; }
+
+        /* Radio group */
+        .radio-group { display: flex; flex-direction: column; gap: 0.6rem; }
+        .radio-option { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.7rem 0.9rem; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; background: var(--cream); }
+        .radio-option:hover { border-color: var(--green); background: #f0f7f4; }
+        .radio-option input[type="radio"] { margin-top: 2px; accent-color: var(--green); flex-shrink: 0; }
+        .radio-option.selected { border-color: var(--green); background: #f0f7f4; }
+        .radio-label { font-size: 0.88rem; font-weight: 600; color: var(--dark); display: block; margin-bottom: 0.1rem; }
+        .radio-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+
+        /* Checkbox */
+        .checkbox-option { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.8rem 0.9rem; border: 1.5px solid var(--border); border-radius: 8px; background: var(--cream); cursor: pointer; transition: all 0.15s; }
+        .checkbox-option:hover { border-color: var(--green); background: #f0f7f4; }
+        .checkbox-option input[type="checkbox"] { margin-top: 2px; accent-color: var(--green); flex-shrink: 0; }
+        .checkbox-option.highlight { border-color: var(--green); background: #f0f7f4; }
+        .checkbox-label { font-size: 0.88rem; font-weight: 600; color: var(--dark); display: block; margin-bottom: 0.1rem; }
+        .checkbox-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+
+        .divider { border: none; border-top: 1px solid var(--border); margin: 0.2rem 0; }
+
+        .submit-btn { width: 100%; background: var(--green); color: white; border: none; border-radius: 10px; padding: 0.95rem; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .submit-btn:hover { background: var(--green-dark); transform: translateY(-1px); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .form-note { font-size: 0.73rem; color: var(--muted); text-align: center; line-height: 1.6; }
+
+        /* Success state */
+        .success-card { display: none; background: white; border-radius: 14px; border: 1px solid #86efac; padding: 2.5rem 2rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .success-card .check { font-size: 3rem; margin-bottom: 0.8rem; }
+        .success-card h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #166534; margin-bottom: 0.5rem; }
+        .success-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.2rem; }
+        .success-card a { display: inline-block; background: var(--green); color: white; padding: 0.6rem 1.4rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.88rem; }
+
+        /* Mobile bottom bar */
+        .bottom-tab-bar { display: none; }
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .nav-inner { padding: 0 1rem; }
+            .logo-img { height: 30px; }
+            .hero { padding: 1.8rem 1.2rem; }
+            .hero h1 { font-size: 1.6rem; }
+            .impact-strip { padding: 0.8rem 1.2rem; }
+            .impact-inner { gap: 0; }
+            .impact-num { font-size: 1.4rem; }
+            .form-wrap { padding: 0 1rem 5rem; margin-top: 1.5rem; }
+            .form-body { padding: 1.2rem 1.2rem; }
+            .form-card-header { padding: 1rem 1.2rem; }
+            body { padding-bottom: 64px; }
+            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
+        }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
+        .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
+        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
+        .tab-item.tab-active { flex: 1.4; background: var(--green); margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(74,140,106,0.35); }
+        .tab-item.tab-active .tab-label { color: white; }
+
+        .more-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 190; opacity: 0; transition: opacity 0.25s ease; }
+        .more-overlay.active { display: block; }
+        .more-overlay.visible { opacity: 1; }
+        .more-drawer { display: none; position: fixed; bottom: 64px; left: 0; right: 0; background: white; border-radius: 16px 16px 0 0; z-index: 195; padding: 1rem 0 1rem; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -8px 30px rgba(0,0,0,0.15); }
+        @media (max-width: 900px) { .more-drawer { display: block; } }
+        .more-drawer.open { transform: translateY(0); }
+        .more-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 1rem; }
+        .more-title { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: #6b6560; padding: 0 1.2rem 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .more-link { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1.4rem; text-decoration: none; color: #1a1614; font-size: 0.95rem; font-weight: 500; border-top: 1px solid #d4cfc7; transition: background 0.15s; }
+        .more-link:active { background: #e8e4dd; }
+        .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
+        .more-link-arrow { margin-left: auto; color: #ccc; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <div class="nav-inner">
+        <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
+        <ul class="nav-links">
+            <li><a href="/#dogs-section">Urgent Dogs</a></li>
+            <li><a href="/how-it-works.html">How It Works</a></li>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/network.html">Join the Network</a></li>
+            <li><a href="/donate.html">Become a Member</a></li>
+            <li><a href="/SouthLAComplaint.html" style="color: #c4281c; font-weight: 700;">⚠ Take Action</a></li>
+            <li><a href="/social.html" class="btn-red-nav">Share a Dog</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="hero">
+    <div class="hero-inner">
+        <span class="eyebrow">Social Sharer Network</span>
+        <h1>Become a Social Sharer</h1>
+        <p class="hero-sub">You don't need to visit a shelter or donate money. A single share from your account can put an urgent dog in front of the right rescue. Sign up and we'll send dogs straight to you.</p>
+    </div>
+</div>
+
+<div class="impact-strip">
+    <div class="impact-inner">
+        <div class="impact-item">
+            <span class="impact-num">~8</span>
+            <span class="impact-label">New urgent dogs<br>listed per week</span>
+        </div>
+        <div class="impact-item">
+            <span class="impact-num">1</span>
+            <span class="impact-label">Share can reach<br>a rescue in time</span>
+        </div>
+        <div class="impact-item">
+            <span class="impact-num">0</span>
+            <span class="impact-label">Shelter visits<br>required</span>
+        </div>
+        <div class="impact-item">
+            <span class="impact-num">📱</span>
+            <span class="impact-label">Just a phone<br>and a following</span>
+        </div>
+    </div>
+</div>
+
+<div class="form-wrap">
+
+    <!-- FORM CARD -->
+    <div class="form-card" id="signup-form-card">
+        <div class="form-card-header">
+            <h2>Sign Up as a Social Sharer</h2>
+            <p>Takes less than 2 minutes. No commitment required.</p>
+        </div>
+        <div class="form-body">
+
+            <div class="field">
+                <label>Your Name <span>*</span></label>
+                <input type="text" id="sh-name" placeholder="First name or full name">
+            </div>
+
+            <div class="field">
+                <label>Email Address <span>*</span></label>
+                <input type="email" id="sh-email" placeholder="your@email.com">
+                <span class="field-hint">Used to send you dog alerts and updates. We never share your email.</span>
+            </div>
+
+            <div class="field">
+                <label>Instagram Handle</label>
+                <input type="text" id="sh-handle" placeholder="@yourhandle">
+                <span class="field-hint">Optional — helps us tag you when a dog you shared gets rescued.</span>
+            </div>
+
+            <div class="field">
+                <label>Phone Number</label>
+                <input type="tel" id="sh-phone" placeholder="(310) 555-0000">
+                <span class="field-hint">Optional — for text alerts only if you prefer texts over email.</span>
+            </div>
+
+            <hr class="divider">
+
+            <div class="field">
+                <label>How often can you share? <span>*</span></label>
+                <div class="radio-group" id="frequency-group">
+                    <label class="radio-option" onclick="selectRadio(this)">
+                        <input type="radio" name="frequency" value="all_weekly">
+                        <div>
+                            <span class="radio-label">All dogs — every week</span>
+                            <span class="radio-desc">I'll share every urgent dog we post, roughly 8 dogs/week.</span>
+                        </div>
+                    </label>
+                    <label class="radio-option" onclick="selectRadio(this)">
+                        <input type="radio" name="frequency" value="few_weekly">
+                        <div>
+                            <span class="radio-label">A few dogs per week</span>
+                            <span class="radio-desc">I'll share 2–4 dogs per week — the most critical ones.</span>
+                        </div>
+                    </label>
+                    <label class="radio-option" onclick="selectRadio(this)">
+                        <input type="radio" name="frequency" value="whenever">
+                        <div>
+                            <span class="radio-label">Whenever I can</span>
+                            <span class="radio-desc">No commitment — I'll share when time allows.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="field">
+                <label>How would you like to receive dog alerts?</label>
+                <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.2rem;">
+                    <label class="checkbox-option highlight" id="alert-email-wrap">
+                        <input type="checkbox" id="alert-email" checked>
+                        <div>
+                            <span class="checkbox-label">📧 Send dogs to my email</span>
+                            <span class="checkbox-desc">Weekly digest with all urgent dogs — photos, deadlines, share buttons, and captions. No need to log in to the site.</span>
+                        </div>
+                    </label>
+                    <label class="checkbox-option" id="alert-text-wrap">
+                        <input type="checkbox" id="alert-text">
+                        <div>
+                            <span class="checkbox-label">📱 Text me urgent dog alerts</span>
+                            <span class="checkbox-desc">Quick text when a critical dog is added. Requires phone number above.</span>
+                        </div>
+                    </label>
+                    <label class="checkbox-option" id="alert-site-wrap">
+                        <input type="checkbox" id="alert-site">
+                        <div>
+                            <span class="checkbox-label">🖥 I'll check the site myself</span>
+                            <span class="checkbox-desc">I prefer visiting ladogdispatch.com directly — no alerts needed.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <button class="submit-btn" id="submit-btn" onclick="submitSignup()">Sign Me Up as a Sharer →</button>
+            <p class="form-note">By signing up you agree to receive communications from LA Dog Dispatch / Hot Girls Care Nonprofit. Unsubscribe anytime.</p>
+
+        </div>
+    </div>
+
+    <!-- SUCCESS CARD -->
+    <div class="success-card" id="success-card">
+        <div class="check">🐕</div>
+        <h2>You're in the network!</h2>
+        <p>Thank you for signing up as a social sharer. Every dog we post needs people like you to give them visibility.<br><br>
+        <strong>What happens next:</strong> We'll send urgent dog alerts based on your preferences. In the meantime, head to the share page to start sharing right now.</p>
+        <a href="/social.html">Start Sharing Dogs →</a>
+    </div>
+
+</div>
+
+<nav class="bottom-tab-bar">
+    <a href="/#dogs-section" class="tab-item">
+        <span class="tab-icon">🐕</span>
+        <span class="tab-label">Urgent Dogs</span>
+    </a>
+    <a href="/foster.html" class="tab-item">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">Foster</span>
+    </a>
+    <a href="/social-sharer-signup.html" class="tab-item tab-active">
+        <span class="tab-icon">📢</span>
+        <span class="tab-label">Social Sharer</span>
+    </a>
+    <a href="/rescue.html" class="tab-item">
+        <span class="tab-icon">⭐</span>
+        <span class="tab-label">Rescue</span>
+    </a>
+    <button class="tab-item" onclick="toggleMore()">
+        <span class="tab-icon">☰</span>
+        <span class="tab-label">More</span>
+    </button>
+</nav>
+
+<div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
+<div class="more-drawer" id="more-drawer">
+    <div class="more-handle"></div>
+    <div class="more-title">More Pages</div>
+    <a href="/SouthLAComplaint.html" class="more-link" style="color:#c4281c;font-weight:700;"><span class="more-link-icon">⚠️</span> Take Action — Giardia Crisis <span class="more-link-arrow">›</span></a>
+    <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
+    <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
+    <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
+    <a href="/donate.html" class="more-link"><span class="more-link-icon">💛</span> Become a Member <span class="more-link-arrow">›</span></a>
+    <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
+</div>
+
+<footer style="background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 2rem 3rem; text-align: center;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem;">
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+    function toggleMore() {
+        const drawer = document.getElementById('more-drawer');
+        const overlay = document.getElementById('more-overlay');
+        const isOpen = drawer.classList.contains('open');
+        if (isOpen) {
+            drawer.classList.remove('open');
+            overlay.classList.remove('visible');
+            setTimeout(() => overlay.classList.remove('active'), 250);
+        } else {
+            overlay.classList.add('active');
+            requestAnimationFrame(() => { overlay.classList.add('visible'); drawer.classList.add('open'); });
+        }
+    }
+
+    function selectRadio(label) {
+        document.querySelectorAll('.radio-option').forEach(l => l.classList.remove('selected'));
+        label.classList.add('selected');
+    }
+
+    async function submitSignup() {
+        const name = document.getElementById('sh-name').value.trim();
+        const email = document.getElementById('sh-email').value.trim();
+        const handle = document.getElementById('sh-handle').value.trim();
+        const phone = document.getElementById('sh-phone').value.trim();
+        const frequency = document.querySelector('input[name="frequency"]:checked')?.value || 'whenever';
+        const alertEmail = document.getElementById('alert-email').checked;
+        const alertText = document.getElementById('alert-text').checked;
+
+        if (!name) { alert('Please enter your name.'); return; }
+        if (!email) { alert('Please enter your email address.'); return; }
+        if (!document.querySelector('input[name="frequency"]:checked')) { alert('Please select how often you can share.'); return; }
+
+        const btn = document.getElementById('submit-btn');
+        btn.textContent = 'Signing you up...'; btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/subscribers', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name,
+                    email,
+                    phone: phone || null,
+                    instagram_handle: handle || null,
+                    dog_alerts: alertEmail,
+                    newsletter: false,
+                    text_ok: alertText,
+                    is_sharer: true,
+                    // store frequency in name field as a suffix for now
+                    // until a dedicated column is added
+                })
+            });
+
+            if (res.ok) {
+                document.getElementById('signup-form-card').style.display = 'none';
+                document.getElementById('success-card').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                throw new Error('Server error');
+            }
+        } catch(e) {
+            btn.textContent = 'Sign Me Up as a Sharer →';
+            btn.disabled = false;
+            alert('Something went wrong. Please try again.');
+        }
+    }
+
+    // Highlight checkbox options on change
+    document.getElementById('alert-email').addEventListener('change', function() {
+        document.getElementById('alert-email-wrap').classList.toggle('highlight', this.checked);
+    });
+    document.getElementById('alert-text').addEventListener('change', function() {
+        document.getElementById('alert-text-wrap').classList.toggle('highlight', this.checked);
+    });
+    document.getElementById('alert-site').addEventListener('change', function() {
+        document.getElementById('alert-site-wrap').classList.toggle('highlight', this.checked);
+    });
+</script>
+</body>
+</html>
