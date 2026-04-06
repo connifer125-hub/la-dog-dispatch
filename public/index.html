@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LA Dog Dispatch - Every Urgent Dog Deserves Visibility</title>
-    <meta name="description" content="LA Dog Dispatch automatically creates funding pages the moment a dog is euth-listed — giving rescues and donors a coordinated head start.">
+    <meta name="description" content="LA Dog Dispatch automatically creates visibility pages the moment a dog is euth-listed — giving rescues and the community a head start before time runs out.">
     
     <link rel="icon" type="image/png" href="/logo-icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -61,38 +61,12 @@
         .dog-details { color: var(--color-text-light); font-size: 0.95rem; margin-bottom: 0.4rem; }
         .dog-location { display: flex; align-items: center; gap: 0.5rem; color: var(--color-text-light); font-size: 0.9rem; margin-bottom: 0.4rem; }
         .dog-deadline { display: flex; align-items: flex-start; gap: 0.6rem; color: var(--color-red); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.6rem; }
-
-        /* ── BEHAVIORAL NOTES — home page card ── */
-        .dog-notes {
-            font-size: 0.78rem;
-            color: #78350f;
-            background: #fffbeb;
-            border: 1px solid #fcd34d;
-            border-radius: 6px;
-            padding: 0.5rem 0.65rem;
-            margin-bottom: 0.8rem;
-            line-height: 1.5;
-        }
-        .dog-notes-label {
-            font-weight: 700;
-            display: block;
-            margin-bottom: 0.2rem;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #92400e;
-        }
-        .dog-notes-disclaimer {
-            display: block;
-            font-style: italic;
-            color: #a16207;
-            margin-top: 0.3rem;
-            font-size: 0.7rem;
-            line-height: 1.4;
-            border-top: 1px solid #fde68a;
-            padding-top: 0.25rem;
-        }
-
+        .dog-notes { font-size: 0.78rem; color: #78350f; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 0.5rem 0.65rem; margin-bottom: 0.8rem; line-height: 1.5; }
+        .dog-notes-label { font-weight: 700; display: block; margin-bottom: 0.2rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: #92400e; }
+        .dog-notes-disclaimer { display: block; font-style: italic; color: #a16207; margin-top: 0.3rem; font-size: 0.7rem; line-height: 1.4; border-top: 1px solid #fde68a; padding-top: 0.25rem; }
+        /* Visibility mode needs callout */
+        .dog-needs-callout { background: #f0f7f4; border: 1px solid #4a8c6a; border-radius: 6px; padding: 0.55rem 0.75rem; margin-top: auto; margin-bottom: 0.6rem; font-size: 0.8rem; color: #2d6a4f; line-height: 1.6; }
+        .dog-needs-callout strong { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: #1b4332; }
         .funding-progress { margin-top: auto; padding-top: 0.8rem; }
         .funding-amount { font-size: 1.6rem; font-weight: 700; color: var(--color-dark); margin-bottom: 0.3rem; }
         .funding-goal { font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 0.5rem; }
@@ -101,79 +75,15 @@
         .progress-text { font-size: 0.85rem; color: var(--color-text-light); }
         .dog-card .btn-primary { width: 100%; text-align: center; margin-top: 1.2rem; background: #4a8c6a; }
         .dog-card .btn-primary:hover { background: #3d7a5c; }
-
-        /* ── JOIN THE NETWORK SECTION ── */
-        .network-section {
-            background: #4a8c6a;
-            max-width: 100%;
-            padding: 3rem 0 0;
-            border-top: 3px solid var(--color-red);
-            margin-top: 2rem;
-        }
-        .network-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 3rem 2.5rem;
-        }
-        .network-eyebrow {
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: white;
-            margin-bottom: 0.5rem;
-        }
-        .network-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            color: white;
-            text-align: center;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-        .network-subtitle {
-            text-align: center;
-            color: rgba(255,255,255,0.6);
-            font-size: 1rem;
-            max-width: 580px;
-            margin: 0 auto 2rem;
-            line-height: 1.7;
-        }
-        .network-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-        }
-        .network-card {
-            background: rgba(255,255,255,0.18);
-            border: 1px solid rgba(255,255,255,0.35);
-            border-radius: 14px;
-            padding: 1.5rem 1.5rem;
-            text-decoration: none;
-            transition: all 0.35s ease;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-        .network-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--card-accent, var(--color-red));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.35s ease;
-        }
-        .network-card:hover {
-            background: rgba(255,255,255,0.28);
-            border-color: rgba(255,255,255,0.5);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
+        .network-section { background: #4a8c6a; max-width: 100%; padding: 3rem 0 0; border-top: 3px solid var(--color-red); margin-top: 2rem; }
+        .network-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem 2.5rem; }
+        .network-eyebrow { text-align: center; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: white; margin-bottom: 0.5rem; }
+        .network-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: white; text-align: center; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .network-subtitle { text-align: center; color: rgba(255,255,255,0.6); font-size: 1rem; max-width: 580px; margin: 0 auto 2rem; line-height: 1.7; }
+        .network-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .network-card { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); border-radius: 14px; padding: 1.5rem 1.5rem; text-decoration: none; transition: all 0.35s ease; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .network-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--card-accent, var(--color-red)); transform: scaleX(0); transform-origin: left; transition: transform 0.35s ease; }
+        .network-card:hover { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.5); transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
         .network-card:hover::before { transform: scaleX(1); }
         .network-card-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
         .network-card:hover .network-card-icon { animation: walkerBounce 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
@@ -182,15 +92,12 @@
         .network-card-cta { font-size: 0.88rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 0.4rem; transition: gap 0.2s; }
         .network-card:hover .network-card-cta { gap: 0.7rem; }
         .network-card-cta::after { content: '→'; }
-
-        /* ── FINAL CTA STRIP ── */
         .final-strip { background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.08); padding: 2rem 3rem; text-align: center; }
         .final-strip p { color: rgba(255,255,255,0.6); font-size: 1rem; margin-bottom: 1.8rem; line-height: 1.8; }
         .final-strip p strong { color: white; }
         .final-strip-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
         .btn-outline-white { background: transparent; color: white; padding: 0.8rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; border: 2px solid rgba(255,255,255,0.35); transition: all 0.3s; display: inline-block; }
         .btn-outline-white:hover { border-color: white; background: rgba(255,255,255,0.08); }
-
         @media (max-width: 900px) {
             .nav-links { display: none; }
             .hero { padding: 0.6rem 1.2rem 0.4rem; }
@@ -224,8 +131,6 @@
             .final-strip-buttons { flex-direction: column; align-items: stretch; }
             body { padding-bottom: 64px; }
         }
-
-        /* ── FUND A DOG MODAL ── */
         .fund-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
         @media (min-width: 600px) { .fund-modal-overlay { align-items: center; } }
         .fund-modal-overlay.open { display: flex; }
@@ -240,16 +145,11 @@
         .fund-amt-btn { flex: 1; min-width: 52px; padding: 0.6rem 0.4rem; border: 1.5px solid #d4cfc7; border-radius: 8px; background: #f8f6f3; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: inherit; color: #3a3632; }
         .fund-amt-btn:hover { border-color: #4a8c6a; color: #4a8c6a; }
         .fund-amt-btn.selected { border-color: #4a8c6a; background: #f0f7f4; color: #4a8c6a; }
-        .fund-modal-custom { display: flex; align-items: center; border: 1.5px solid #d4cfc7; border-radius: 8px; overflow: hidden; margin-bottom: 1rem; background: #f8f6f3; }
-        .fund-custom-prefix { padding: 0 0.6rem 0 0.9rem; color: #6b6560; font-weight: 700; font-size: 0.95rem; }
-        .fund-modal-custom input { flex: 1; border: none; background: transparent; padding: 0.6rem 0.6rem 0.6rem 0; font-size: 0.9rem; font-family: inherit; outline: none; color: #1a1614; }
         .fund-modal-note { font-size: 0.78rem; color: #6b6560; line-height: 1.6; margin-bottom: 1.2rem; }
         .fund-modal-btn { width: 100%; background: #4a8c6a; color: white; border: none; border-radius: 10px; padding: 0.95rem; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; margin-bottom: 0.6rem; }
         .fund-modal-btn:hover { background: #3d7a5c; transform: translateY(-1px); }
         .fund-modal-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .fund-modal-sub { text-align: center; font-size: 0.73rem; color: #6b6560; }
-
-        /* ── BOTTOM TAB BAR (mobile only) ── */
         .bottom-tab-bar { display: none; }
         @media (max-width: 900px) {
             .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--color-border); z-index: 200; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); align-items: center; }
@@ -263,8 +163,6 @@
         .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
         .tab-item.tab-fund .tab-icon { font-size: 1.15rem; }
         .tab-item.tab-fund:active { transform: scale(0.96); opacity: 1; }
-
-        /* ── MORE SLIDE-UP DRAWER ── */
         .more-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 190; opacity: 0; transition: opacity 0.25s ease; }
         .more-overlay.active { display: block; }
         .more-overlay.visible { opacity: 1; }
@@ -278,13 +176,81 @@
         .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
         .more-link-arrow { margin-left: auto; color: #ccc; }
         .walker-pair { display: flex; align-items: flex-end; gap: 0.05em; line-height: 1; }
-        .walker-woman { display: inline-block; transform: scaleX(-1); font-size: 2rem; }
-        .walker-dog { display: inline-block; transform: scaleX(-1); font-size: 1.2rem; position: relative; top: 0.15em; }
         .network-card:hover .walker-pair { animation: walkerBounce 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
         @keyframes walkerBounce { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-6px)} 75%{transform:translateY(-3px)} }
         .logo-img { height: 52px; width: auto; display: block; }
         @media (max-width: 900px) { .logo-img { height: 40px; } }
         .dog-share-btns { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; justify-content: center; }
+
+        /* ── AUTOMATION EXPLAINER ANIMATION ── */
+        .explainer { background: var(--color-cream); border-bottom: 1px solid var(--color-border); padding: 2rem 3rem; }
+        .explainer-inner { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 260px; gap: 24px; align-items: center; }
+        .exp-stage-area { position: relative; height: 340px; overflow: hidden; border-radius: 10px; border: 1px solid var(--color-border); background: var(--color-tan); }
+        .exp-stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 18px; opacity: 0; transition: opacity 0.6s ease; pointer-events: none; }
+        .exp-stage.active { opacity: 1; pointer-events: auto; }
+        .ph-mock { background: #e8e8e8; border: 0.5px solid #bbb; border-radius: 4px; width: 100%; font-family: monospace; overflow: hidden; }
+        .ph-header { background: #003f7f; color: #fff; padding: 5px 10px; font-size: 9px; font-family: 'Source Sans 3', sans-serif; display: flex; align-items: center; justify-content: space-between; }
+        .ph-nav { display: flex; gap: 8px; background: #002d5a; padding: 3px 10px; }
+        .ph-nav span { font-size: 8px; color: rgba(255,255,255,0.7); font-family: 'Source Sans 3', sans-serif; }
+        .ph-body { padding: 10px; display: flex; gap: 10px; background: #f0f0f0; }
+        .ph-photo { width: 90px; height: 80px; object-fit: cover; border: 2px solid #999; display: block; filter: saturate(0.6) contrast(0.9); flex-shrink: 0; }
+        .ph-info { flex: 1; }
+        .ph-row { display: flex; gap: 4px; margin-bottom: 1px; }
+        .ph-lbl { color: #555; min-width: 72px; font-size: 9px; }
+        .ph-val { color: #111; font-size: 9px; font-weight: 700; }
+        .ph-pain-row { background: #fff3cd; border-top: 1px solid #ffc107; padding: 6px 10px; }
+        .ph-pain { font-size: 9px; color: #7d5a00; font-family: 'Source Sans 3', sans-serif; line-height: 1.5; }
+        .ph-pain strong { color: #5c3d00; }
+        .exp-transform-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+        .exp-transform-label { font-size: 11px; color: var(--color-text-light); letter-spacing: 0.06em; text-transform: uppercase; }
+        .exp-scan-wrap { width: 100%; background: var(--color-border); border-radius: 4px; height: 6px; overflow: hidden; }
+        .exp-scan-bar { height: 100%; width: 0%; background: #4a8c6a; border-radius: 4px; transition: width 1.8s ease; }
+        .exp-scan-bar.go { width: 100%; }
+        .exp-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+        .exp-chip { background: white; border: 0.5px solid var(--color-border); border-radius: 20px; padding: 4px 10px; font-size: 10px; color: var(--color-text-light); display: flex; align-items: center; gap: 5px; opacity: 0; transform: translateY(6px); transition: opacity 0.3s ease, transform 0.3s ease; }
+        .exp-chip.pop { opacity: 1; transform: translateY(0); }
+        .exp-chip .cdot { width: 6px; height: 6px; border-radius: 50%; background: #4a8c6a; flex-shrink: 0; }
+        .exp-dog-card { background: white; border: 1.5px solid #4a8c6a; border-radius: 10px; overflow: hidden; width: 190px; }
+        .exp-dog-card img { width: 100%; height: 105px; object-fit: cover; display: block; }
+        .exp-dcm-body { padding: 8px 10px; }
+        .exp-dcm-name { font-size: 13px; font-weight: 700; color: var(--color-dark); margin-bottom: 2px; }
+        .exp-dcm-meta { font-size: 10px; color: var(--color-text-light); margin-bottom: 4px; }
+        .exp-dcm-deadline { font-size: 10px; color: var(--color-red); font-weight: 700; margin-bottom: 8px; }
+        .exp-share-btn { width: 100%; background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: #fff; border: none; border-radius: 6px; padding: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 5px; position: relative; overflow: hidden; }
+        .exp-tap-ring { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.35); transform: scale(0); opacity: 0; }
+        .exp-tap-ring.pulse { animation: expTap 0.5s ease-out forwards; }
+        @keyframes expTap { 0% { transform: scale(0); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
+        .exp-phone { width: 130px; height: 240px; border: 3px solid #555; border-radius: 18px; overflow: hidden; position: relative; background: #000; flex-shrink: 0; }
+        .exp-phone-screen { position: absolute; inset: 0; background: #111; display: flex; flex-direction: column; }
+        .exp-ig-bar { height: 3px; background: rgba(255,255,255,0.3); margin: 7px 8px 0; border-radius: 2px; overflow: hidden; }
+        .exp-ig-progress { height: 100%; width: 0%; background: #fff; transition: width 2s linear; }
+        .exp-ig-progress.go { width: 100%; }
+        .exp-ig-user { display: flex; align-items: center; gap: 4px; padding: 4px 7px; }
+        .exp-ig-avatar { width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(135deg,#f09433,#bc1888); flex-shrink: 0; }
+        .exp-ig-name { font-size: 8px; color: #fff; font-family: 'Source Sans 3', sans-serif; }
+        .exp-ig-preview { margin: 3px 7px; border-radius: 5px; overflow: hidden; flex: 1; }
+        .exp-ig-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .exp-ig-bottom { padding: 5px 7px; display: flex; justify-content: center; }
+        .exp-ig-send { background: rgba(255,255,255,0.15); border: 0.5px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 3px 10px; font-size: 8px; color: #fff; font-family: 'Source Sans 3', sans-serif; }
+        .exp-s4-wrap { display: flex; align-items: center; gap: 16px; }
+        .exp-s4-text { font-size: 11px; color: var(--color-text-light); line-height: 1.6; }
+        .exp-s4-text strong { color: var(--color-dark); }
+        .exp-dots { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+        .exp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-border); transition: background 0.3s; }
+        .exp-dot.active { background: #4a8c6a; }
+        .exp-steps-col { display: flex; flex-direction: column; gap: 10px; }
+        .exp-step-bubble { background: white; border: 1px solid var(--color-border); border-radius: 10px; padding: 10px 12px; transition: border-color 0.4s, background 0.4s; }
+        .exp-step-bubble.active-step { border-color: #4a8c6a; background: #f0f7f4; }
+        .exp-step-num { font-size: 10px; font-weight: 700; color: #4a8c6a; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
+        .exp-step-title { font-size: 13px; font-weight: 700; color: var(--color-dark); margin-bottom: 2px; }
+        .exp-step-desc { font-size: 11px; color: var(--color-text-light); line-height: 1.5; }
+        @media (max-width: 900px) {
+            .explainer { padding: 1.5rem 1rem; }
+            .explainer-inner { grid-template-columns: 1fr; }
+            .exp-steps-col { flex-direction: row; flex-wrap: wrap; }
+            .exp-step-bubble { flex: 1; min-width: 140px; }
+            .exp-stage-area { height: 300px; }
+        }
         .btn-ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
         .btn-save { background: #1a1614; color: white; padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
         .btn-caption { background: white; color: var(--color-text); padding: 0.42rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid var(--color-border); cursor: pointer; font-family: inherit; white-space: nowrap; }
@@ -295,6 +261,14 @@
     </style>
 </head>
 <body>
+
+<script>
+    // ══════════════════════════════════════════════════════════════
+    // FEATURE FLAG — flip to true when funding is ready to launch
+    // ══════════════════════════════════════════════════════════════
+    const FUNDING_ENABLED = false;
+</script>
+
     <nav>
         <div class="nav-container">
             <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
@@ -305,29 +279,153 @@
                 <li><a href="/network.html">Join the Network</a></li>
                 <li><a href="/donate.html">Become a Member</a></li>
                 <li><a href="/SouthLAComplaint.html" style="color: #fcd34d; font-weight: 700;">⚠ Take Action</a></li>
-                <li><a href="#dogs-section" class="btn-primary">Fund a Dog</a></li>
+                <li id="nav-cta-li"><a href="#dogs-section" class="btn-primary" id="nav-cta-btn">Fund a Dog</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- ═══ HERO ═══ -->
     <section class="hero">
-        <h1>Every Urgent Dog Deserves Visibility — Immediately.</h1>
-        <p class="subheadline">LA Dog Dispatch automatically creates funding pages the moment a dog is euth-listed — giving rescues and donors a coordinated head start before time runs out.</p>
-        <div class="proof-points">
+        <h1 id="hero-h1">Every Urgent Dog Deserves Visibility — Immediately.</h1>
+        <p class="subheadline" id="hero-sub">LA Dog Dispatch automatically creates funding pages the moment a dog is euth-listed — giving rescues and donors a coordinated head start before time runs out.</p>
+        <div class="proof-points" id="hero-proof-points">
             <div class="proof-point">Funding pages created the moment a dog is listed</div>
             <div class="proof-point">Shared across a centralized donor network</div>
             <div class="proof-point">Per-dog donations distributed directly to committing rescues</div>
         </div>
-        <div class="hero-buttons">
+        <div class="hero-buttons" id="hero-buttons">
             <a href="#dogs-section" class="btn-primary">Fund a Dog</a>
             <a href="/donate.html" class="btn-secondary">Become a Member</a>
         </div>
     </section>
 
-    <!-- ═══ DOGS GRID ═══ -->
+    <!-- ── AUTOMATION EXPLAINER ANIMATION ── -->
+    <div class="explainer">
+        <div class="explainer-inner">
+            <div>
+                <div class="exp-stage-area">
+
+                    <!-- Stage 1: Pet Harbor -->
+                    <div class="exp-stage active" id="ies1">
+                        <div class="ph-mock">
+                            <div class="ph-header">
+                                <span>PetHarbor.com</span>
+                                <span style="opacity:0.6;font-size:8px;">Los Angeles County Animal Care</span>
+                            </div>
+                            <div class="ph-nav"><span>Home</span><span>Search</span><span>Results</span><span>Help</span></div>
+                            <div class="ph-body">
+                                <img class="ph-photo" id="iphPhoto" src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200" alt="shelter dog">
+                                <div class="ph-info">
+                                    <div class="ph-row"><span class="ph-lbl">Animal ID:</span><span class="ph-val">A2201847</span></div>
+                                    <div class="ph-row"><span class="ph-lbl">Species:</span><span class="ph-val">DOG</span></div>
+                                    <div class="ph-row"><span class="ph-lbl">Breed:</span><span class="ph-val">GERM SHEPHERD/MIX</span></div>
+                                    <div class="ph-row"><span class="ph-lbl">Age:</span><span class="ph-val">4 YRS 2 MOS</span></div>
+                                    <div class="ph-row"><span class="ph-lbl">Sex:</span><span class="ph-val">MALE NEUTERED</span></div>
+                                    <div class="ph-row"><span class="ph-lbl">Location:</span><span class="ph-val">LACT1 · KC-07</span></div>
+                                    <div class="ph-row"><span class="ph-lbl">Status:</span><span class="ph-val">EUTH SCH</span></div>
+                                    <div class="ph-row"><span class="ph-lbl">Date In:</span><span class="ph-val">02/14/2026</span></div>
+                                    <div class="ph-row"><span class="ph-lbl">Rescue Only:</span><span class="ph-val">YES</span></div>
+                                </div>
+                            </div>
+                            <div class="ph-pain-row">
+                                <div class="ph-pain"><strong>No deadline shown.</strong> No share button. No caption. No alerts. You'd have to check this page daily — and know to look.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stage 2: Transform -->
+                    <div class="exp-stage" id="ies2">
+                        <div class="exp-transform-wrap">
+                            <div class="exp-transform-label">LA Dog Dispatch processes this automatically</div>
+                            <div class="exp-scan-wrap"><div class="exp-scan-bar" id="iExpScanBar"></div></div>
+                            <div class="exp-fields">
+                                <div class="exp-chip" id="iefc0"><span class="cdot"></span> Name matched</div>
+                                <div class="exp-chip" id="iefc1"><span class="cdot"></span> Photo fetched</div>
+                                <div class="exp-chip" id="iefc2"><span class="cdot"></span> Deadline calculated</div>
+                                <div class="exp-chip" id="iefc3"><span class="cdot"></span> Breed parsed</div>
+                                <div class="exp-chip" id="iefc4"><span class="cdot"></span> Shelter notes</div>
+                                <div class="exp-chip" id="iefc5"><span class="cdot"></span> Caption written</div>
+                                <div class="exp-chip" id="iefc6"><span class="cdot"></span> Rescue tags ready</div>
+                                <div class="exp-chip" id="iefc7"><span class="cdot"></span> Alert sent to you</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stage 3: Clean dog card -->
+                    <div class="exp-stage" id="ies3">
+                        <div class="exp-dog-card">
+                            <img id="iExpDogImg" src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400" alt="Dog">
+                            <div class="exp-dcm-body">
+                                <div class="exp-dcm-name" id="iExpDogName">RANGER</div>
+                                <div class="exp-dcm-meta" id="iExpDogMeta">German Shepherd Mix · South LA</div>
+                                <div class="exp-dcm-deadline" id="iExpDogDeadline">3 days left — rescue only</div>
+                                <button class="exp-share-btn">
+                                    <span id="iExpBtnTxt">Share to IG Story</span>
+                                    <div class="exp-tap-ring" id="iExpTapRing"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stage 4: Phone IG story -->
+                    <div class="exp-stage" id="ies4">
+                        <div class="exp-s4-wrap">
+                            <div class="exp-phone">
+                                <div class="exp-phone-screen">
+                                    <div class="exp-ig-bar"><div class="exp-ig-progress" id="iExpIgProgress"></div></div>
+                                    <div class="exp-ig-user">
+                                        <div class="exp-ig-avatar"></div>
+                                        <span class="exp-ig-name">@la_dog_dispatch</span>
+                                    </div>
+                                    <div class="exp-ig-preview">
+                                        <img id="iExpIgImg" src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400" alt="Dog story">
+                                    </div>
+                                    <div class="exp-ig-bottom"><div class="exp-ig-send">Send message</div></div>
+                                </div>
+                            </div>
+                            <div class="exp-s4-text">
+                                <strong>Posted.</strong><br><br>
+                                One tap — the card is in your story. Caption copied. Rescue tags ready to paste.<br><br>
+                                <span style="color:#4a8c6a;font-weight:700;">That's all you do.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="exp-dots">
+                    <div class="exp-dot active" id="iepd0"></div>
+                    <div class="exp-dot" id="iepd1"></div>
+                    <div class="exp-dot" id="iepd2"></div>
+                    <div class="exp-dot" id="iepd3"></div>
+                </div>
+            </div>
+
+            <div class="exp-steps-col">
+                <div class="exp-step-bubble active-step" id="iesb0">
+                    <div class="exp-step-num">Step 1</div>
+                    <div class="exp-step-title">Shelter lists a dog</div>
+                    <div class="exp-step-desc">A photo exists but data is buried, no deadline shown, no alerts — you'd have to know to go look.</div>
+                </div>
+                <div class="exp-step-bubble" id="iesb1">
+                    <div class="exp-step-num">Step 2</div>
+                    <div class="exp-step-title">We automate everything</div>
+                    <div class="exp-step-desc">Deadline, caption, rescue tags — built near real time. You get alerted so you never have to go looking.</div>
+                </div>
+                <div class="exp-step-bubble" id="iesb2">
+                    <div class="exp-step-num">Step 3</div>
+                    <div class="exp-step-title">You pick a dog</div>
+                    <div class="exp-step-desc">Clean cards with everything pre-done. No shelter visit, no manual research.</div>
+                </div>
+                <div class="exp-step-bubble" id="iesb3">
+                    <div class="exp-step-num">Step 4</div>
+                    <div class="exp-step-title">One tap to share</div>
+                    <div class="exp-step-desc">IG Story opens with the card ready. Caption and rescue tags already copied.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <section id="dogs-section">
-        <h2 class="section-title">Dogs Needing Funding Now</h2>
+        <h2 class="section-title" id="dogs-section-title">Dogs Needing Funding Now</h2>
         <div class="category-filters">
             <button class="category-btn active" data-category="all">All Dogs</button>
             <button class="category-btn" data-category="rescue_only">🔒 Rescue Only</button>
@@ -335,7 +433,6 @@
         <div class="dogs-grid" id="dogs-grid"></div>
     </section>
 
-    <!-- ═══ JOIN THE NETWORK HUB ═══ -->
     <div class="network-section" id="network-section">
         <div class="network-inner">
             <p class="network-eyebrow">The LA Dog Dispatch Network</p>
@@ -350,9 +447,9 @@
                 </a>
                 <a href="/donate.html" class="network-card" style="--card-accent: #10b981;">
                     <span class="network-card-icon">💛</span>
-                    <div class="network-card-title">Donate or Become a Member</div>
-                    <p class="network-card-desc">Fund specific dogs or support the whole system with a monthly membership. Your donation goes directly to the rescue that pulls the dog you funded.</p>
-                    <span class="network-card-cta">Support the mission</span>
+                    <div class="network-card-title" id="network-donate-title">Donate or Become a Member</div>
+                    <p class="network-card-desc" id="network-donate-desc">Fund specific dogs or support the whole system with a monthly membership. Your donation goes directly to the rescue that pulls the dog you funded.</p>
+                    <span class="network-card-cta" id="network-donate-cta">Support the mission</span>
                 </a>
                 <a href="/rescue.html" class="network-card" style="--card-accent: #c4281c;">
                     <span class="network-card-icon">🐾</span>
@@ -381,17 +478,16 @@
             </div>
         </div>
         <div class="final-strip">
-            <p>Dogs don't run out of time because people don't care.<br>
+            <p id="final-strip-text">Dogs don't run out of time because people don't care.<br>
             They run out of time because <strong>visibility starts too late.</strong><br>
             We start it earlier.</p>
-            <div class="final-strip-buttons">
+            <div class="final-strip-buttons" id="final-strip-buttons">
                 <a href="#dogs-section" class="btn-primary">Fund a Dog</a>
                 <a href="/donate.html" class="btn-outline-white">Become a Member</a>
             </div>
         </div>
     </div>
 
-    <!-- NEWSLETTER SIGN-UP -->
     <div id="signup-section" style="background: white; border-top: 1px solid var(--color-border); padding: 1.8rem 3rem 3rem;">
         <div style="max-width: 600px; margin: 0 auto; text-align: center;">
             <p style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-red); margin-bottom: 0.4rem;">Stay Connected</p>
@@ -420,7 +516,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer style="background: #3d7a5c; color: white; padding: 2rem 3rem; text-align: center;">
         <div style="max-width: 1400px; margin: 0 auto;">
             <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem;">
@@ -437,17 +532,17 @@
     <canvas id="card-canvas" style="display:none;" width="1080" height="1080"></canvas>
 
     <nav class="bottom-tab-bar">
-        <a href="#dogs-section" class="tab-item tab-fund">
+        <a href="#dogs-section" class="tab-item tab-fund" id="tab-primary">
             <span class="tab-icon">🐕</span>
-            <span class="tab-label">Fund a Dog</span>
+            <span class="tab-label" id="tab-primary-label">Fund a Dog</span>
         </a>
         <a href="/foster.html" class="tab-item">
             <span class="tab-icon">🏠</span>
             <span class="tab-label">Foster</span>
         </a>
-        <a href="/donate.html" class="tab-item tab-member">
-            <span class="tab-icon">💛</span>
-            <span class="tab-label">Become a Member</span>
+        <a href="/donate.html" class="tab-item tab-member" id="tab-member-link">
+            <span class="tab-icon" id="tab-member-icon">💛</span>
+            <span class="tab-label" id="tab-member-label">Become a Member</span>
         </a>
         <a href="/rescue.html" class="tab-item">
             <span class="tab-icon">⭐</span>
@@ -471,9 +566,49 @@
         <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    // ── NOTES DISCLAIMER ─────────────────────────────────────────
-    
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script>
+
+    // ── APPLY FEATURE FLAG ────────────────────────────────────────
+    if (!FUNDING_ENABLED) {
+        // Hero
+        document.getElementById('hero-h1').textContent = 'Every Urgent Dog Gets a Page. Automatically.';
+        document.getElementById('hero-sub').textContent = 'LA Dog Dispatch gives every at-risk shelter dog automated visibility the moment they\'re euth-listed — so rescues, fosters, and the community can move before time runs out.';
+        document.getElementById('hero-proof-points').innerHTML = `
+            <div class="proof-point">Automated visibility page created the moment a dog is listed</div>
+            <div class="proof-point">Shared with fosters, volunteers, and rescue networks</div>
+            <div class="proof-point">Follow <strong>@la_dog_dispatch</strong> on Instagram — every dog gets posted</div>
+        `;
+        document.getElementById('hero-buttons').innerHTML = `
+            <a href="#dogs-section" class="btn-primary" style="background:#4a8c6a;">See Urgent Dogs</a>
+            <a href="https://instagram.com/la_dog_dispatch" target="_blank" class="btn-secondary">Follow on Instagram</a>
+        `;
+        // Nav CTA
+        const navBtn = document.getElementById('nav-cta-btn');
+        navBtn.textContent = 'See Urgent Dogs';
+        navBtn.className = '';
+        navBtn.style.cssText = 'color:rgba(255,255,255,0.9); font-weight:500; font-size:0.85rem; text-decoration:none;';
+        // Section title
+        document.getElementById('dogs-section-title').textContent = 'Urgent Dogs Needing Visibility Now';
+        // Mobile tab — swap Become a Member → Social Sharer
+        const tabMemberLink = document.getElementById('tab-member-link');
+        tabMemberLink.href = '/social-sharer-signup.html';
+        document.getElementById('tab-member-icon').textContent = '📢';
+        document.getElementById('tab-member-label').textContent = 'Social Sharer';
+        // Network donate card
+        document.getElementById('network-donate-title').textContent = 'Support the Mission';
+        document.getElementById('network-donate-desc').textContent = 'Become a member to help us keep the lights on and expand to more shelters. Per-dog funding is coming soon as we finalize rescue partnerships.';
+        document.getElementById('network-donate-cta').textContent = 'Become a member';
+        // Final strip
+        document.getElementById('final-strip-text').innerHTML = `Dogs don't run out of time because people don't care.<br>
+            They run out of time because <strong>visibility starts too late.</strong><br>
+            We automate the visibility. You do the sharing.`;
+        document.getElementById('final-strip-buttons').innerHTML = `
+            <a href="#dogs-section" class="btn-primary">See Urgent Dogs</a>
+            <a href="https://instagram.com/la_dog_dispatch" target="_blank" class="btn-outline-white">Follow @la_dog_dispatch</a>
+        `;
+    }
+
     function toggleMore() {
         const drawer = document.getElementById('more-drawer');
         const overlay = document.getElementById('more-overlay');
@@ -531,7 +666,6 @@
         const goalAmount = parseFloat(dog.goal_amount) || 500;
         const daysUntil = getDaysUntil(dog.deadline);
         if (daysUntil < 0) return '';
-        const urgencyBadge = getUrgencyBadge(daysUntil);
         const formattedDeadline = formatDate(dog.deadline);
         const percentage = goalAmount > 0 ? Math.round((raisedAmount / goalAmount) * 100) : 0;
         const daysText = daysUntil === 1 ? '1 day' : `${daysUntil} days`;
@@ -546,13 +680,31 @@
                 <span class="dog-notes-disclaimer">${NOTES_DISCLAIMER}</span>
             </div>` : '';
 
+        // ── FUNDING ON: progress bar + Fund button ──
+        // ── FUNDING OFF: needs callout + Share button ──
+        const actionHtml = FUNDING_ENABLED ? `
+            <div class="funding-progress">
+                <div class="funding-amount">$${raisedAmount.toFixed(2)}</div>
+                <div class="funding-goal">of $${goalAmount.toFixed(2)} goal</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(percentage,100)}%"></div></div>
+                <div class="progress-text">${percentage}% funded</div>
+            </div>
+            <button class="btn-primary" onclick="event.stopPropagation(); openFundModal(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">💛 Fund This Dog</button>
+        ` : `
+            <div class="dog-needs-callout">
+                <strong>This dog needs:</strong>
+                🏠 A rescue or foster to pull them · 💛 Funding support (coming soon) · 📢 Your share right now
+            </div>
+            <button class="btn-primary" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📢 Share This Dog</button>
+        `;
+
         return `
             <div class="dog-card">
-                <img src="${dog.photo_url || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'}" 
+                <img src="${dog.photo_url || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'}"
                      alt="${dog.name}" class="dog-image"
                      onerror="this.src='https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'">
                 <div class="dog-content">
-                    <div class="dog-badges" style="min-height: 2.2rem;">
+                    <div class="dog-badges" style="min-height:2.2rem;">
                         ${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only — Must be pulled by a rescue organization</span>` : ''}
                     </div>
                     <h3 class="dog-name">${dog.name}</h3>
@@ -561,15 +713,7 @@
                     ${dog.intake_date ? `<div class="shelter-duration">🏠 <span>At shelter: <strong>${formatShelterDate(dog.intake_date)}</strong>${dog.list_date ? ` · Listed: <strong>${formatShelterDate(dog.list_date)}</strong>` : ''} · <strong>${getShelterDuration(dog.intake_date)}</strong></span></div>` : ''}
                     <div class="dog-deadline">⏰ <span>${formattedDeadline} (${daysText})</span></div>
                     ${notesHtml}
-                    <div class="funding-progress">
-                        <div class="funding-amount">$${raisedAmount.toFixed(2)}</div>
-                        <div class="funding-goal">of $${goalAmount.toFixed(2)} goal</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
-                        </div>
-                        <div class="progress-text">${percentage}% funded</div>
-                    </div>
-                    <button class="btn-primary" onclick="event.stopPropagation(); openFundModal(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">💛 Fund This Dog</button>
+                    ${actionHtml}
                     <div class="dog-share-btns">
                         <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📱 IG Story</button>
                         <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">⬇ Save</button>
@@ -588,19 +732,14 @@
             const now = new Date();
             allDogs = data.dogs.filter(dog => new Date(dog.deadline) > now);
             renderDogs();
-        } catch (error) {
-            console.error('Error loading dogs:', error);
-        }
+        } catch (error) { console.error('Error loading dogs:', error); }
     }
 
     function renderDogs() {
         const grid = document.getElementById('dogs-grid');
-        let filteredDogs = allDogs;
-        if (currentCategory === 'rescue_only') {
-            filteredDogs = allDogs.filter(dog => dog.rescue_only);
-        }
+        let filteredDogs = currentCategory === 'rescue_only' ? allDogs.filter(d => d.rescue_only) : allDogs;
         if (filteredDogs.length === 0) {
-            grid.innerHTML = '<p style="text-align: center; color: #6b6560; grid-column: 1/-1; padding: 3rem;">No rescue-only dogs listed right now.</p>';
+            grid.innerHTML = '<p style="text-align:center;color:#6b6560;grid-column:1/-1;padding:3rem;">No rescue-only dogs listed right now.</p>';
             return;
         }
         grid.innerHTML = filteredDogs.map(createDogCard).filter(Boolean).join('');
@@ -617,12 +756,94 @@
 
     loadDogs();
 
-    // Newsletter sign-up
+    // ── AUTOMATION EXPLAINER ANIMATION (index) ───────────────────
+    (function() {
+        const stages   = ['ies1','ies2','ies3','ies4'];
+        const dots     = ['iepd0','iepd1','iepd2','iepd3'];
+        const bubbles  = ['iesb0','iesb1','iesb2','iesb3'];
+        const durations = [3200, 4000, 3500, 4000];
+        let current = 0, loopCount = 0;
+        const MAX_LOOPS = 3;
+
+        function showStage(idx) {
+            stages.forEach((id,i)  => document.getElementById(id).classList.toggle('active', i === idx));
+            dots.forEach((id,i)    => document.getElementById(id).classList.toggle('active', i === idx));
+            bubbles.forEach((id,i) => document.getElementById(id).classList.toggle('active-step', i === idx));
+            if (idx === 1) {
+                setTimeout(() => document.getElementById('iExpScanBar').classList.add('go'), 100);
+                [0,1,2,3,4,5,6,7].forEach(i => {
+                    setTimeout(() => document.getElementById('iefc'+i).classList.add('pop'), 400 + i*220);
+                });
+            }
+            if (idx === 2) {
+                setTimeout(() => {
+                    document.getElementById('iExpBtnTxt').textContent = 'Sharing...';
+                    document.getElementById('iExpTapRing').classList.add('pulse');
+                }, 1800);
+            }
+            if (idx === 3) {
+                setTimeout(() => document.getElementById('iExpIgProgress').classList.add('go'), 200);
+            }
+        }
+
+        function resetStage(idx) {
+            if (idx === 1) {
+                const bar = document.getElementById('iExpScanBar');
+                bar.style.transition = 'none'; bar.classList.remove('go'); bar.style.width = '0%';
+                setTimeout(() => { bar.style.transition = 'width 1.8s ease'; }, 50);
+                [0,1,2,3,4,5,6,7].forEach(i => document.getElementById('iefc'+i).classList.remove('pop'));
+            }
+            if (idx === 2) {
+                document.getElementById('iExpTapRing').classList.remove('pulse');
+                document.getElementById('iExpBtnTxt').textContent = 'Share to IG Story';
+            }
+            if (idx === 3) {
+                const prog = document.getElementById('iExpIgProgress');
+                prog.style.transition = 'none'; prog.classList.remove('go'); prog.style.width = '0%';
+                setTimeout(() => { prog.style.transition = 'width 2s linear'; }, 50);
+            }
+        }
+
+        function next() {
+            resetStage(current);
+            current++;
+            if (current >= stages.length) {
+                current = 0;
+                loopCount++;
+                if (loopCount >= MAX_LOOPS) {
+                    current = stages.length - 1;
+                    showStage(current);
+                    return;
+                }
+            }
+            showStage(current);
+            setTimeout(next, durations[current]);
+        }
+
+        function tryPopulateAnimDog() {
+            if (!allDogs.length) { setTimeout(tryPopulateAnimDog, 500); return; }
+            const dog = allDogs.find(d => d.photo_url) || allDogs[0];
+            if (!dog) return;
+            const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+            if (dog.photo_url) {
+                document.getElementById('iExpDogImg').src  = dog.photo_url;
+                document.getElementById('iExpIgImg').src   = dog.photo_url;
+                document.getElementById('iphPhoto').src    = dog.photo_url;
+            }
+            document.getElementById('iExpDogName').textContent    = (dog.name || 'RANGER').toUpperCase();
+            document.getElementById('iExpDogMeta').textContent    = (dog.breed || 'Mixed') + ' · ' + (dog.shelter || 'South LA').replace(/SOUTH L\.A\./i,'South LA');
+            document.getElementById('iExpDogDeadline').textContent = (daysLeft <= 0 ? 'TODAY' : daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + ' left') + (dog.rescue_only ? ' — rescue only' : '');
+        }
+
+        showStage(0);
+        setTimeout(next, durations[0]);
+        tryPopulateAnimDog();
+    })();
+
     document.getElementById('newsletter-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = e.target.querySelector('button[type="submit"]');
-        btn.textContent = 'Signing up...';
-        btn.disabled = true;
+        btn.textContent = 'Signing up...'; btn.disabled = true;
         const data = {
             name: document.getElementById('nl-name').value,
             email: document.getElementById('nl-email').value,
@@ -632,16 +853,10 @@
             text_ok: document.getElementById('nl-text').checked,
         };
         try {
-            const res = await fetch('/api/subscribers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-            if (res.ok) {
-                document.getElementById('newsletter-form').style.display = 'none';
-                document.getElementById('nl-success').style.display = 'block';
-            } else { throw new Error(); }
-        } catch {
-            btn.textContent = 'Sign Me Up →';
-            btn.disabled = false;
-            alert('Something went wrong. Please try again.');
-        }
+            const res = await fetch('/api/subscribers', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+            if (res.ok) { document.getElementById('newsletter-form').style.display='none'; document.getElementById('nl-success').style.display='block'; }
+            else { throw new Error(); }
+        } catch { btn.textContent='Sign Me Up →'; btn.disabled=false; alert('Something went wrong. Please try again.'); }
     });
 
     async function shareIGStory(dog) {
@@ -650,12 +865,9 @@
         c.toBlob(async blob => {
             const file = new File([blob], `${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`, {type:'image/png'});
             if (isMobile && navigator.share && navigator.canShare({files:[file]})) {
-                await navigator.share({files:[file], title:`${dog.name||dog.shelter_id} needs rescue — ladogdispatch.com`});
+                await navigator.share({files:[file], title:`${dog.name||dog.shelter_id} needs rescue — follow @la_dog_dispatch`});
             } else {
-                const a = document.createElement('a');
-                a.href = c.toDataURL('image/png');
-                a.download = file.name;
-                a.click();
+                const a = document.createElement('a'); a.href=c.toDataURL('image/png'); a.download=file.name; a.click();
                 if (isMobile) setTimeout(() => { window.location.href='instagram://story-camera'; }, 800);
                 else alert('Card saved! Open Instagram on your phone, create a Story, and add from camera roll. Tag @la_dog_dispatch!');
             }
@@ -671,92 +883,72 @@
     }
 
     async function copyRescueTags(btn, dog) {
-        btn.textContent = '⏳ Loading...';
-        btn.classList.add('loading');
+        btn.textContent = '⏳ Loading...'; btn.classList.add('loading');
         try {
-            const breed = encodeURIComponent(dog.breed || '');
-            const res = await fetch(`/api/rescue-directory/match?breed=${breed}`);
+            const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
-            const breedTags = (data.breed_specific || []).map(r => '@' + r.ig_handle);
-            const generalTags = (data.general || []).map(r => '@' + r.ig_handle);
-            const allTags = [...breedTags, ...generalTags];
-            if (allTags.length === 0) {
-                btn.textContent = '⚠ None found';
-                setTimeout(() => { btn.textContent = '🏷 Rescues to Tag'; btn.classList.remove('loading'); }, 2000);
-                return;
-            }
+            const allTags = [...(data.breed_specific||[]), ...(data.general||[])].map(r => '@'+r.ig_handle);
+            if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('loading');},2000); return; }
             await navigator.clipboard.writeText(allTags.join(' '));
-            btn.textContent = `✓ ${allTags.length} Copied!`;
-            btn.classList.remove('loading');
-            btn.classList.add('copied');
-            setTimeout(() => { btn.textContent = '🏷 Rescues to Tag'; btn.classList.remove('copied'); }, 3000);
-        } catch(e) {
-            btn.textContent = '🏷 Rescues to Tag';
-            btn.classList.remove('loading');
-        }
+            btn.textContent=`✓ ${allTags.length} Copied!`; btn.classList.remove('loading'); btn.classList.add('copied');
+            setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('copied');},3000);
+        } catch(e) { btn.textContent='🏷 Rescues to Tag'; btn.classList.remove('loading'); }
     }
 
     async function copyDogCaption(btn, dog) {
-        const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+        const daysLeft = Math.ceil((new Date(dog.deadline)-new Date())/86400000);
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
-        const isRO = dog.rescue_only === true || dog.rescue_only === 'true' || dog.rescue_only === 1;
-        const notesBlock = dog.notes
-            ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 ${NOTES_DISCLAIMER}\n`
-            : '';
-        const caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${daysLeft<=0?'TODAY':daysLeft+' day'+(daysLeft!==1?'s':'')+' left'}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO ? '' : ' Fosters and donors welcome.'}\n\n${isRO ? '🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n' : ''}${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+        const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
+        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 ${NOTES_DISCLAIMER}\n` : '';
+        const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
+
+        let caption;
+        if (FUNDING_ENABLED) {
+            caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n':''}${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+        } else {
+            caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter. This dog needs a rescue to pull them${isRO?'.':' and a foster home.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.\n':''}${notesBlock}\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility. We are not a rescue — we are the automated platform connecting dogs to the people who can save them.\n\nFollow for daily dog updates → @la_dog_dispatch\nSee all urgent dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+        }
         try {
             await navigator.clipboard.writeText(caption);
-            btn.textContent = '✓ Copied!';
-            btn.classList.add('copied');
-            setTimeout(() => { btn.textContent = 'Copy Caption'; btn.classList.remove('copied'); }, 2500);
-        } catch(e) { prompt('Copy this caption:', caption); }
+            btn.textContent='✓ Copied!'; btn.classList.add('copied');
+            setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2500);
+        } catch(e) { prompt('Copy this caption:',caption); }
     }
 
-    // ── FUND A DOG MODAL ──────────────────────────────────────────
+    // ── FUND A DOG MODAL (dormant when FUNDING_ENABLED = false) ──
     let fundDog = null;
-
     const STRIPE_LINKS = {
-        10:  'https://buy.stripe.com/9B69ATdxH32M3mB5jD4ow08',
-        25:  'https://buy.stripe.com/7sYcN5ctDbzi8GVfYh4ow09',
-        50:  'https://buy.stripe.com/4gM28rbpzcDm7CR9zT4ow0a',
-        100: 'https://buy.stripe.com/7sY8wPctD7j21et5jD4ow0b',
-        200: 'https://buy.stripe.com/3cI3cv3X7eLug9n4fz4ow0c'
+        10:'https://buy.stripe.com/9B69ATdxH32M3mB5jD4ow08',
+        25:'https://buy.stripe.com/7sYcN5ctDbzi8GVfYh4ow09',
+        50:'https://buy.stripe.com/4gM28rbpzcDm7CR9zT4ow0a',
+        100:'https://buy.stripe.com/7sY8wPctD7j21et5jD4ow0b',
+        200:'https://buy.stripe.com/3cI3cv3X7eLug9n4fz4ow0c'
     };
-
     function openFundModal(dog) {
+        if (!FUNDING_ENABLED) return;
         fundDog = dog;
-        document.getElementById('fund-modal-name').textContent = dog.name || dog.shelter_id;
-        document.getElementById('fund-modal-name-inline').textContent = dog.name || 'this dog';
-        document.getElementById('fund-modal-meta').textContent =
-            `${dog.breed || 'Mixed'} · ${dog.shelter || 'LA County'} · ${Math.ceil((new Date(dog.deadline) - new Date()) / 86400000)} days left`;
+        document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id;
+        document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog';
+        document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${Math.ceil((new Date(dog.deadline)-new Date())/86400000)} days left`;
         document.getElementById('fund-modal-overlay').classList.add('open');
     }
-
     function closeFundModal(e) {
-        if (e.target === document.getElementById('fund-modal-overlay')) {
-            document.getElementById('fund-modal-overlay').classList.remove('open');
-        }
+        if (e.target===document.getElementById('fund-modal-overlay')) document.getElementById('fund-modal-overlay').classList.remove('open');
     }
-
     function donateDirect(amount) {
         const link = STRIPE_LINKS[amount];
-        if (link) {
-            window.open(link, '_blank');
-            document.getElementById('fund-modal-overlay').classList.remove('open');
-        }
+        if (link) { window.open(link,'_blank'); document.getElementById('fund-modal-overlay').classList.remove('open'); }
     }
     </script>
 
-    <!-- ── FUND A DOG MODAL ── -->
+    <!-- ── FUND A DOG MODAL (kept in DOM, only opens when FUNDING_ENABLED = true) ── -->
     <div class="fund-modal-overlay" id="fund-modal-overlay" onclick="closeFundModal(event)">
-        <div class="fund-modal" id="fund-modal">
+        <div class="fund-modal">
             <button class="fund-modal-close" onclick="document.getElementById('fund-modal-overlay').classList.remove('open')">✕</button>
-            <div class="fund-modal-dog-info">
-                <p class="fund-modal-eyebrow">You're funding</p>
-                <h3 class="fund-modal-dog-name" id="fund-modal-name">—</h3>
-                <p class="fund-modal-dog-meta" id="fund-modal-meta">—</p>
-            </div>
-            <p style="font-size:0.8rem; font-weight:700; color:#1a1614; margin-bottom:0.6rem; font-family:'Source Sans 3',sans-serif;">Select an amount to donate:</p>
+            <p class="fund-modal-eyebrow">You're funding</p>
+            <h3 class="fund-modal-dog-name" id="fund-modal-name">—</h3>
+            <p class="fund-modal-dog-meta" id="fund-modal-meta">—</p>
+            <p style="font-size:0.8rem;font-weight:700;color:#1a1614;margin-bottom:0.6rem;font-family:'Source Sans 3',sans-serif;">Select an amount to donate:</p>
             <div class="fund-modal-amounts">
                 <button class="fund-amt-btn" onclick="donateDirect(10)">$10</button>
                 <button class="fund-amt-btn" onclick="donateDirect(25)">$25</button>
