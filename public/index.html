@@ -68,6 +68,8 @@
         /* Visibility mode needs callout */
         .dog-needs-callout { background: #f0f7f4; border: 1px solid #4a8c6a; border-radius: 6px; padding: 0.55rem 0.75rem; margin-top: auto; margin-bottom: 0.6rem; font-size: 0.8rem; color: #2d6a4f; line-height: 1.6; }
         .dog-needs-callout strong { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; color: #1b4332; }
+        .dog-needs-callout--public { background: #f8f9fa; border-color: var(--color-border); color: var(--color-text-light); }
+        .dog-needs-callout--public strong { color: var(--color-text); }
         .funding-progress { margin-top: auto; padding-top: 0.8rem; }
         .funding-amount { font-size: 1.6rem; font-weight: 700; color: var(--color-dark); margin-bottom: 0.3rem; }
         .funding-goal { font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 0.5rem; }
@@ -724,10 +726,15 @@
             </div>
             <button class="btn-primary" onclick="event.stopPropagation(); openFundModal(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">💛 Fund This Dog</button>
         ` : `
+            ${dog.rescue_only ? `
             <div class="dog-needs-callout">
                 <strong>This dog needs:</strong>
-                🏠 A rescue or foster to pull them · 💛 Funding support (coming soon) · 📢 Your share right now
-            </div>
+                🔒 A licensed rescue to pull them from the shelter · 💛 Funding support (coming soon) · 📢 Your share right now
+            </div>` : `
+            <div class="dog-needs-callout dog-needs-callout--public">
+                <strong>Good to know for adopters:</strong>
+                May benefit from a patient home · Recommend slow intro to kids &amp; other pets · May need basic training support · 📢 Share to find them the right home
+            </div>`}
             <button class="btn-primary" onclick="event.stopPropagation(); openShareModal(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📢 Share This Dog</button>
         `;
 
