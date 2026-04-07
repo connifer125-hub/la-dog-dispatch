@@ -311,9 +311,11 @@
                 <li><a href="/how-it-works.html">How It Works</a></li>
                 <li><a href="/about.html">About</a></li>
                 <li><a href="/network.html">Join the Network</a></li>
-                <li><a href="/donate.html">Become a Member</a></li>
+                <li id="nav-member-li" style="display:none;"><a href="/donate.html">Become a Member</a></li>
+                <li id="nav-sharer-li"><a href="/social-sharer-signup.html">📢 Social Sharer</a></li>
                 <li><a href="/SouthLAComplaint.html" style="color: #fcd34d; font-weight: 700;">⚠ Take Action</a></li>
-                <li id="nav-cta-li"><a href="#dogs-section" class="btn-primary" id="nav-cta-btn">Fund a Dog</a></li>
+                <li id="nav-fund-li" style="display:none;"><a href="#dogs-section" class="btn-primary">Fund a Dog</a></li>
+                <li id="nav-dogs-li"><a href="#dogs-section" class="btn-primary">See Urgent Dogs</a></li>
             </ul>
         </div>
     </nav>
@@ -327,8 +329,8 @@
             <div class="proof-point">Per-dog donations distributed directly to committing rescues</div>
         </div>
         <div class="hero-buttons" id="hero-buttons">
-            <a href="#dogs-section" class="btn-primary">Fund a Dog</a>
-            <a href="/donate.html" class="btn-secondary">Become a Member</a>
+            <a href="#dogs-section" class="btn-primary" style="background:#4a8c6a;">See Urgent Dogs</a>
+            <a href="https://instagram.com/la_dog_dispatch" target="_blank" class="btn-secondary">Follow on Instagram</a>
         </div>
     </section>
 
@@ -517,8 +519,8 @@
             They run out of time because <strong>visibility starts too late.</strong><br>
             We start it earlier.</p>
             <div class="final-strip-buttons" id="final-strip-buttons">
-                <a href="#dogs-section" class="btn-primary">Fund a Dog</a>
-                <a href="/donate.html" class="btn-outline-white">Become a Member</a>
+                <a href="#dogs-section" class="btn-primary">See Urgent Dogs</a>
+                <a href="https://instagram.com/la_dog_dispatch" target="_blank" class="btn-outline-white">Follow @la_dog_dispatch</a>
             </div>
         </div>
     </div>
@@ -569,7 +571,7 @@
     <nav class="bottom-tab-bar">
         <a href="#dogs-section" class="tab-item tab-fund" id="tab-primary">
             <span class="tab-icon">🐕</span>
-            <span class="tab-label" id="tab-primary-label">Fund a Dog</span>
+            <span class="tab-label" id="tab-primary-label">Urgent Dogs</span>
         </a>
         <a href="/foster.html" class="tab-item">
             <span class="tab-icon">🏠</span>
@@ -605,7 +607,12 @@
     <script>
 
     // ── APPLY FEATURE FLAG ────────────────────────────────────────
-    if (!FUNDING_ENABLED) {
+    if (FUNDING_ENABLED) {
+        document.getElementById('nav-fund-li').style.display = '';
+        document.getElementById('nav-dogs-li').style.display = 'none';
+        document.getElementById('nav-member-li').style.display = '';
+        document.getElementById('nav-sharer-li').style.display = 'none';
+    } else {
         // Hero
         document.getElementById('hero-h1').textContent = 'Every Urgent Dog Gets a Page. Automatically.';
         document.getElementById('hero-sub').textContent = 'LA Dog Dispatch gives every at-risk shelter dog automated visibility the moment they\'re euth-listed — so rescues, fosters, and the community can move before time runs out.';
@@ -618,11 +625,6 @@
             <a href="#dogs-section" class="btn-primary" style="background:#4a8c6a;">See Urgent Dogs</a>
             <a href="https://instagram.com/la_dog_dispatch" target="_blank" class="btn-secondary">Follow on Instagram</a>
         `;
-        // Nav CTA
-        const navBtn = document.getElementById('nav-cta-btn');
-        navBtn.textContent = 'See Urgent Dogs';
-        navBtn.className = '';
-        navBtn.style.cssText = 'color:rgba(255,255,255,0.9); font-weight:500; font-size:0.85rem; text-decoration:none;';
         // Section title
         document.getElementById('dogs-section-title').textContent = 'Urgent Dogs Needing Visibility Now';
         // Mobile tab — swap Become a Member → Social Sharer
