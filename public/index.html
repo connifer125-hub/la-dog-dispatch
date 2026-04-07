@@ -55,6 +55,7 @@
         .badge-urgent { background: #fff7ed; color: #c2410c; }
         .badge-category { background: #ecfdf5; color: #059669; }
         .badge-rescue-only { background: #fef3c7; color: #92400e; }
+        .badge-public { background: #dcfce7; color: #166534; }
         .shelter-duration { font-size: 0.82rem; color: var(--color-text-light); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem; }
         .shelter-duration strong { color: var(--color-text); }
         .dog-name { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 0.3rem; color: var(--color-dark); font-weight: 600; }
@@ -108,17 +109,18 @@
             .network-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 900px) {
-            .hero { padding: 1.2rem 1.2rem 0.8rem; max-height: none; }
-            .hero h1 { font-size: 1.55rem; }
-            .hero .subheadline { font-size: 0.95rem; margin-bottom: 0.6rem; }
-            .proof-points { gap: 0.8rem; flex-direction: column; align-items: flex-start; padding: 0 0.5rem; margin-bottom: 0.8rem; }
-            .hero-buttons { flex-direction: column; align-items: stretch; padding: 0 1rem; }
-            .hero-buttons .btn-primary, .hero-buttons .btn-secondary { text-align: center; }
+            .hero { padding: 0.5rem 1.2rem 0.3rem; max-height: none; }
+            .hero h1 { font-size: 1.1rem; margin-bottom: 0.2rem; }
+            .hero .subheadline { font-size: 0.78rem; margin-bottom: 0.3rem; white-space: normal !important; word-break: break-word; max-width: 100%; }
+            .proof-points { gap: 0.4rem; flex-direction: column; align-items: flex-start; padding: 0 0.5rem; margin-bottom: 0.4rem; font-size: 0.8rem; }
+            .proof-point::before { font-size: 1rem; }
+            .hero-buttons { flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 0; gap: 0.6rem; }
+            .hero-buttons .btn-primary, .hero-buttons .btn-secondary { text-align: center; font-size: 0.82rem; padding: 0.5rem 1rem; }
             .hero-buttons .btn-primary { background: #4a8c6a !important; }
             .hero-buttons .btn-primary:hover { background: #3d7a5c !important; }
             section { padding: 1rem 1rem; }
-            #dogs-section { padding-top: 0.5rem; padding-bottom: 1.5rem; }
-            .section-title { font-size: 1.3rem; }
+            #dogs-section { padding-top: 0.3rem; padding-bottom: 1.5rem; }
+            .section-title { font-size: 1.1rem; }
             .category-filters { gap: 0.5rem; }
             .category-btn { padding: 0.55rem 0.9rem; font-size: 0.8rem; }
             .dogs-grid { grid-template-columns: 1fr; gap: 1.2rem; }
@@ -736,7 +738,10 @@
                      onerror="this.src='https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'">
                 <div class="dog-content">
                     <div class="dog-badges" style="min-height:2.2rem;">
-                        ${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only — Must be pulled by a rescue organization</span>` : ''}
+                        ${dog.rescue_only
+                            ? `<span class="badge badge-rescue-only">🔒 Rescue Only — Must be pulled by a rescue org</span>`
+                            : `<span class="badge badge-public">✅ Open to Public — Can adopt or foster directly</span>`
+                        }
                     </div>
                     <h3 class="dog-name">${dog.name}</h3>
                     <p class="dog-details">${dog.breed} • ${dog.age} • ${dog.gender}</p>
@@ -918,7 +923,7 @@
         try {
             const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
-            const allTags = [...(data.breed_specific||[]), ...(data.general||[])].map(r => '@'+r.ig_handle);
+            const allTags = [...(data.breed_specific||[]), ...(data.general||[])].map(r => '@'+r.ig_handle).slice(0, 15);
             if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('loading');},2000); return; }
             await navigator.clipboard.writeText(allTags.join(' '));
             btn.textContent=`✓ ${allTags.length} Copied!`; btn.classList.remove('loading'); btn.classList.add('copied');
@@ -935,9 +940,9 @@
 
         let caption;
         if (FUNDING_ENABLED) {
-            caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n':''}${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+            caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly. No rescue required.'}\n${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
         } else {
-            caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter. This dog needs a rescue to pull them${isRO?'.':' and a foster home.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.\n':''}${notesBlock}\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility. We are not a rescue — we are the automated platform connecting dogs to the people who can save them.\n\nFollow for daily dog updates → @la_dog_dispatch\nSee all urgent dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+            caption = `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter. They cannot be adopted or fostered directly.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone. No rescue required.'}\n${notesBlock}\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility. We are not a rescue — we are the automated platform connecting dogs to the people who can save them.\n\nFollow for daily dog updates → @la_dog_dispatch\nSee all urgent dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
         }
         try {
             await navigator.clipboard.writeText(caption);
@@ -961,8 +966,8 @@
 
         // Build caption
         const caption = FUNDING_ENABLED
-            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n':''}${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
-            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter. This dog needs a rescue to pull them${isRO?'.':' and a foster home.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.\n':''}${notesBlock}\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility. We are not a rescue — we are the automated platform connecting dogs to the people who can save them.\n\nFollow for daily dog updates → @la_dog_dispatch\nSee all urgent dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly. No rescue required.'}\n${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
+            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter. They cannot be adopted or fostered directly.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone. No rescue required.'}\n${notesBlock}\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility. We are not a rescue — we are the automated platform connecting dogs to the people who can save them.\n\nFollow for daily dog updates → @la_dog_dispatch\nSee all urgent dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
 
         document.getElementById('spm-caption-text').value = caption;
 
@@ -1042,7 +1047,7 @@
         try {
             const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
-            const allTags = [...(data.breed_specific||[]),...(data.general||[])].map(r=>'@'+r.ig_handle);
+            const allTags = [...(data.breed_specific||[]),...(data.general||[])].map(r=>'@'+r.ig_handle).slice(0, 15);
             if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='Copy Rescue Tags';},2000); return; }
             await navigator.clipboard.writeText(allTags.join(' '));
             btn.textContent=`✓ ${allTags.length} Tags Copied!`; btn.classList.add('copied');
