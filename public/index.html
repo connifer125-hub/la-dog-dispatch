@@ -131,6 +131,36 @@
             .final-strip-buttons { flex-direction: column; align-items: stretch; }
             body { padding-bottom: 64px; }
         }
+        /* ── SHARE PREVIEW MODAL ── */
+        .share-preview-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 600; align-items: center; justify-content: center; padding: 1rem; }
+        .share-preview-overlay.open { display: flex; }
+        .share-preview-modal { background: white; border-radius: 16px; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s cubic-bezier(0.32,0.72,0,1); }
+        .spm-header { padding: 1.2rem 1.5rem 0.8rem; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; }
+        .spm-header h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--color-dark); }
+        .spm-header p { font-size: 0.78rem; color: var(--color-text-light); margin-top: 2px; }
+        .spm-close { background: #f0ede8; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 0.8rem; cursor: pointer; color: #6b6560; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .spm-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+        .spm-panel { padding: 1.2rem 1.5rem; }
+        .spm-panel:first-child { border-right: 1px solid var(--color-border); }
+        .spm-panel-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #4a8c6a; margin-bottom: 0.7rem; }
+        .spm-card-preview { width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid var(--color-border); background: var(--color-tan); min-height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+        .spm-card-preview img { width: 100%; display: block; }
+        .spm-card-preview canvas { width: 100%; display: block; }
+        .spm-loading { font-size: 0.78rem; color: var(--color-text-light); text-align: center; padding: 2rem; }
+        .spm-caption-box { width: 100%; min-height: 160px; max-height: 200px; overflow-y: auto; border: 1.5px solid var(--color-border); border-radius: 8px; padding: 0.7rem 0.9rem; font-size: 0.78rem; font-family: 'Source Sans 3', sans-serif; color: var(--color-text); line-height: 1.6; background: #fafaf8; resize: none; margin-bottom: 1rem; white-space: pre-wrap; }
+        .spm-btn-primary { width: 100%; background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; border: none; border-radius: 8px; padding: 0.75rem; font-size: 0.88rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s; margin-bottom: 0.5rem; }
+        .spm-btn-primary:hover { opacity: 0.88; }
+        .spm-btn-secondary { width: 100%; background: white; color: var(--color-text); border: 1.5px solid var(--color-border); border-radius: 8px; padding: 0.6rem; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .spm-btn-secondary:hover { border-color: var(--color-dark); }
+        .spm-btn-secondary.copied { background: #dcfce7; border-color: #86efac; color: #166534; }
+        .spm-footer { padding: 0.8rem 1.5rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .spm-done-btn { background: #f0ede8; color: var(--color-text); border: none; border-radius: 8px; padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+        .spm-done-btn:hover { background: var(--color-tan); }
+        @media (max-width: 600px) {
+            .spm-body { grid-template-columns: 1fr; }
+            .spm-panel:first-child { border-right: none; border-bottom: 1px solid var(--color-border); }
+        }
+
         .fund-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
         @media (min-width: 600px) { .fund-modal-overlay { align-items: center; } }
         .fund-modal-overlay.open { display: flex; }
@@ -696,7 +726,7 @@
                 <strong>This dog needs:</strong>
                 🏠 A rescue or foster to pull them · 💛 Funding support (coming soon) · 📢 Your share right now
             </div>
-            <button class="btn-primary" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📢 Share This Dog</button>
+            <button class="btn-primary" onclick="event.stopPropagation(); openShareModal(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📢 Share This Dog</button>
         `;
 
         return `
@@ -916,6 +946,110 @@
         } catch(e) { prompt('Copy this caption:',caption); }
     }
 
+    // ── SHARE PREVIEW MODAL ──────────────────────────────────────
+    async function openShareModal(dog) {
+        const overlay = document.getElementById('share-preview-overlay');
+        const daysLeft = Math.ceil((new Date(dog.deadline)-new Date())/86400000);
+        const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+        const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
+        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 ${NOTES_DISCLAIMER}\n` : '';
+        const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
+
+        // Set header
+        document.getElementById('spm-dog-name').textContent = dog.name || dog.shelter_id;
+        document.getElementById('spm-dog-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${urgency}`;
+
+        // Build caption
+        const caption = FUNDING_ENABLED
+            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.${isRO?'':' Fosters and donors welcome.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly. A licensed rescue must pull them from the shelter.\n':''}${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
+            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter. This dog needs a rescue to pull them${isRO?'.':' and a foster home.'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.\n':''}${notesBlock}\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility. We are not a rescue — we are the automated platform connecting dogs to the people who can save them.\n\nFollow for daily dog updates → @la_dog_dispatch\nSee all urgent dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+
+        document.getElementById('spm-caption-text').value = caption;
+
+        // Store dog for share/save actions
+        window._spmDog = dog;
+        window._spmCaption = caption;
+
+        // Show modal with loading state for card
+        const cardWrap = document.getElementById('spm-card-wrap');
+        cardWrap.innerHTML = '<div class="spm-loading">Generating card preview...</div>';
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // Generate card preview
+        try {
+            const canvas = await generateCard(dog);
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/png');
+            img.style.width = '100%';
+            img.style.display = 'block';
+            img.style.borderRadius = '6px';
+            cardWrap.innerHTML = '';
+            cardWrap.appendChild(img);
+            // Store canvas for sharing
+            window._spmCanvas = canvas;
+        } catch(e) {
+            cardWrap.innerHTML = dog.photo_url
+                ? `<img src="${dog.photo_url}" style="width:100%;border-radius:6px;">`
+                : '<div class="spm-loading">Preview unavailable</div>';
+        }
+    }
+
+    function closeShareModal() {
+        document.getElementById('share-preview-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    async function spmShareIG() {
+        const dog = window._spmDog;
+        const canvas = window._spmCanvas;
+        const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+        if (!canvas) { alert('Card still generating — please try again in a moment.'); return; }
+        canvas.toBlob(async blob => {
+            const file = new File([blob], `${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`, {type:'image/png'});
+            if (isMobile && navigator.share && navigator.canShare({files:[file]})) {
+                await navigator.share({files:[file], title:`${dog.name||dog.shelter_id} needs rescue — ladogdispatch.com`});
+            } else {
+                const a = document.createElement('a'); a.href=canvas.toDataURL('image/png'); a.download=file.name; a.click();
+                if (isMobile) setTimeout(()=>{window.location.href='instagram://story-camera';},800);
+                else alert('Card saved! Open Instagram on your phone, create a Story, and add from camera roll. Tag @la_dog_dispatch!');
+            }
+        }, 'image/png');
+    }
+
+    function spmSaveCard() {
+        const dog = window._spmDog;
+        const canvas = window._spmCanvas;
+        if (!canvas) return;
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = `ladogdispatch-${(dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-')}.png`;
+        a.click();
+    }
+
+    async function spmCopyCaption(btn) {
+        const caption = document.getElementById('spm-caption-text').value;
+        try {
+            await navigator.clipboard.writeText(caption);
+            btn.textContent = '✓ Caption Copied!'; btn.classList.add('copied');
+            setTimeout(()=>{ btn.textContent='Copy Caption'; btn.classList.remove('copied'); }, 2500);
+        } catch(e) { prompt('Copy this caption:', caption); }
+    }
+
+    async function spmCopyTags(btn) {
+        const dog = window._spmDog;
+        btn.textContent = '⏳ Loading...';
+        try {
+            const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
+            const data = await res.json();
+            const allTags = [...(data.breed_specific||[]),...(data.general||[])].map(r=>'@'+r.ig_handle);
+            if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='Copy Rescue Tags';},2000); return; }
+            await navigator.clipboard.writeText(allTags.join(' '));
+            btn.textContent=`✓ ${allTags.length} Tags Copied!`; btn.classList.add('copied');
+            setTimeout(()=>{ btn.textContent='Copy Rescue Tags'; btn.classList.remove('copied'); },3000);
+        } catch(e) { btn.textContent='Copy Rescue Tags'; }
+    }
+
     // ── FUND A DOG MODAL (dormant when FUNDING_ENABLED = false) ──
     let fundDog = null;
     const STRIPE_LINKS = {
@@ -941,6 +1075,40 @@
         if (link) { window.open(link,'_blank'); document.getElementById('fund-modal-overlay').classList.remove('open'); }
     }
     </script>
+
+    <!-- ── SHARE PREVIEW MODAL ── -->
+    <div class="share-preview-overlay" id="share-preview-overlay" onclick="if(event.target===this)closeShareModal()">
+        <div class="share-preview-modal">
+            <div class="spm-header">
+                <div>
+                    <h3 id="spm-dog-name">—</h3>
+                    <p id="spm-dog-meta">—</p>
+                </div>
+                <button class="spm-close" onclick="closeShareModal()">✕</button>
+            </div>
+            <div class="spm-body">
+                <!-- Left: Card preview -->
+                <div class="spm-panel">
+                    <div class="spm-panel-label">Card Preview</div>
+                    <div class="spm-card-preview" id="spm-card-wrap">
+                        <div class="spm-loading">Generating...</div>
+                    </div>
+                    <button class="spm-btn-primary" onclick="spmShareIG()">📱 Share to IG Story — 1 tap</button>
+                    <button class="spm-btn-secondary" onclick="spmSaveCard()">⬇ Save Card to Camera Roll</button>
+                </div>
+                <!-- Right: Caption preview -->
+                <div class="spm-panel">
+                    <div class="spm-panel-label">Caption Preview — Edit if you'd like</div>
+                    <textarea class="spm-caption-box" id="spm-caption-text"></textarea>
+                    <button class="spm-btn-secondary" id="spm-copy-caption-btn" onclick="spmCopyCaption(this)">Copy Caption for Feed or Story</button>
+                    <button class="spm-btn-secondary" id="spm-copy-tags-btn" onclick="spmCopyTags(this)" style="margin-top:0.5rem;">Copy Rescue Tags to Paste</button>
+                </div>
+            </div>
+            <div class="spm-footer">
+                <button class="spm-done-btn" onclick="closeShareModal()">✓ Done sharing</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ── FUND A DOG MODAL (kept in DOM, only opens when FUNDING_ENABLED = true) ── -->
     <div class="fund-modal-overlay" id="fund-modal-overlay" onclick="closeFundModal(event)">
