@@ -15,7 +15,6 @@
         }
         body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
 
-        /* NAV */
         nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
         .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; }
         .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
@@ -24,16 +23,13 @@
         .nav-links a:hover { color: var(--red); }
         .btn-red-nav { background: #4a8c6a; color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
 
-        /* HERO */
         .hero { background: #4a8c6a; padding: 2.5rem 3rem; text-align: left; position: relative; overflow: hidden; }
-        .hero::before { display: none; }
         .hero-inner { max-width: 1100px; margin: 0; position: relative; z-index: 1; }
         .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin-bottom: 0.6rem; }
         .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: white; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.8rem; }
         .hero-sub { font-size: 1rem; color: rgba(255,255,255,0.85); line-height: 1.65; max-width: 680px; margin: 0; }
 
-        /* PROBLEM SECTION */
-        .problem { background: white; border-bottom: 1px solid var(--border); 0.8rem 3rem; }
+        .problem { background: white; border-bottom: 1px solid var(--border); padding: 0.8rem 3rem; }
         .problem-inner { max-width: 1100px; margin: 0 auto; }
         .problem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid #4a8c6a; border-radius: 12px; overflow: hidden; margin-top: 0.8rem; }
         .problem-item { padding: 1rem 1.4rem; border-right: 1px solid var(--border); background: #fef2f2; position: relative; }
@@ -44,61 +40,44 @@
         .section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 0.4rem; }
         .section-h { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); font-weight: 700; letter-spacing: -0.02em; }
 
-        /* FLOW DIAGRAM */
         .flow-section { max-width: 1100px; margin: 0 auto; padding: 2rem 3rem; }
         .flow-title { text-align: center; margin-bottom: 0.8rem; }
-
         .flow-diagram { position: relative; }
 
-        /* DOG trigger row */
-        .flow-trigger { display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; gap: 0; }
+        .flow-trigger { display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; }
         .trigger-box { background: #1a1614; color: white; border-radius: 10px; padding: 1rem 1.8rem; text-align: center; min-width: 240px; }
         .trigger-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 0.3rem; }
         .trigger-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: white; font-weight: 600; }
         .trigger-sub { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.2rem; }
 
-        /* Arrow down */
         .arrow-down { display: flex; justify-content: center; margin: 0.3rem 0; }
-        .arrow-down svg { color: var(--red); }
 
-        /* System box */
-        .system-box { background: #4a8c6a; border-radius: 12px; padding: 1.1rem 2rem; text-align: center; max-width: 380px; margin: 0 auto 0.3rem; }
+        .system-box { background: #4a8c6a; border-radius: 12px; padding: 1.1rem 2rem; text-align: center; max-width: 380px; margin: 0 auto 0.3rem; animation: pulse-border 2.5s ease infinite; }
         .system-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 0.3rem; }
         .system-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white; font-weight: 700; }
         .system-sub { font-size: 0.78rem; color: rgba(255,255,255,0.7); margin-top: 0.25rem; line-height: 1.4; }
 
-        /* Fan out arrows */
-        .fanout { display: flex; justify-content: center; align-items: flex-start; gap: 1rem; margin-top: 0.3rem; }
-        .fanout-line { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 220px; }
-        .fanout-arrow { width: 2px; height: 40px; background: var(--border); position: relative; }
-        .fanout-arrow::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--border); }
-
-        /* Recipient cards */
-        .recipients { display: flex; gap: 1rem; margin-top: 0; }
+        .recipients { display: flex; gap: 1rem; margin-top: 0.3rem; }
         .recipient { flex: 1; background: white; border: 1px solid #4a8c6a; border-radius: 10px; padding: 1.1rem 1.2rem; border-top: 3px solid var(--accent, #4a8c6a); transition: box-shadow 0.25s; }
         .recipient:hover { box-shadow: 0 6px 20px rgba(26,22,20,0.08); }
         .recipient-icon { font-size: 1.5rem; margin-bottom: 0.4rem; display: block; }
         .recipient-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; color: var(--dark); margin-bottom: 0.3rem; }
         .recipient-action { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
-        .recipient-result { display: inline-block; margin-top: 0.5rem; font-size: 0.7rem; font-weight: 700; 0.2rem 0.6rem; border-radius: 20px; background: var(--result-bg, var(--tan)); color: var(--result-color, var(--text)); }
+        .recipient-result { display: inline-block; margin-top: 0.5rem; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; background: var(--result-bg, var(--tan)); color: var(--result-color, var(--text)); }
 
-        /* Arrow up to outcome */
         .converge { display: flex; justify-content: center; margin: 0.8rem 0 0.3rem; }
         .converge-line { width: 2px; height: 40px; background: var(--border); position: relative; }
         .converge-line::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--border); }
 
-        /* Outcome box */
         .outcome-box { background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 1.1rem 2rem; text-align: center; max-width: 400px; margin: 0 auto; }
         .outcome-emoji { font-size: 1.6rem; margin-bottom: 0.3rem; display: block; }
         .outcome-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #166534; font-weight: 700; }
         .outcome-sub { font-size: 0.8rem; color: #166534; margin-top: 0.2rem; opacity: 0.8; }
 
-        /* VS SECTION */
         .vs-section { background: white; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 2rem 3rem; }
         .vs-inner { max-width: 1000px; margin: 0 auto; }
         .vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.5rem; align-items: start; margin-top: 0.8rem; }
-        .vs-col { }
-        .vs-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.8rem; 0.3rem 0.8rem; border-radius: 20px; display: inline-block; }
+        .vs-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.8rem; padding: 0.3rem 0.8rem; border-radius: 20px; display: inline-block; }
         .vs-label.before { background: #fee2e2; color: #b91c1c; }
         .vs-label.after { background: #dcfce7; color: #166534; }
         .vs-item { display: flex; align-items: flex-start; gap: 0.6rem; margin-bottom: 0.7rem; font-size: 0.88rem; line-height: 1.5; }
@@ -107,17 +86,15 @@
         .vs-divider { display: flex; align-items: center; justify-content: center; }
         .vs-badge { background: var(--dark); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; }
 
-        /* CTA */
         .cta-section { max-width: 100%; margin: 0; padding: 2.5rem 3rem; text-align: center; background: var(--cream); }
         .cta-section h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--dark); font-weight: 700; margin-bottom: 0.6rem; }
         .cta-section p { color: var(--muted); font-size: 0.92rem; margin-bottom: 0.8rem; line-height: 1.65; }
         .cta-btns { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
-        .btn-red { background: #4a8c6a; color: white; padding: 0.6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.92rem; transition: all 0.2s; }
-        .btn-red:hover { background: #3d7a5c; }
+        .btn-green { background: #4a8c6a; color: white; padding: 0.6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.92rem; transition: all 0.2s; }
+        .btn-green:hover { background: #3d7a5c; }
         .btn-outline { background: transparent; color: var(--dark); padding: 0.6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.92rem; border: 1.5px solid var(--dark); transition: all 0.2s; }
         .btn-outline:hover { border-color: #4a8c6a; color: #4a8c6a; }
 
-        /* MOBILE */
         @media (max-width: 900px) {
             .nav-links { display: none; }
             .logo { font-size: 1.3rem; }
@@ -137,7 +114,6 @@
             body { padding-bottom: 64px; }
         }
 
-        /* MOBILE TAB BAR */
         .bottom-tab-bar { display: none; }
         @media (max-width: 768px) {
             .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
@@ -148,67 +124,39 @@
         .tab-item.tab-fund { flex: 1.4; background: #4a8c6a; margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(74,140,106,0.35); }
         .tab-item.tab-fund .tab-label { color: white; font-size: 0.62rem; }
 
-        /* Animations */
         .fade-in { opacity: 0; transform: translateY(16px); animation: fadeIn 0.5s ease forwards; }
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
         .fade-in:nth-child(1) { animation-delay: 0.1s; }
         .fade-in:nth-child(2) { animation-delay: 0.2s; }
         .fade-in:nth-child(3) { animation-delay: 0.3s; }
         .fade-in:nth-child(4) { animation-delay: 0.4s; }
-
-        /* Pulse on system box */
         @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 0 0 rgba(196,40,28,0.4); } 50% { box-shadow: 0 0 0 8px rgba(196,40,28,0); } }
-        .system-box { animation: pulse-border 2.5s ease infinite; }
 
         .logo-img { height: 52px; width: auto; display: block; }
         @media (max-width: 900px) { .logo-img { height: 40px; } }
 
-        /* ── MORE SLIDE-UP DRAWER ── */
-        .more-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            z-index: 190;
-            opacity: 0;
-            transition: opacity 0.25s ease;
-        }
+        .more-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 190; opacity: 0; transition: opacity 0.25s ease; }
         .more-overlay.active { display: block; }
         .more-overlay.visible { opacity: 1; }
-        .more-drawer {
-            display: none;
-            position: fixed;
-            bottom: 64px; left: 0; right: 0;
-            background: white;
-            border-radius: 16px 16px 0 0;
-            z-index: 195;
-            padding: 1rem 0 1rem;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-            box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
-        }
+        .more-drawer { display: none; position: fixed; bottom: 64px; left: 0; right: 0; background: white; border-radius: 16px 16px 0 0; z-index: 195; padding: 1rem 0 1rem; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -8px 30px rgba(0,0,0,0.15); }
         @media (max-width: 900px) { .more-drawer { display: block; } }
         .more-drawer.open { transform: translateY(0); }
         .more-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 1rem; }
         .more-title { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: #6b6560; padding: 0 1.2rem 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-        .more-link {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-            padding: 0.85rem 1.4rem;
-            text-decoration: none;
-            color: #1a1614;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border-top: 1px solid #d4cfc7;
-            transition: background 0.15s;
-        }
+        .more-link { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1.4rem; text-decoration: none; color: #1a1614; font-size: 0.95rem; font-weight: 500; border-top: 1px solid #d4cfc7; transition: background 0.15s; }
         .more-link:active { background: #e8e4dd; }
         .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
         .more-link-arrow { margin-left: auto; color: #ccc; }
     </style>
 </head>
 <body>
+
+<script>
+    // ══════════════════════════════════════════════════════════════
+    // FEATURE FLAG — flip to true when funding is ready to launch
+    // ══════════════════════════════════════════════════════════════
+    const FUNDING_ENABLED = false;
+</script>
 
 <nav class="topnav">
     <div class="nav-inner">
@@ -219,21 +167,21 @@
             <li><a href="/about.html">About</a></li>
             <li><a href="/network.html">Join the Network</a></li>
             <li><a href="/donate.html">Become a Member</a></li>
-            <li><a href="/#dogs-section" class="btn-red-nav">Fund a Dog</a></li>
+            <li><a href="/SouthLAComplaint.html" style="color: #c4281c; font-weight: 700;">⚠ Take Action</a></li>
+            <li id="nav-fund-li" style="display:none;"><a href="/#dogs-section" class="btn-red-nav">Fund a Dog</a></li>
+            <li id="nav-share-li"><a href="/social.html" class="btn-red-nav">Share a Dog</a></li>
         </ul>
     </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
     <div class="hero-inner">
         <p class="eyebrow">The System</p>
-        <h1>Automation that moves<br>faster than the clock.</h1>
-        <p class="hero-sub">LA Dog Dispatch is a coordination tool — connecting donors, fosters, and rescues the moment a dog's time starts running out. Here's exactly how it works.</p>
+        <h1 id="hero-h1">Automation that moves<br>faster than the clock.</h1>
+        <p class="hero-sub" id="hero-sub">LA Dog Dispatch gives every at-risk shelter dog automated visibility the moment they're listed — connecting fosters, rescues, and the community before time runs out.</p>
     </div>
 </div>
 
-<!-- THE PROBLEM -->
 <div class="problem">
     <div class="problem-inner">
         <p class="section-label">Why it matters</p>
@@ -245,34 +193,32 @@
                 <div class="problem-text">Shelter listings go live manually — hours or days after a dog is euth-listed. The clock starts without anyone knowing.</div>
             </div>
             <div class="problem-item fade-in">
-                <span class="problem-icon">💬</span>
-                <div class="problem-label">Fragmented pledges</div>
-                <div class="problem-text">Donors pledge in comment threads. Rescues can't act on "I'll donate if you pull" — they need real, committed funding.</div>
+                <span class="problem-icon">🔇</span>
+                <div class="problem-label">No visibility</div>
+                <div class="problem-text">Dogs disappear into raw shelter data — no photo cards, no captions, no share buttons. The community can't rally around what it can't see.</div>
             </div>
             <div class="problem-item fade-in">
                 <span class="problem-icon">⏳</span>
                 <div class="problem-label">Rescues hesitate</div>
-                <div class="problem-text">Without confirmed fosters or funding, rescues can't say yes — even when they want to. Uncertainty costs dogs their lives.</div>
+                <div class="problem-text">Without confirmed fosters, rescues can't say yes — even when they want to. Uncertainty costs dogs their lives.</div>
             </div>
             <div class="problem-item fade-in">
-                <span class="problem-icon">🔇</span>
-                <div class="problem-label">Fosters can't plug in</div>
-                <div class="problem-text">People willing to help have nowhere to go. There's no centralized place to say "I'm ready" and actually get connected.</div>
+                <span class="problem-icon">📵</span>
+                <div class="problem-label">No alerts</div>
+                <div class="problem-text">There's no system to notify volunteers when a new dog is listed. You'd have to check Pet Harbor daily — and know to look.</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- FLOW DIAGRAM -->
 <div class="flow-section">
     <div class="flow-title">
         <p class="section-label">How LA Dog Dispatch works</p>
-        <h2 class="section-h" style="font-size: 1.8rem;">One trigger. Three networks. Activated instantly.</h2>
+        <h2 class="section-h" style="font-size: 1.8rem;" id="flow-title">One trigger. Three networks. Activated instantly.</h2>
     </div>
 
     <div class="flow-diagram">
 
-        <!-- TRIGGER -->
         <div class="flow-trigger">
             <div class="trigger-box">
                 <div class="trigger-eyebrow">🚨 Trigger event</div>
@@ -281,7 +227,6 @@
             </div>
         </div>
 
-        <!-- ARROW DOWN -->
         <div class="arrow-down">
             <svg width="24" height="32" viewBox="0 0 24 32" fill="none">
                 <line x1="12" y1="0" x2="12" y2="24" stroke="#c4281c" stroke-width="2"/>
@@ -289,14 +234,12 @@
             </svg>
         </div>
 
-        <!-- SYSTEM -->
         <div class="system-box">
             <div class="system-label">⚡ LA Dog Dispatch</div>
-            <div class="system-title">Funding page created automatically</div>
-            <div class="system-sub">Dog profile published · Network notified · Clock starts</div>
+            <div class="system-title" id="system-title">Visibility page created automatically</div>
+            <div class="system-sub" id="system-sub">Dog profile published · Network notified · Clock starts</div>
         </div>
 
-        <!-- ARROW DOWN -->
         <div class="arrow-down" style="margin-top: 0.3rem;">
             <svg width="24" height="32" viewBox="0 0 24 32" fill="none">
                 <line x1="12" y1="0" x2="12" y2="24" stroke="#d4cfc7" stroke-width="2"/>
@@ -304,13 +247,12 @@
             </svg>
         </div>
 
-        <!-- RECIPIENTS -->
         <div class="recipients">
-            <div class="recipient" style="--accent: #f59e0b;">
-                <span class="recipient-icon">💛</span>
-                <div class="recipient-title">Donors</div>
-                <div class="recipient-action">See the dog's profile with a real funding page. Donate immediately — no comment threads, no uncertainty about where money goes.</div>
-                <span class="recipient-result" style="--result-bg: #fef3c7; --result-color: #92400e;">✓ Real funding, instantly</span>
+            <div class="recipient" style="--accent: #06b6d4;" id="recipient-1">
+                <span class="recipient-icon">📢</span>
+                <div class="recipient-title" id="r1-title">Social Sharers</div>
+                <div class="recipient-action" id="r1-action">Get the dog card and caption automatically — ready to post to IG Stories in one tap. Every share puts the dog in front of potential rescues and fosters.</div>
+                <span class="recipient-result" style="--result-bg: #e0f2fe; --result-color: #0369a1;" id="r1-result">✓ Visibility, instantly</span>
             </div>
             <div class="recipient" style="--accent: #10b981;">
                 <span class="recipient-icon">🏠</span>
@@ -321,27 +263,24 @@
             <div class="recipient" style="--accent: #c4281c;">
                 <span class="recipient-icon">🐾</span>
                 <div class="recipient-title">Rescue Partners</div>
-                <div class="recipient-action">See committed funding and available fosters before deciding. Say yes with confidence instead of gambling on uncertainty.</div>
-                <span class="recipient-result" style="--result-bg: #fee2e2; --result-color: #b91c1c;">✓ Pulls fueled by real dollars</span>
+                <div class="recipient-action" id="r3-action">See available fosters and community visibility before deciding. Act faster with the full picture instead of starting from scratch.</div>
+                <span class="recipient-result" style="--result-bg: #fee2e2; --result-color: #b91c1c;" id="r3-result">✓ Pulls supported by the network</span>
             </div>
         </div>
 
-        <!-- CONVERGE ARROW -->
         <div class="converge">
             <div class="converge-line"></div>
         </div>
 
-        <!-- OUTCOME -->
         <div class="outcome-box">
             <span class="outcome-emoji">🐕</span>
             <div class="outcome-title">Dog gets a real chance</div>
-            <div class="outcome-sub">Rescue pulls · Foster receives · Donor sees the result · Dog finds a home</div>
+            <div class="outcome-sub" id="outcome-sub">Rescue pulls · Foster receives · Community shares · Dog finds a home</div>
         </div>
 
     </div>
 </div>
 
-<!-- BEFORE VS AFTER -->
 <div class="vs-section">
     <div class="vs-inner">
         <p class="section-label">The difference it makes</p>
@@ -349,88 +288,116 @@
         <div class="vs-grid">
             <div class="vs-col">
                 <span class="vs-label before">Without LA Dog Dispatch</span>
-                <div class="vs-item"><span class="vs-x">✗</span> Dogs listed hours after clock starts</div>
-                <div class="vs-item"><span class="vs-x">✗</span> Donors pledge in comment threads with no accountability</div>
-                <div class="vs-item"><span class="vs-x">✗</span> Rescues hesitate without confirmed funding</div>
+                <div class="vs-item"><span class="vs-x">✗</span> Dogs listed hours after the clock starts</div>
+                <div class="vs-item"><span class="vs-x">✗</span> No photos, captions, or share buttons</div>
+                <div class="vs-item"><span class="vs-x">✗</span> Rescues hesitate without community support</div>
                 <div class="vs-item"><span class="vs-x">✗</span> Fosters have nowhere to sign up</div>
-                <div class="vs-item"><span class="vs-x">✗</span> Every pull is a scramble against the clock</div>
+                <div class="vs-item"><span class="vs-x">✗</span> You'd have to check Pet Harbor daily and know to look</div>
             </div>
             <div class="vs-divider"><div class="vs-badge">VS</div></div>
             <div class="vs-col">
                 <span class="vs-label after">With LA Dog Dispatch</span>
                 <div class="vs-item"><span class="vs-check">✓</span> Profiles published the moment a dog is listed</div>
-                <div class="vs-item"><span class="vs-check">✓</span> Real funding pages with accountable donations</div>
-                <div class="vs-item"><span class="vs-check">✓</span> Rescues see committed dollars before deciding</div>
+                <div class="vs-item"><span class="vs-check">✓</span> Card, caption, and rescue tags pre-built for sharing</div>
+                <div class="vs-item"><span class="vs-check">✓</span> Rescues see available fosters before deciding</div>
                 <div class="vs-item"><span class="vs-check">✓</span> Foster list ready and waiting for every pull</div>
-                <div class="vs-item"><span class="vs-check">✓</span> The system moves — so more dogs get a chance</div>
+                <div class="vs-item"><span class="vs-check">✓</span> Alerts sent so you never have to go looking</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- CTA -->
 <div class="cta-section">
-    <h2>Ready to be part of the network?</h2>
-    <p>Every role matters. Pick the one that fits your life right now — you can always do more later.</p>
-    <div class="cta-btns">
-        <a href="/#dogs-section" class="btn-red">Fund a Dog →</a>
-        <a href="/foster.html" class="btn-outline">Sign up to Foster</a>
-        <a href="/rescue.html" class="btn-outline">Rescue Partner Portal</a>
+    <h2 id="cta-h2">Ready to be part of the network?</h2>
+    <p id="cta-p">Every role matters. Pick the one that fits your life right now — you can always do more later.</p>
+    <div class="cta-btns" id="cta-btns">
+        <!-- populated by JS -->
     </div>
 </div>
 
-<!-- MOBILE NAV -->
-
-    <!-- Footer -->
-    <footer style="background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 2rem 3rem; text-align: center;">
-        <div style="max-width: 1400px; margin: 0 auto;">
-            <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
-            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
-            <p style="font-size: 0.78rem; color: rgba(255,255,255,0.3);">
-                <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
-                <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
-                <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
-            </p>
-            <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <nav class="bottom-tab-bar">
-        <a href="/#dogs-section" class="tab-item tab-fund">
-            <span class="tab-icon">🐕</span>
-            <span class="tab-label">Fund a Dog</span>
-        </a>
-        <a href="/foster.html" class="tab-item">
-            <span class="tab-icon">🏠</span>
-            <span class="tab-label">Foster</span>
-        </a>
-        <a href="/donate.html" class="tab-item tab-member">
-            <span class="tab-icon">💛</span>
-            <span class="tab-label">Become a Member</span>
-        </a>
-        <a href="/rescue.html" class="tab-item">
-            <span class="tab-icon">⭐</span>
-            <span class="tab-label">Rescue</span>
-        </a>
-        <button class="tab-item" onclick="toggleMore()">
-            <span class="tab-icon">☰</span>
-            <span class="tab-label">More</span>
-        </button>
-    </nav>
-
-    <!-- MORE DRAWER -->
-    <div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
-    <div class="more-drawer" id="more-drawer">
-        <div class="more-handle"></div>
-        <div class="more-title">More Pages</div>
-        <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
-        <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
-        <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
-        <a href="/social.html" class="more-link"><span class="more-link-icon">📢</span> Share on Social <span class="more-link-arrow">›</span></a>
-        <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
+<footer style="background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 2rem 3rem; text-align: center;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+        <p style="font-size: 0.78rem;">
+            <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
+            <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
+            <a href="mailto:hello@ladogdispatch.com" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
+        </p>
+        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
     </div>
+</footer>
 
-    <script>
+<nav class="bottom-tab-bar">
+    <a href="/#dogs-section" class="tab-item">
+        <span class="tab-icon">🐕</span>
+        <span class="tab-label">Urgent Dogs</span>
+    </a>
+    <a href="/foster.html" class="tab-item">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">Foster</span>
+    </a>
+    <a href="/donate.html" class="tab-item">
+        <span class="tab-icon">💛</span>
+        <span class="tab-label">Become a Member</span>
+    </a>
+    <a href="/rescue.html" class="tab-item">
+        <span class="tab-icon">⭐</span>
+        <span class="tab-label">Rescue</span>
+    </a>
+    <button class="tab-item" onclick="toggleMore()">
+        <span class="tab-icon">☰</span>
+        <span class="tab-label">More</span>
+    </button>
+</nav>
+
+<div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
+<div class="more-drawer" id="more-drawer">
+    <div class="more-handle"></div>
+    <div class="more-title">More Pages</div>
+    <a href="/SouthLAComplaint.html" class="more-link" style="color:#c4281c;font-weight:700;"><span class="more-link-icon">⚠️</span> Take Action — Giardia Crisis <span class="more-link-arrow">›</span></a>
+    <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
+    <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
+    <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
+    <a href="/social.html" class="more-link"><span class="more-link-icon">📢</span> Share on Social <span class="more-link-arrow">›</span></a>
+    <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
+</div>
+
+<script>
+    // ── APPLY FEATURE FLAG ────────────────────────────────────────
+    if (FUNDING_ENABLED) {
+        // Nav
+        document.getElementById('nav-fund-li').style.display = '';
+        document.getElementById('nav-share-li').style.display = 'none';
+        // Hero
+        document.getElementById('hero-sub').textContent = 'LA Dog Dispatch is a coordination tool — connecting donors, fosters, and rescues the moment a dog\'s time starts running out. Here\'s exactly how it works.';
+        // Flow
+        document.getElementById('system-title').textContent = 'Funding page created automatically';
+        document.getElementById('system-sub').textContent = 'Dog profile published · Network notified · Clock starts';
+        document.getElementById('flow-title').textContent = 'One trigger. Three networks. Activated instantly.';
+        document.getElementById('r1-title').textContent = 'Donors';
+        document.getElementById('r1-action').textContent = 'See the dog\'s profile with a real funding page. Donate immediately — no comment threads, no uncertainty about where money goes.';
+        document.getElementById('r1-result').textContent = '✓ Real funding, instantly';
+        document.getElementById('r1-result').style.cssText = '--result-bg:#fef3c7;--result-color:#92400e;';
+        document.getElementById('r3-action').textContent = 'See committed funding and available fosters before deciding. Say yes with confidence instead of gambling on uncertainty.';
+        document.getElementById('r3-result').textContent = '✓ Pulls fueled by real dollars';
+        document.getElementById('outcome-sub').textContent = 'Rescue pulls · Foster receives · Donor sees the result · Dog finds a home';
+        // CTA
+        document.getElementById('cta-btns').innerHTML = `
+            <a href="/#dogs-section" class="btn-green">Fund a Dog →</a>
+            <a href="/foster.html" class="btn-outline">Sign up to Foster</a>
+            <a href="/rescue.html" class="btn-outline">Rescue Partner Portal</a>`;
+    } else {
+        // CTA visibility mode
+        document.getElementById('cta-h2').textContent = 'Ready to help these dogs?';
+        document.getElementById('cta-p').textContent = 'Every share, every foster signup, every rescue connection gets a dog closer to safety.';
+        document.getElementById('cta-btns').innerHTML = `
+            <a href="/social.html" class="btn-green">📢 Share a Dog →</a>
+            <a href="/social-sharer-signup.html" class="btn-outline">Join the Sharer Network</a>
+            <a href="/foster.html" class="btn-outline">Sign up to Foster</a>
+            <a href="/rescue.html" class="btn-outline">Rescue Partner Portal</a>`;
+    }
+
     function toggleMore() {
         const drawer = document.getElementById('more-drawer');
         const overlay = document.getElementById('more-overlay');
@@ -447,7 +414,7 @@
             });
         }
     }
-    </script>
+</script>
 
 </body>
 </html>
