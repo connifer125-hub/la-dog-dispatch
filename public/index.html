@@ -184,12 +184,13 @@
         .ph-row { display: flex; gap: 4px; margin-bottom: 1px; }
         .ph-lbl { color: #555; min-width: 72px; font-size: 9px; }
         .ph-val { color: #111; font-size: 9px; font-weight: 700; }
-        .ph-pain-row { background: var(--color-cream); border-top: 2px solid var(--color-red); padding: 6px 10px; display: flex; align-items: flex-start; gap: 6px; }
-        .ph-pain-tag { font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: white; background: var(--color-red); padding: 2px 5px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
-        .ph-pain { font-size: 9px; color: #3a3632; font-family: 'Source Sans 3', sans-serif; line-height: 1.5; }
-        .ph-pain strong { color: var(--color-red); }
+        .ph-pain-row { background: #1b4332; border-top: none; border-radius: 0 0 4px 4px; padding: 8px 10px; display: flex; align-items: flex-start; gap: 6px; }
+        .ph-pain-tag { font-size: 7px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #4a8c6a; background: transparent; padding: 0; border-radius: 0; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+        .ph-pain { font-size: 9px; color: #86efac; font-family: 'Source Sans 3', sans-serif; line-height: 1.6; }
+        .ph-pain strong { color: white; }
         .exp-transform-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
         .exp-transform-label { font-size: 11px; color: var(--color-text-light); letter-spacing: 0.06em; text-transform: uppercase; }
+        .exp-ladd-bubble { background: #1b4332; border: 1.5px solid #4a8c6a; border-radius: 6px; padding: 5px 10px; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #86efac; font-family: 'Source Sans 3', sans-serif; }
         .exp-scan-wrap { width: 100%; background: var(--color-border); border-radius: 4px; height: 6px; overflow: hidden; }
         .exp-scan-bar { height: 100%; width: 0%; background: #4a8c6a; border-radius: 4px; transition: width 1.8s ease; }
         .exp-scan-bar.go { width: 100%; }
@@ -265,32 +266,37 @@
             <div>
                 <div class="exp-stage-area">
                     <div class="exp-stage active" id="ies1">
-                        <div class="ph-mock">
-                            <div class="ph-header"><span>PetHarbor.com</span><span style="opacity:0.6;font-size:8px;">Los Angeles County Animal Care</span></div>
-                            <div class="ph-nav"><span>Home</span><span>Search</span><span>Results</span><span>Help</span></div>
-                            <div class="ph-body">
-                                <img class="ph-photo" id="iphPhoto" src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200" alt="shelter dog">
-                                <div class="ph-info">
-                                    <div class="ph-row"><span class="ph-lbl">Animal ID:</span><span class="ph-val">A2201847</span></div>
-                                    <div class="ph-row"><span class="ph-lbl">Species:</span><span class="ph-val">DOG</span></div>
-                                    <div class="ph-row"><span class="ph-lbl">Breed:</span><span class="ph-val">GERM SHEPHERD/MIX</span></div>
-                                    <div class="ph-row"><span class="ph-lbl">Age:</span><span class="ph-val">4 YRS 2 MOS</span></div>
-                                    <div class="ph-row"><span class="ph-lbl">Sex:</span><span class="ph-val">MALE NEUTERED</span></div>
-                                    <div class="ph-row"><span class="ph-lbl">Location:</span><span class="ph-val">LACT1 · KC-07</span></div>
-                                    <div class="ph-row"><span class="ph-lbl">Status:</span><span class="ph-val">EUTH SCH</span></div>
-                                    <div class="ph-row"><span class="ph-lbl">Date In:</span><span class="ph-val">02/14/2026</span></div>
-                                    <div class="ph-row"><span class="ph-lbl">Rescue Only:</span><span class="ph-val">YES</span></div>
+                        <div class="exp-s4-wrap">
+                            <div class="ph-mock" style="flex-shrink:0;width:55%;">
+                                <div class="ph-header"><span>PetHarbor.com</span><span style="opacity:0.6;font-size:8px;">Los Angeles County Animal Care</span></div>
+                                <div class="ph-nav"><span>Home</span><span>Search</span><span>Results</span><span>Help</span></div>
+                                <div class="ph-body">
+                                    <img class="ph-photo" id="iphPhoto" src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200" alt="shelter dog">
+                                    <div class="ph-info">
+                                        <div class="ph-row"><span class="ph-lbl">Animal ID:</span><span class="ph-val">A2201847</span></div>
+                                        <div class="ph-row"><span class="ph-lbl">Species:</span><span class="ph-val">DOG</span></div>
+                                        <div class="ph-row"><span class="ph-lbl">Breed:</span><span class="ph-val">GERM SHEPHERD/MIX</span></div>
+                                        <div class="ph-row"><span class="ph-lbl">Age:</span><span class="ph-val">4 YRS 2 MOS</span></div>
+                                        <div class="ph-row"><span class="ph-lbl">Sex:</span><span class="ph-val">MALE NEUTERED</span></div>
+                                        <div class="ph-row"><span class="ph-lbl">Location:</span><span class="ph-val">LACT1 · KC-07</span></div>
+                                        <div class="ph-row"><span class="ph-lbl">Status:</span><span class="ph-val">EUTH SCH</span></div>
+                                        <div class="ph-row"><span class="ph-lbl">Date In:</span><span class="ph-val">02/14/2026</span></div>
+                                        <div class="ph-row"><span class="ph-lbl">Rescue Only:</span><span class="ph-val">YES</span></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="ph-pain-row">
-                                <span class="ph-pain-tag">⚠ LA Dog Dispatch says</span>
-                                <div class="ph-pain"><strong>No deadline shown.</strong> No share button. No caption. No alerts. You'd have to check this page daily — and know to look.</div>
+                            <div>
+                                <div class="exp-ladd-bubble" style="margin-bottom:10px;">🐾 LA DOG DISPATCH</div>
+                                <div class="exp-s4-text">
+                                    No deadline shown.<br>No share button.<br>No caption. No alerts.<br><br>
+                                    <strong>You'd have to check this page daily — and know to look.</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="exp-stage" id="ies2">
                         <div class="exp-transform-wrap">
-                            <div class="exp-transform-label">LA Dog Dispatch processes this automatically</div>
+                            <div class="exp-ladd-bubble">🐾 LA DOG DISPATCH — processing automatically</div>
                             <div class="exp-scan-wrap"><div class="exp-scan-bar" id="iExpScanBar"></div></div>
                             <div class="exp-fields">
                                 <div class="exp-chip" id="iefc0"><span class="cdot"></span> Name matched</div>
@@ -311,6 +317,7 @@
                                 <div class="exp-dcm-name" id="iExpDogName">RANGER</div>
                                 <div class="exp-dcm-meta" id="iExpDogMeta">German Shepherd Mix · South LA</div>
                                 <div class="exp-dcm-deadline" id="iExpDogDeadline">3 days left — rescue only</div>
+                                <div class="exp-ladd-bubble" style="margin-bottom:6px;">🐾 LA DOG DISPATCH — card ready to share</div>
                                 <button class="exp-share-btn"><span id="iExpBtnTxt">Share to IG Story</span><div class="exp-tap-ring" id="iExpTapRing"></div></button>
                             </div>
                         </div>
@@ -325,7 +332,10 @@
                                     <div class="exp-ig-bottom"><div class="exp-ig-send">Send message</div></div>
                                 </div>
                             </div>
-                            <div class="exp-s4-text"><strong>Posted.</strong><br><br>One tap — the card is in your story. Caption copied. Rescue tags ready to paste.<br><br><span style="color:#4a8c6a;font-weight:700;">That's all you do.</span></div>
+                            <div>
+                                    <div class="exp-ladd-bubble" style="margin-bottom:10px;">🐾 LA DOG DISPATCH</div>
+                                    <div class="exp-s4-text"><strong>Posted.</strong><br><br>One tap — the card is in your story. Caption copied. Rescue tags ready to paste.<br><br><span style="color:#4a8c6a;font-weight:700;">That's all you do.</span></div>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -402,13 +412,13 @@
     <footer style="background: #3d7a5c; color: white; padding: 2rem 3rem; text-align: center;">
         <div style="max-width: 1400px; margin: 0 auto;">
             <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem;">
-            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+            <p id="footer-hgc" style="display:none;font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
             <p style="font-size: 0.78rem;">
                 <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
                 <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
                 <a href="/cdn-cgi/l/email-protection#d6beb3babab996bab7b2b9b1b2bfa5a6b7a2b5bef8b5b9bb" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
             </p>
-            <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
+            
         </div>
     </footer>
 
@@ -420,14 +430,15 @@
     window.addEventListener('nav-loaded', function() {
         if (window.FUNDING_ENABLED) {
             document.getElementById('network-donate-title').textContent = 'Donate or Become a Member';
+            document.getElementById('footer-hgc').style.display = '';
             document.getElementById('network-donate-desc').textContent = 'Fund specific dogs or support the whole system with a monthly membership. Your donation goes directly to the rescue that pulls the dog you funded.';
             document.getElementById('network-donate-cta').textContent = 'Support the mission';
         } else {
-            document.getElementById('hero-h1').textContent = 'Every Urgent Dog Gets a Page. Automatically.';
-            document.getElementById('hero-sub').textContent = 'LA Dog Dispatch gives every at-risk shelter dog automated visibility the moment they\'re euth-listed — so rescues, fosters, and the community can move before time runs out.';
+            document.getElementById('hero-h1').textContent = 'Every Dog on the Euth List Gets Visibility. Automatically.';
+            document.getElementById('hero-sub').textContent = 'LA Dog Dispatch automatically creates Instagram-shareable posts for every dog on the euthanasia list — giving each one a fighting chance before time runs out.';
             document.getElementById('hero-proof-points').innerHTML = `
-                <div class="proof-point">Automated visibility page created the moment a dog is listed</div>
-                <div class="proof-point">Shared with fosters, volunteers, and rescue networks</div>
+                <div class="proof-point">Shareable IG post created the moment a dog is euth-listed</div>
+                <div class="proof-point">Every dog gets visibility — automatically, no manual work</div>
                 <div class="proof-point">Follow <strong>@la_dog_dispatch</strong> on Instagram — every dog gets posted</div>`;
             document.getElementById('hero-buttons').innerHTML = `
                 <a href="#dogs-section" class="btn-primary" style="background:#4a8c6a;">See Urgent Dogs</a>
