@@ -15,14 +15,6 @@
         }
         body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
 
-        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); overflow: hidden; }
-        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; overflow: hidden; }
-        .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
-        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--red); }
-        .btn-red-nav { background: #4a8c6a; color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
-
         .hero { background: #4a8c6a; padding: 2.5rem 3rem 2rem; text-align: center; position: relative; overflow: hidden; }
         .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.08) 0%, transparent 60%); }
         .hero-inner { max-width: 700px; margin: 0 auto; position: relative; z-index: 1; }
@@ -62,7 +54,6 @@
         .perk { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; line-height: 1.4; }
         .perk-check { color: #4a8c6a; font-size: 0.75rem; flex-shrink: 0; margin-top: 0.1rem; }
 
-        /* Coming soon card for dog-specific funding */
         .coming-soon-card { background: #f8f6f3; border-radius: 12px; border: 1px dashed var(--border); padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 200px; gap: 0.6rem; }
         .coming-soon-card .cs-icon { font-size: 2rem; opacity: 0.5; }
         .coming-soon-card .cs-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--muted); }
@@ -85,8 +76,6 @@
         .btn-ghost:hover { border-color: #4a8c6a; color: #4a8c6a; }
 
         @media (max-width: 900px) {
-            .nav-links { display: none; }
-            .logo { font-size: 1.3rem; }
             .hero { padding: 2rem 1.2rem; }
             .trust-bar { padding: 0.6rem 1.2rem; }
             .trust-inner { gap: 1rem; }
@@ -97,70 +86,17 @@
             .bottom-cta { padding: 2rem 1.2rem; }
             body { padding-bottom: 64px; }
         }
-
-        .bottom-tab-bar { display: none; }
-        @media (max-width: 768px) {
-            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
-        }
-        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
-        .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
-        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
-        .tab-item.active .tab-label { color: var(--red); }
-        .tab-item.tab-active { flex: 1.4; background: #4a8c6a; margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(74,140,106,0.35); }
-        .tab-item.tab-active .tab-label { color: white; font-size: 0.62rem; }
-
-        .logo-img { height: 52px; width: auto; display: block; }
-        @media (max-width: 900px) { .logo-img { height: 40px; } }
-
-        .more-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 190; opacity: 0; transition: opacity 0.25s ease; }
-        .more-overlay.active { display: block; }
-        .more-overlay.visible { opacity: 1; }
-        .more-drawer { display: none; position: fixed; bottom: 64px; left: 0; right: 0; background: white; border-radius: 16px 16px 0 0; z-index: 195; padding: 1rem 0 1rem; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -8px 30px rgba(0,0,0,0.15); }
-        @media (max-width: 900px) { .more-drawer { display: block; } }
-        .more-drawer.open { transform: translateY(0); }
-        .more-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 1rem; }
-        .more-title { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: #6b6560; padding: 0 1.2rem 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-        .more-link { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1.4rem; text-decoration: none; color: #1a1614; font-size: 0.95rem; font-weight: 500; border-top: 1px solid #d4cfc7; transition: background 0.15s; }
-        .more-link:active { background: #e8e4dd; }
-        .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
-        .more-link-arrow { margin-left: auto; color: #ccc; }
-
-        /* ── DARK NAV THEME ── */
-        nav.topnav, nav { background: #222021 !important; border-bottom: 3px solid #4a8c6a !important; backdrop-filter: none !important; }
-        .nav-links a, .nav-container a.logo, .nav-inner a.logo { color: rgba(255,255,255,0.82) !important; }
-        .nav-links a:hover { color: white !important; }
-        .btn-red-nav, .btn-nav, .btn-red { background: #4a8c6a !important; color: white !important; }
-        .logo-img { height: 56px !important; }
     </style>
 </head>
 <body>
 
-<script>
-    // ══════════════════════════════════════════════════════════════
-    // FEATURE FLAG — flip to true when funding is ready to launch
-    // ══════════════════════════════════════════════════════════════
-    const FUNDING_ENABLED = false;
-</script>
-
-<nav class="topnav">
-    <div class="nav-inner">
-        <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
-        <ul class="nav-links">
-            <li><a href="/#dogs-section">Urgent Dogs</a></li>
-            <li><a href="/how-it-works.html">How It Works</a></li>
-            <li><a href="/about.html">About</a></li>
-            <li><a href="/network.html">Join the Network</a></li>
-            <li><a href="/donate.html">Become a Member</a></li>
-            <li><a href="/SouthLAComplaint.html" style="color: #c4281c; font-weight: 700;">⚠ Take Action</a></li>
-            <!-- Fund a Dog nav link hidden when FUNDING_ENABLED = false -->
-            <li id="nav-fund-li" style="display:none;"><a href="/#dogs-section" class="btn-red-nav">Fund a Dog</a></li>
-        </ul>
-    </div>
-</nav>
+<!-- ── SHARED NAV ── -->
+<div id="nav-placeholder"></div>
+<script src="/js/nav-loader.js"></script>
 
 <div class="hero">
     <div class="hero-inner">
-        <p class="eyebrow" id="hero-eyebrow">Support the Mission</p>
+        <p class="eyebrow">Support the Mission</p>
         <h1 id="hero-h1">Every dollar keeps the lights on for urgent dogs.</h1>
         <p class="hero-sub" id="hero-sub">LA Dog Dispatch runs on community support. Help us keep every at-risk shelter dog visible — and build toward the day we can fund rescues directly.</p>
     </div>
@@ -168,26 +104,23 @@
 
 <div class="trust-bar">
     <div class="trust-inner">
-        <div class="trust-item">✅ <span>Fiscally sponsored by <strong>Hot Girls Care</strong></span></div>
         <div class="trust-item">✅ <span>Processed securely through <strong>GiveButter</strong></span></div>
+        <div class="trust-item" id="trust-hgc" style="display:none;">✅ <span>Fiscally sponsored by <strong>Hot Girls Care</strong></span></div>
         <div class="trust-item">✅ <span>Cancel your membership <strong>anytime</strong></span></div>
     </div>
 </div>
 
 <div class="donate-section">
     <p class="section-eyebrow" id="section-eyebrow">Two ways to give</p>
-    <h2 class="section-title" id="section-title">Choose how you want to help</h2>
+    <h2 class="section-title">Choose how you want to help</h2>
 
-    <div class="donate-grid">
+    <div class="donate-grid" id="donate-grid">
 
-        <!-- CARD 1: General Fund -->
         <div class="donate-card" style="--accent: #10b981;">
             <div class="card-icon">💚</div>
             <div class="card-title">General Fund</div>
             <div class="card-sub">Support the whole rescue network. Funds cover platform operations, outreach, and emergency pulls when no donor has stepped up for a specific dog.</div>
-            <div class="card-destination">
-                Processed by <strong>Hot Girls Care</strong> — the nonprofit that powers LA Dog Dispatch.
-            </div>
+            <div class="card-destination" id="card-dest-general">Processed securely through <strong>GiveButter</strong>.</div>
             <div class="amount-group" id="general-amounts">
                 <button class="amount-btn" onclick="selectAmount('general', 25, this)">$25</button>
                 <button class="amount-btn selected" onclick="selectAmount('general', 50, this)">$50</button>
@@ -198,14 +131,11 @@
             <a href="https://givebutter.com/la_dog_dispatch" target="_blank" class="btn-donate">Donate to General Fund →</a>
         </div>
 
-        <!-- CARD 2: Monthly Membership -->
         <div class="donate-card" style="--accent: #c4281c;">
             <div class="card-icon">❤️</div>
             <div class="card-title">Monthly Membership</div>
             <div class="card-sub">Become a sustaining member. Your recurring gift keeps the lights on and gives us the stability to act fast when a dog's time is running out.</div>
-            <div class="card-destination">
-                Same fund as above — <strong>Hot Girls Care</strong> — but set to recur monthly. Cancel anytime.
-            </div>
+            <div class="card-destination" id="card-dest-member">Processed securely through <strong>GiveButter</strong>. Cancel anytime.</div>
             <div class="perks">
                 <div class="perk"><span class="perk-check">✓</span> Monthly dispatch email with dog updates</div>
                 <div class="perk"><span class="perk-check">✓</span> First to know about dogs that need urgent fosters</div>
@@ -221,8 +151,7 @@
             <a href="https://givebutter.com/la_dog_dispatch" target="_blank" class="btn-donate">Become a Member →</a>
         </div>
 
-        <!-- CARD 3: Dog-Specific (coming soon when FUNDING_ENABLED = false) -->
-        <div class="coming-soon-card" id="fund-dog-card">
+        <div class="coming-soon-card" id="fund-dog-card" style="display:none;">
             <div class="cs-icon">🐕</div>
             <div class="coming-soon-badge">Coming Soon</div>
             <div class="cs-title">Fund a Specific Dog</div>
@@ -240,7 +169,7 @@
             <div class="how-item">
                 <div class="how-step">General Fund</div>
                 <div class="how-title">Powers the platform</div>
-                <div class="how-desc">Covers outreach, operations, and emergency situations where a dog needs pulling but no specific donor has stepped up yet. Managed by Hot Girls Care.</div>
+                <div class="how-desc">Covers outreach, operations, and emergency situations where a dog needs pulling but no specific donor has stepped up yet.</div>
             </div>
             <div class="how-item">
                 <div class="how-step">Monthly Membership</div>
@@ -269,84 +198,41 @@
 <footer style="background: #3d7a5c; color: white; padding: 2rem 3rem; text-align: center;">
     <div style="max-width: 1400px; margin: 0 auto;">
         <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
-        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+        <p id="footer-hgc" style="display:none; font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
         <p style="font-size: 0.78rem;">
             <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
             <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
             <a href="/cdn-cgi/l/email-protection#630b060f0f0c230f02070c04070a10130217000b4d000c0e" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
         </p>
-        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
     </div>
 </footer>
 
-<nav class="bottom-tab-bar">
-    <a href="/#dogs-section" class="tab-item">
-        <span class="tab-icon">🐕</span>
-        <span class="tab-label">Urgent Dogs</span>
-    </a>
-    <a href="/foster.html" class="tab-item">
-        <span class="tab-icon">🏠</span>
-        <span class="tab-label">Foster</span>
-    </a>
-    <a href="/donate.html" class="tab-item tab-active">
-        <span class="tab-icon">💛</span>
-        <span class="tab-label">Become a Member</span>
-    </a>
-    <a href="/rescue.html" class="tab-item">
-        <span class="tab-icon">⭐</span>
-        <span class="tab-label">Rescue</span>
-    </a>
-    <button class="tab-item" onclick="toggleMore()">
-        <span class="tab-icon">☰</span>
-        <span class="tab-label">More</span>
-    </button>
-</nav>
-
-<div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
-<div class="more-drawer" id="more-drawer">
-    <div class="more-handle"></div>
-    <div class="more-title">More Pages</div>
-    <a href="/SouthLAComplaint.html" class="more-link" style="color:#c4281c;font-weight:700;"><span class="more-link-icon">⚠️</span> Take Action — Giardia Crisis <span class="more-link-arrow">›</span></a>
-    <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
-    <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
-    <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
-    <a href="/social.html" class="more-link"><span class="more-link-icon">📢</span> Share on Social <span class="more-link-arrow">›</span></a>
-    <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
-</div>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    // Apply feature flag
-    if (FUNDING_ENABLED) {
-        document.getElementById('nav-fund-li').style.display = '';
-        document.getElementById('hero-h1').textContent = 'Every dollar moves a dog closer to safety.';
-        document.getElementById('hero-sub').textContent = 'Donations fund specific dogs, support the rescue network, and keep LA Dog Dispatch running. Choose how you want to help.';
-        document.getElementById('section-eyebrow').textContent = 'Three ways to give';
-        document.getElementById('fund-dog-card').style.display = 'flex';
-        // Restore full 3-col grid
-        document.querySelector('.donate-grid').style.gridTemplateColumns = 'repeat(3, 1fr)';
-        document.querySelector('.donate-grid').style.maxWidth = '100%';
-    }
-
-    function toggleMore() {
-        const drawer = document.getElementById('more-drawer');
-        const overlay = document.getElementById('more-overlay');
-        const isOpen = drawer.classList.contains('open');
-        if (isOpen) {
-            drawer.classList.remove('open');
-            overlay.classList.remove('visible');
-            setTimeout(() => overlay.classList.remove('active'), 250);
-        } else {
-            overlay.classList.add('active');
-            requestAnimationFrame(() => {
-                overlay.classList.add('visible');
-                drawer.classList.add('open');
-            });
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
+    window.addEventListener('nav-loaded', function() {
+        if (window.FUNDING_ENABLED) {
+            document.getElementById('footer-hgc').style.display = '';
+            document.getElementById('trust-hgc').style.display = '';
+            document.getElementById('hero-h1').textContent = 'Every dollar moves a dog closer to safety.';
+            document.getElementById('hero-sub').textContent = 'Donations fund specific dogs, support the rescue network, and keep LA Dog Dispatch running. Choose how you want to help.';
+            document.getElementById('section-eyebrow').textContent = 'Three ways to give';
+            document.getElementById('fund-dog-card').style.display = 'flex';
+            document.getElementById('card-dest-general').innerHTML = 'Processed by <strong>Hot Girls Care</strong> — the nonprofit that powers LA Dog Dispatch.';
+            document.getElementById('card-dest-member').innerHTML = 'Same fund as above — <strong>Hot Girls Care</strong> — but set to recur monthly. Cancel anytime.';
+            document.getElementById('donate-grid').style.gridTemplateColumns = 'repeat(3, 1fr)';
+            document.getElementById('donate-grid').style.maxWidth = '100%';
         }
-    }
+    });
 
     let selectedAmounts = { general: 50, member: 25 };
 
     function selectAmount(type, amount, btn) {
         selectedAmounts[type] = amount;
         const group = document.getElementById(type + '-amounts');
-        gr
+        group.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById(type + '-custom').value = '';
+    }
+</script>
+</body>
+</html>
