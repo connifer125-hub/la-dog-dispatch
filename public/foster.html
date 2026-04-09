@@ -9,21 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --color-dark: #1a1614; --color-red: #c4281c; --color-cream: #f8f6f3;
-            --color-tan: #e8e4dd; --color-text: #3a3632; --color-text-light: #6b6560;
-            --color-border: #d4cfc7;
-        }
+        :root { --color-dark: #1a1614; --color-red: #c4281c; --color-cream: #f8f6f3; --color-tan: #e8e4dd; --color-text: #3a3632; --color-text-light: #6b6560; --color-border: #d4cfc7; }
         body { font-family: 'Source Sans 3', sans-serif; color: var(--color-text); background: var(--color-cream); line-height: 1.65; }
-
-        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); overflow: hidden; }
-        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 72px; }
-        .logo { font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--color-dark); text-decoration: none; font-weight: 600; }
-        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--color-text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
-        .nav-links a:hover { color: #4a8c6a; }
-        .btn-nav { background: #4a8c6a; color: white !important; padding: 0.45rem 1.4rem; border-radius: 6px; font-weight: 600 !important; }
-        .btn-nav:hover { background: #3d7a5c !important; }
 
         .hero { background: #4a8c6a; padding: 1.8rem 3rem 1.5rem; text-align: center; position: relative; overflow: hidden; }
         .hero-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
@@ -57,14 +44,12 @@
         .form-group.full { grid-column: 1 / -1; }
         .form-section-head { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--color-dark); font-weight: 600; grid-column: 1 / -1; padding-top: 0.2rem; }
         .form-divider { border: none; border-top: 1px solid var(--color-border); grid-column: 1 / -1; margin: 0.5rem 0; }
-
         label { font-size: 0.82rem; font-weight: 600; color: var(--color-dark); letter-spacing: 0.02em; }
         label .req { color: var(--color-red); }
         input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea { padding: 0.7rem 0.9rem; border: 1.5px solid #4a8c6a; border-radius: 8px; font-size: 0.92rem; font-family: 'Source Sans 3', sans-serif; color: var(--color-text); background: var(--color-cream); transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #4a8c6a; box-shadow: 0 0 0 3px rgba(74,140,106,0.12); background: white; }
         textarea { resize: vertical; min-height: 90px; }
         select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; background-size: 12px; padding-right: 2.5rem; }
-
         .chip-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
         .chip { display: inline-flex; align-items: center; gap: 0.4rem; border: 1.5px solid #4a8c6a; border-radius: 20px; padding: 0.38rem 0.85rem; cursor: pointer; transition: all 0.18s; background: var(--color-cream); }
         .chip:hover { border-color: var(--color-red); }
@@ -72,13 +57,11 @@
         .chip span { font-size: 0.84rem; font-weight: 500; color: var(--color-text); pointer-events: none; }
         .chip.selected { border-color: var(--color-red); background: #fff5f5; }
         .chip.selected span { color: var(--color-red); }
-
         .submit-wrap { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 0.5rem; }
         .btn-submit { background: #4a8c6a; color: white; padding: 0.85rem 2.2rem; border-radius: 8px; font-weight: 700; font-size: 1rem; font-family: 'Source Sans 3', sans-serif; border: none; cursor: pointer; transition: all 0.3s; display: inline-block; width: fit-content; }
         .btn-submit:hover { background: #3d7a5c; transform: translateY(-2px); }
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .submit-note { font-size: 0.78rem; color: var(--color-text-light); }
-
         .success-box { display: none; background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 2rem; text-align: center; }
         .success-box h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #166534; margin-bottom: 0.5rem; }
         .success-box p { color: #166534; font-size: 0.92rem; line-height: 1.6; }
@@ -93,85 +76,28 @@
         .btn-ghost:hover { border-color: #4a8c6a; color: #4a8c6a; }
 
         @media (max-width: 900px) {
-            .nav-links { display: none; }
-            .logo { font-size: 1.3rem; }
             .hero { padding: 2.5rem 1.5rem 2rem; }
             .hero h1 { font-size: 2rem; }
             .section { padding: 2.5rem 1.2rem; }
             .expect-grid { grid-template-columns: 1fr; }
-            .expect-card { flex-direction: column; gap: 0.3rem; }
             .form-inner { padding: 2rem 1.2rem; }
             .form-grid { grid-template-columns: 1fr; }
             .bottom-cta { padding: 2rem 1.2rem; }
             body { padding-bottom: 64px; }
         }
-
-        .bottom-tab-bar { display: none; }
-        @media (max-width: 768px) {
-            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--color-border); z-index: 200; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); align-items: center; }
-        }
-        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; -webkit-tap-highlight-color: transparent; height: 100%; }
-        .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
-        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
-        .tab-item.active .tab-label { color: var(--color-red); }
-        .tab-item.tab-primary { flex: 1.4; background: #4a8c6a; margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(74,140,106,0.35); }
-        .tab-item.tab-primary .tab-label { color: white; font-size: 0.62rem; }
-
-        .logo-img { height: 52px; width: auto; display: block; }
-        @media (max-width: 900px) { .logo-img { height: 40px; } }
-
-        .more-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 190; opacity: 0; transition: opacity 0.25s ease; }
-        .more-overlay.active { display: block; }
-        .more-overlay.visible { opacity: 1; }
-        .more-drawer { display: none; position: fixed; bottom: 64px; left: 0; right: 0; background: white; border-radius: 16px 16px 0 0; z-index: 195; padding: 1rem 0 1rem; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -8px 30px rgba(0,0,0,0.15); }
-        @media (max-width: 900px) { .more-drawer { display: block; } }
-        .more-drawer.open { transform: translateY(0); }
-        .more-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 1rem; }
-        .more-title { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: #6b6560; padding: 0 1.2rem 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-        .more-link { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1.4rem; text-decoration: none; color: #1a1614; font-size: 0.95rem; font-weight: 500; border-top: 1px solid #d4cfc7; transition: background 0.15s; }
-        .more-link:active { background: #e8e4dd; }
-        .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
-        .more-link-arrow { margin-left: auto; color: #ccc; }
-
-        /* ── DARK NAV THEME ── */
-        nav.topnav, nav { background: #222021 !important; border-bottom: 3px solid #4a8c6a !important; backdrop-filter: none !important; }
-        .nav-links a, .nav-container a.logo, .nav-inner a.logo { color: rgba(255,255,255,0.82) !important; }
-        .nav-links a:hover { color: white !important; }
-        .btn-red-nav, .btn-nav, .btn-red { background: #4a8c6a !important; color: white !important; }
-        .logo-img { height: 56px !important; }
     </style>
 </head>
 <body>
 
-<script>
-    // ══════════════════════════════════════════════════════════════
-    // FEATURE FLAG — flip to true when funding is ready to launch
-    // ══════════════════════════════════════════════════════════════
-    const FUNDING_ENABLED = false;
-</script>
-
-<nav class="topnav">
-    <div class="nav-container">
-        <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
-        <ul class="nav-links">
-            <li><a href="/#dogs-section">Urgent Dogs</a></li>
-            <li><a href="/how-it-works.html">How It Works</a></li>
-            <li><a href="/about.html">About</a></li>
-            <li><a href="/network.html">Join the Network</a></li>
-            <li id="nav-member-li" style="display:none;"><a href="/donate.html">Become a Member</a></li>
-            <li id="nav-sharer-li"><a href="/social-sharer-signup.html">📢 Social Sharer</a></li>
-            <li><a href="/SouthLAComplaint.html" style="color: #c4281c; font-weight: 700;">⚠ Take Action</a></li>
-            <li id="nav-fund-li" style="display:none;"><a href="/#dogs-section" class="btn-nav">Fund a Dog</a></li>
-            <li id="nav-dogs-li"><a href="/#dogs-section" class="btn-nav">See Urgent Dogs</a></li>
-        </ul>
-    </div>
-</nav>
+<!-- ── SHARED NAV ── -->
+<div id="nav-placeholder"></div>
+<script src="/js/nav-loader.js"></script>
 
 <div class="hero">
     <div class="hero-inner">
         <p class="hero-eyebrow">Foster Network</p>
         <h1>Sign up to Foster</h1>
-        <p class="hero-sub">Every dog on LA County's euthanasia list needs one thing before a rescue can commit: a place to go. That place could be your home — temporarily. We'll connect you directly with a vetted rescue who will work with you from there.</p>
+        <p class="hero-sub">Every dog on LA County's euthanasia list needs one thing before a rescue can commit: a place to go. That place could be your home — temporarily.</p>
         <div class="hero-pull">
             <p class="pull-quote">More dogs get saved when more fosters say yes. Open your home temporarily while a rescue finds them a long-term family — and give a dog the chance to <em>decompress, heal, and be seen.</em></p>
             <p class="pull-attr">Every foster home expands what our rescue partners can do.</p>
@@ -203,7 +129,7 @@
     <div class="form-inner">
         <p class="section-eyebrow">Foster Sign-Up</p>
         <h2 class="section-title">Volunteer as a Foster</h2>
-        <p class="section-sub" style="margin-bottom: 2rem;">Share your preferences and we'll connect you with a rescue partner who'll take it from there. If you saw a specific dog on Instagram, mention them below.</p>
+        <p class="section-sub" style="margin-bottom: 2rem;">Share your preferences and we'll connect you with a rescue partner. If you saw a specific dog on Instagram, mention them below.</p>
 
         <form id="foster-form">
             <div class="form-grid">
@@ -315,91 +241,37 @@
 <div class="bottom-cta">
     <h2>Not ready to foster yet?</h2>
     <p>There are other ways to make a real difference for these dogs.</p>
-    <div class="cta-buttons" id="cta-buttons">
-        <!-- populated by JS -->
-    </div>
+    <div class="cta-buttons" id="cta-buttons"></div>
 </div>
 
 <footer style="background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 2rem 3rem; text-align: center;">
     <div style="max-width: 1400px; margin: 0 auto;">
         <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
-        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+        <p id="footer-hgc" style="display:none; font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
         <p style="font-size: 0.78rem;">
             <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
             <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
             <a href="/cdn-cgi/l/email-protection#670f020b0b08270b06030800030e14170613040f4904080a" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
         </p>
-        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
     </div>
 </footer>
 
-<nav class="bottom-tab-bar">
-    <a href="/#dogs-section" class="tab-item tab-primary">
-        <span class="tab-icon">🐕</span>
-        <span class="tab-label">Urgent Dogs</span>
-    </a>
-    <a href="/foster.html" class="tab-item active">
-        <span class="tab-icon">🏠</span>
-        <span class="tab-label">Foster</span>
-    </a>
-    <a href="/social-sharer-signup.html" class="tab-item">
-        <span class="tab-icon">📢</span>
-        <span class="tab-label">Social Sharer</span>
-    </a>
-    <a href="/rescue.html" class="tab-item">
-        <span class="tab-icon">⭐</span>
-        <span class="tab-label">Rescue</span>
-    </a>
-    <button class="tab-item" onclick="toggleMore()">
-        <span class="tab-icon">☰</span>
-        <span class="tab-label">More</span>
-    </button>
-</nav>
-
-<div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
-<div class="more-drawer" id="more-drawer">
-    <div class="more-handle"></div>
-    <div class="more-title">More Pages</div>
-    <a href="/SouthLAComplaint.html" class="more-link" style="color:#c4281c;font-weight:700;"><span class="more-link-icon">⚠️</span> Take Action — Giardia Crisis <span class="more-link-arrow">›</span></a>
-    <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
-    <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
-    <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
-    <a href="/donate.html" class="more-link" id="more-member-link"><span class="more-link-icon">💛</span> Become a Member <span class="more-link-arrow">›</span></a>
-    <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
-</div>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    // ── APPLY FEATURE FLAG ────────────────────────────────────────
-    if (FUNDING_ENABLED) {
-        document.getElementById('nav-fund-li').style.display = '';
-        document.getElementById('nav-dogs-li').style.display = 'none';
-        document.getElementById('nav-member-li').style.display = '';
-        document.getElementById('nav-sharer-li').style.display = 'none';
-        document.getElementById('cta-buttons').innerHTML = `
-            <a href="/#dogs-section" class="btn-green">Fund a Dog</a>
-            <a href="/transport.html" class="btn-ghost">Walk or Transport</a>
-            <a href="/social.html" class="btn-ghost">Share on Social</a>`;
-    } else {
-        document.getElementById('more-member-link').style.display = 'none';
-        document.getElementById('cta-buttons').innerHTML = `
-            <a href="/social.html" class="btn-green">📢 Share a Dog</a>
-            <a href="/social-sharer-signup.html" class="btn-ghost">Join the Sharer Network</a>
-            <a href="/transport.html" class="btn-ghost">Walk or Transport</a>`;
-    }
-
-    function toggleMore() {
-        const drawer = document.getElementById('more-drawer');
-        const overlay = document.getElementById('more-overlay');
-        const isOpen = drawer.classList.contains('open');
-        if (isOpen) {
-            drawer.classList.remove('open');
-            overlay.classList.remove('visible');
-            setTimeout(() => overlay.classList.remove('active'), 250);
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
+    window.addEventListener('nav-loaded', function() {
+        if (window.FUNDING_ENABLED) {
+            document.getElementById('footer-hgc').style.display = '';
+            document.getElementById('cta-buttons').innerHTML = `
+                <a href="/#dogs-section" class="btn-green">Fund a Dog</a>
+                <a href="/transport.html" class="btn-ghost">Walk or Transport</a>
+                <a href="/social.html" class="btn-ghost">Share on Social</a>`;
         } else {
-            overlay.classList.add('active');
-            requestAnimationFrame(() => { overlay.classList.add('visible'); drawer.classList.add('open'); });
+            document.getElementById('cta-buttons').innerHTML = `
+                <a href="/social.html" class="btn-green">📢 Share a Dog</a>
+                <a href="/social-sharer-signup.html" class="btn-ghost">Join the Sharer Network</a>
+                <a href="/transport.html" class="btn-ghost">Walk or Transport</a>`;
         }
-    }
+    });
 
     document.querySelectorAll('.chip input').forEach(input => {
         input.addEventListener('change', () => {
@@ -433,4 +305,11 @@
             const res = await fetch('/api/fosters', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
             if (res.ok) { form.style.display = 'none'; document.getElementById('success-box').style.display = 'block'; }
             else { throw new Error(); }
-        } catch { btn.textContent = 'Vol
+        } catch {
+            btn.textContent = 'Volunteer as a Foster →'; btn.disabled = false;
+            alert('Something went wrong. Please try again.');
+        }
+    });
+</script>
+</body>
+</html>
