@@ -8,19 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --red: #c4281c; --dark: #1a1614; --cream: #f8f6f3;
-            --tan: #e8e4dd; --text: #3a3632; --muted: #6b6560; --border: #d4cfc7;
-        }
+        :root { --red: #c4281c; --dark: #1a1614; --cream: #f8f6f3; --tan: #e8e4dd; --text: #3a3632; --muted: #6b6560; --border: #d4cfc7; }
         body { font-family: 'Source Sans 3', sans-serif; color: var(--text); background: var(--cream); }
-
-        nav.topnav { background: rgba(248,246,243,0.97); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); overflow: hidden; }
-        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; height: 68px; overflow: hidden; }
-        .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-decoration: none; font-weight: 600; }
-        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--red); }
-        .btn-red-nav { background: #4a8c6a; color: white !important; padding: 0.45rem 1.3rem; border-radius: 6px; font-weight: 600 !important; }
 
         .hero { background: #4a8c6a; padding: 2.5rem 3rem; }
         .hero-inner { max-width: 800px; margin: 0 auto; }
@@ -69,8 +58,6 @@
         .btn-outline:hover { border-color: var(--text); }
 
         @media (max-width: 900px) {
-            .nav-links { display: none; }
-            .logo { font-size: 1.3rem; }
             .hero { padding: 2rem 1.2rem; }
             .hero h1 { font-size: 1.9rem; }
             .story { padding: 1.5rem 1.2rem; }
@@ -79,65 +66,13 @@
             .cta { padding: 1.5rem 1.2rem; }
             body { padding-bottom: 64px; }
         }
-        .bottom-tab-bar { display: none; }
-        @media (max-width: 768px) {
-            .bottom-tab-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border); z-index: 200; align-items: center; }
-        }
-        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; background: none; border: none; cursor: pointer; text-decoration: none; padding: 0.3rem 0; height: 100%; -webkit-tap-highlight-color: transparent; }
-        .tab-icon { font-size: 1.2rem; line-height: 1; display: block; }
-        .tab-label { font-size: 0.6rem; font-weight: 600; color: #999; font-family: 'Source Sans 3', sans-serif; }
-        .tab-item.tab-primary { flex: 1.4; background: #4a8c6a; margin: 0.4rem 0.3rem; border-radius: 10px; height: calc(100% - 0.8rem); box-shadow: 0 4px 12px rgba(74,140,106,0.35); }
-        .tab-item.tab-primary .tab-label { color: white; font-size: 0.62rem; }
-
-        .logo-img { height: 52px; width: auto; display: block; }
-        @media (max-width: 900px) { .logo-img { height: 40px; } }
-
-        .more-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 190; opacity: 0; transition: opacity 0.25s ease; }
-        .more-overlay.active { display: block; }
-        .more-overlay.visible { opacity: 1; }
-        .more-drawer { display: none; position: fixed; bottom: 64px; left: 0; right: 0; background: white; border-radius: 16px 16px 0 0; z-index: 195; padding: 1rem 0 1rem; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -8px 30px rgba(0,0,0,0.15); }
-        @media (max-width: 900px) { .more-drawer { display: block; } }
-        .more-drawer.open { transform: translateY(0); }
-        .more-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 1rem; }
-        .more-title { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: #6b6560; padding: 0 1.2rem 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-        .more-link { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1.4rem; text-decoration: none; color: #1a1614; font-size: 0.95rem; font-weight: 500; border-top: 1px solid #d4cfc7; transition: background 0.15s; }
-        .more-link:active { background: #e8e4dd; }
-        .more-link-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
-        .more-link-arrow { margin-left: auto; color: #ccc; }
-
-        /* ── DARK NAV THEME ── */
-        nav.topnav, nav { background: #222021 !important; border-bottom: 3px solid #4a8c6a !important; backdrop-filter: none !important; }
-        .nav-links a, .nav-container a.logo, .nav-inner a.logo { color: rgba(255,255,255,0.82) !important; }
-        .nav-links a:hover { color: white !important; }
-        .btn-red-nav, .btn-nav, .btn-red { background: #4a8c6a !important; color: white !important; }
-        .logo-img { height: 56px !important; }
     </style>
 </head>
 <body>
 
-<script>
-    // ══════════════════════════════════════════════════════════════
-    // FEATURE FLAG — flip to true when funding is ready to launch
-    // ══════════════════════════════════════════════════════════════
-    const FUNDING_ENABLED = false;
-</script>
-
-<nav class="topnav">
-    <div class="nav-inner">
-        <a href="/" class="logo"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="logo-img"></a>
-        <ul class="nav-links">
-            <li><a href="/#dogs-section">Urgent Dogs</a></li>
-            <li><a href="/how-it-works.html">How It Works</a></li>
-            <li><a href="/about.html">About</a></li>
-            <li><a href="/network.html">Join the Network</a></li>
-            <li id="nav-member-li" style="display:none;"><a href="/donate.html">Become a Member</a></li>
-            <li id="nav-sharer-li"><a href="/social-sharer-signup.html">📢 Social Sharer</a></li>
-            <li><a href="/SouthLAComplaint.html" style="color: #c4281c; font-weight: 700;">⚠ Take Action</a></li>
-            <li id="nav-fund-li" style="display:none;"><a href="/#dogs-section" class="btn-red-nav">Fund a Dog</a></li>
-            <li id="nav-dogs-li"><a href="/#dogs-section" class="btn-red-nav">See Urgent Dogs</a></li>
-        </ul>
-    </div>
-</nav>
+<!-- ── SHARED NAV ── -->
+<div id="nav-placeholder"></div>
+<script src="/js/nav-loader.js"></script>
 
 <div class="hero">
     <div class="hero-inner">
@@ -194,100 +129,55 @@
     </div>
 </div>
 
-<div class="nonprofit">
+<div class="nonprofit" id="nonprofit-section">
     <div class="nonprofit-card">
         <div class="icon">💚</div>
         <div>
-            <h3>Powered by Hot Girls Care Nonprofit</h3>
-            <p id="nonprofit-desc">All donations are processed through Hot Girls Care, an established nonprofit — giving donors a legitimate charitable giving path. We're building toward per-dog funding as we finalize rescue partnerships.</p>
+            <h3 id="nonprofit-title">About LA Dog Dispatch</h3>
+            <p id="nonprofit-desc">LA Dog Dispatch is a technical tool built to automate visibility for every dog on the euthanasia list. We are not a rescue organization — we are the platform connecting dogs to the people who can save them.</p>
         </div>
     </div>
 </div>
 
 <div class="cta">
-    <h2 id="cta-h2">Ready to be part of this?</h2>
-    <p id="cta-p">Every role in this network matters — sharer, foster, rescue partner, or supporter.</p>
-    <div class="cta-btns" id="cta-btns">
-        <!-- populated by JS -->
-    </div>
+    <h2>Ready to be part of this?</h2>
+    <p>Every role in this network matters — sharer, foster, rescue partner, or supporter.</p>
+    <div class="cta-btns" id="cta-btns"></div>
 </div>
 
 <footer style="background: #3d7a5c; border-top: 1px solid rgba(255,255,255,0.25); color: white; padding: 2rem 3rem; text-align: center;">
     <div style="max-width: 1400px; margin: 0 auto;">
         <img src="/logo-wordmark.png" alt="LA Dog Dispatch" style="height: 36px; width: auto; margin-bottom: 1rem; opacity: 0.9;">
-        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
+        <p id="footer-hgc" style="display:none; font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem;">Powered by <a href="https://hotgirlscare.com" target="_blank" style="color: white; font-weight: 600; text-decoration: none;">Hot Girls Care Nonprofit</a> · Los Angeles, CA</p>
         <p style="font-size: 0.78rem;">
             <a href="/terms.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Terms of Service</a>
             <a href="/privacy.html" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Privacy Policy</a>
             <a href="/cdn-cgi/l/email-protection#3c54595050537c505d58535b58554f4c5d485f54125f5351" style="color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem;">Contact</a>
         </p>
-        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 0.8rem;">© 2026 Hot Girls Care Nonprofit. All rights reserved.</p>
     </div>
 </footer>
 
-<nav class="bottom-tab-bar">
-    <a href="/#dogs-section" class="tab-item tab-primary">
-        <span class="tab-icon">🐕</span>
-        <span class="tab-label">Urgent Dogs</span>
-    </a>
-    <a href="/foster.html" class="tab-item">
-        <span class="tab-icon">🏠</span>
-        <span class="tab-label">Foster</span>
-    </a>
-    <a href="/social-sharer-signup.html" class="tab-item">
-        <span class="tab-icon">📢</span>
-        <span class="tab-label">Social Sharer</span>
-    </a>
-    <a href="/rescue.html" class="tab-item">
-        <span class="tab-icon">⭐</span>
-        <span class="tab-label">Rescue</span>
-    </a>
-    <button class="tab-item" onclick="toggleMore()">
-        <span class="tab-icon">☰</span>
-        <span class="tab-label">More</span>
-    </button>
-</nav>
-
-<div class="more-overlay" id="more-overlay" onclick="toggleMore()"></div>
-<div class="more-drawer" id="more-drawer">
-    <div class="more-handle"></div>
-    <div class="more-title">More Pages</div>
-    <a href="/SouthLAComplaint.html" class="more-link" style="color:#c4281c;font-weight:700;"><span class="more-link-icon">⚠️</span> Take Action — Giardia Crisis <span class="more-link-arrow">›</span></a>
-    <a href="/network.html" class="more-link"><span class="more-link-icon">🌐</span> Join the Network <span class="more-link-arrow">›</span></a>
-    <a href="/how-it-works.html" class="more-link"><span class="more-link-icon">⚙️</span> How It Works <span class="more-link-arrow">›</span></a>
-    <a href="/about.html" class="more-link"><span class="more-link-icon">📖</span> About <span class="more-link-arrow">›</span></a>
-    <a href="/social.html" class="more-link"><span class="more-link-icon">📢</span> Share on Social <span class="more-link-arrow">›</span></a>
-    <a href="/transport.html" class="more-link"><span class="more-link-icon">🚗</span> Dog Transport <span class="more-link-arrow">›</span></a>
-</div>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    if (FUNDING_ENABLED) {
-        document.getElementById('nav-fund-li').style.display = '';
-        document.getElementById('nav-dogs-li').style.display = 'none';
-        document.getElementById('nav-member-li').style.display = '';
-        document.getElementById('nav-sharer-li').style.display = 'none';
-        document.getElementById('solution-h2').textContent = 'LA Dog Dispatch modernizes the entire chain.';
-        document.getElementById('solution-p1').innerHTML = 'The moment a dog is euth-listed, <strong>LA Dog Dispatch automatically creates a funding page</strong> — activating donors immediately, alerting the foster network, and giving rescues the confirmed resources they need to say yes.';
-        document.getElementById('solution-p2').textContent = 'When the system moves faster, more dogs get a real chance. We hope you\'ll join this network — or donate to help us save more dogs.';
-        document.getElementById('nonprofit-desc').textContent = 'All general fund donations are processed through Hot Girls Care, an established nonprofit. Dog-specific donations are held as pass-throughs and released directly to the rescue that commits to pulling that dog.';
-        document.getElementById('cta-btns').innerHTML = `
-            <a href="/#dogs-section" class="btn-green">Fund a Dog →</a>
-            <a href="/foster.html" class="btn-outline">Sign up to Foster</a>
-            <a href="/how-it-works.html" class="btn-outline">See How It Works</a>`;
-    } else {
-        document.getElementById('cta-btns').innerHTML = `
-            <a href="/social.html" class="btn-green">📢 Share a Dog →</a>
-            <a href="/social-sharer-signup.html" class="btn-outline">Join the Sharer Network</a>
-            <a href="/foster.html" class="btn-outline">Sign up to Foster</a>`;
-    }
-
-    function toggleMore() {
-        const drawer = document.getElementById('more-drawer');
-        const overlay = document.getElementById('more-overlay');
-        const isOpen = drawer.classList.contains('open');
-        if (isOpen) {
-            drawer.classList.remove('open');
-            overlay.classList.remove('visible');
-            setTimeout(() => overlay.classList.remove('active'), 250);
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
+    window.addEventListener('nav-loaded', function() {
+        if (window.FUNDING_ENABLED) {
+            document.getElementById('footer-hgc').style.display = '';
+            document.getElementById('solution-h2').textContent = 'LA Dog Dispatch modernizes the entire chain.';
+            document.getElementById('solution-p1').innerHTML = 'The moment a dog is euth-listed, <strong>LA Dog Dispatch automatically creates a funding page</strong> — activating donors immediately, alerting the foster network, and giving rescues the confirmed resources they need to say yes.';
+            document.getElementById('solution-p2').textContent = 'When the system moves faster, more dogs get a real chance. We hope you\'ll join this network — or donate to help us save more dogs.';
+            document.getElementById('nonprofit-title').textContent = 'Powered by Hot Girls Care Nonprofit';
+            document.getElementById('nonprofit-desc').textContent = 'All general fund donations are processed through Hot Girls Care, an established nonprofit. Dog-specific donations are held as pass-throughs and released directly to the rescue that commits to pulling that dog.';
+            document.getElementById('cta-btns').innerHTML = `
+                <a href="/#dogs-section" class="btn-green">Fund a Dog →</a>
+                <a href="/foster.html" class="btn-outline">Sign up to Foster</a>
+                <a href="/how-it-works.html" class="btn-outline">See How It Works</a>`;
         } else {
-            overlay.classList.add('active')
+            document.getElementById('cta-btns').innerHTML = `
+                <a href="/social.html" class="btn-green">📢 Share a Dog →</a>
+                <a href="/social-sharer-signup.html" class="btn-outline">Join the Sharer Network</a>
+                <a href="/foster.html" class="btn-outline">Sign up to Foster</a>`;
+        }
+    });
+</script>
+</body>
+</html>
