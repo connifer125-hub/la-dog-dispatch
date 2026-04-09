@@ -1,0 +1,52 @@
+<style>
+  .site-footer { background: #3d7a5c; color: white; padding: 2.5rem 3rem; text-align: center; }
+  .site-footer-inner { max-width: 1400px; margin: 0 auto; }
+  .site-footer-logo { height: 120px; width: auto; margin: 0 auto 1.2rem; display: block; object-fit: contain; margin-top: 20px; }
+  .site-footer-ig { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; margin-bottom: 1.2rem; transition: opacity 0.2s; }
+  .site-footer-ig:hover { opacity: 0.8; }
+  .site-footer-ig-logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .site-footer-ig-text { color: rgba(255,255,255,0.9); font-size: 0.95rem; font-weight: 600; font-family: 'Source Sans 3', sans-serif; }
+  .site-footer-hgc { display: none; font-size: 0.8rem; color: rgba(255,255,255,0.9); margin-bottom: 0.6rem; }
+  .site-footer-hgc a { color: white; font-weight: 600; text-decoration: none; }
+  .site-footer-links { font-size: 0.78rem; }
+  .site-footer-links a { color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 0.8rem; transition: color 0.2s; }
+  .site-footer-links a:hover { color: white; }
+</style>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="site-footer-logo">
+
+    <div style="margin-bottom: 1.2rem;">
+      <a href="https://instagram.com/la_dog_dispatch" target="_blank" class="site-footer-ig">
+        <!-- Official Instagram logo SVG -->
+        <div class="site-footer-ig-logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="20" height="20" rx="5.5" stroke="white" stroke-width="2"/>
+            <circle cx="12" cy="12" r="4.5" stroke="white" stroke-width="2"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+          </svg>
+        </div>
+        <span class="site-footer-ig-text">@la_dog_dispatch</span>
+      </a>
+    </div>
+
+    <p class="site-footer-hgc" id="footer-hgc-shared">
+      Powered by <a href="https://hotgirlscare.com" target="_blank">Hot Girls Care Nonprofit</a> · Los Angeles, CA
+    </p>
+    <p class="site-footer-links">
+      <a href="/terms.html">Terms of Service</a>
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="mailto:hello@ladogdispatch.com">Contact</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  (function() {
+    if (window.FUNDING_ENABLED) {
+      var el = document.getElementById('footer-hgc-shared');
+      if (el) el.style.display = '';
+    }
+  })();
+</script>
