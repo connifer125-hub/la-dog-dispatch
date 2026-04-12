@@ -11,6 +11,8 @@
   #main-nav .nav-links a { color: rgba(255,255,255,0.82); text-decoration: none; font-weight: 500; font-size: 0.85rem; transition: color 0.2s; }
   #main-nav .nav-links a:hover { color: white; }
   #main-nav .nav-btn-green { background: #4a8c6a; color: white !important; padding: 0.8rem 2rem; border-radius: 6px; font-weight: 600 !important; display: inline-block; }
+  #main-nav .nav-btn-ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white !important; padding: 0.45rem 0.9rem; border-radius: 6px; font-weight: 600 !important; display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; text-decoration: none; transition: opacity 0.2s; }
+  #main-nav .nav-btn-ig:hover { opacity: 0.88; }
   .nav-tab-bar { display: none; }
   @media (max-width: 900px) {
     #main-nav .nav-links { display: none; }
@@ -44,15 +46,15 @@
   <div class="nav-container">
     <a href="/"><img src="/logo-wordmark.png" alt="LA Dog Dispatch" class="nav-logo-img"></a>
     <ul class="nav-links">
-      <li><a href="/#dogs-section">Urgent Dogs</a></li>
+      <li id="nav-urgent-li"><a href="/#dogs-section">Urgent Dogs</a></li>
       <li><a href="/how-it-works.html">How It Works</a></li>
       <li><a href="/about.html">About</a></li>
       <li><a href="/network.html">Join the Network</a></li>
       <li id="nav-member-li" style="display:none;"><a href="/donate.html">Become a Member</a></li>
       <li id="nav-sharer-li"><a href="/social-sharer-signup.html">📢 Social Sharer</a></li>
       <li><a href="/SouthLAComplaint.html" style="color:#fcd34d !important;font-weight:700;">⚠ Take Action</a></li>
+      <li><a href="https://instagram.com/la_dog_dispatch" target="_blank" class="nav-btn-ig">📸 @la_dog_dispatch</a></li>
       <li id="nav-fund-li" style="display:none;"><a href="/#dogs-section" class="nav-btn-green">Fund a Dog</a></li>
-      <li id="nav-dogs-li"><a href="/#dogs-section" class="nav-btn-green">See Urgent Dogs</a></li>
     </ul>
   </div>
 </nav>
@@ -96,7 +98,7 @@
   (function() {
     if (window.FUNDING_ENABLED) {
       document.getElementById('nav-fund-li').style.display = '';
-      document.getElementById('nav-dogs-li').style.display = 'none';
+      document.getElementById('nav-urgent-li').style.display = 'none';
       document.getElementById('nav-member-li').style.display = '';
       document.getElementById('nav-sharer-li').style.display = 'none';
       var tm = document.getElementById('nav-tab-member');
