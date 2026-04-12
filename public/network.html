@@ -11,11 +11,11 @@
         :root { --color-dark: #1a1614; --color-red: #c4281c; --color-cream: #f8f6f3; --color-text: #3a3632; --color-text-light: #6b6560; --color-border: #d4cfc7; }
         body { font-family: 'Source Sans 3', sans-serif; color: var(--color-text); background: var(--color-cream); line-height: 1.65; }
 
-        .network-section { background: #4a8c6a; padding: 3.5rem 0 0; }
+        .network-section { background: #4a8c6a; padding: 1.2rem 0 0; }
         .network-inner { max-width: 1400px; margin: 0 auto; padding: 0 3rem 2.5rem; }
-        .network-eyebrow { text-align: center; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: white; margin-bottom: 0.5rem; }
-        .network-title { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: white; text-align: center; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
-        .network-subtitle { text-align: center; color: rgba(255,255,255,0.75); font-size: 1rem; max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.7; }
+        .network-eyebrow { text-align: center; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: white; margin-bottom: 0.2rem; }
+        .network-title { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: white; text-align: center; font-weight: 700; margin-bottom: 0.2rem; letter-spacing: -0.02em; }
+        .network-subtitle { text-align: center; color: rgba(255,255,255,0.75); font-size: 1rem; max-width: 580px; margin: 0 auto 1.2rem; line-height: 1.7; }
         .network-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
         .network-card { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); border-radius: 14px; padding: 1.5rem; text-decoration: none; transition: all 0.35s ease; display: flex; flex-direction: column; position: relative; overflow: hidden; cursor: pointer; }
         .network-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--card-accent, #4a8c6a); transform: scaleX(0); transform-origin: left; transition: transform 0.35s ease; }
@@ -43,7 +43,7 @@
         .btn-outline:hover { border-color: #4a8c6a; color: #4a8c6a; }
 
         @media (max-width: 900px) {
-            .network-section { padding: 2.5rem 0 0; }
+            .network-section { padding: 1rem 0 0; }
             .network-inner { padding: 0 1rem 1.5rem; }
             .network-grid { grid-template-columns: 1fr; }
             .network-title { font-size: 1.8rem; }
