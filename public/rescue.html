@@ -308,7 +308,7 @@
     function filterDogs(shelter, btn) {
         document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        const filtered = shelter === 'all' ? allDogs : allDogs.filter(d => d.shelter && d.shelter.toUpperCase().includes(shelter.toUpperCase().replace('.', '')));
+        const filtered = shelter === 'all' ? allDogs : allDogs.filter(d => d.shelter && d.shelter.toUpperCase().replace(/\./g, '').replace(/\s+/g, ' ').includes(shelter.toUpperCase().replace(/\./g, '').replace(/\s+/g, ' ')));
         renderDogs(filtered);
     }
 
