@@ -452,7 +452,7 @@
     }
 
     function copyCaption(dog, btnId) {
-        const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+        const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = new Date(dog.deadline).toLocaleDateString('en-US', {month:'long', day:'numeric'});
         const isRO = dog.rescue_only === true || dog.rescue_only === 'true' || dog.rescue_only === 1;
         const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
@@ -535,7 +535,7 @@
             if (!allDogs.length) { setTimeout(tryPopulateAnimDog, 500); return; }
             const dog = allDogs.find(d => d.photo_url) || allDogs[0];
             if (!dog) return;
-            const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+            const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
             if (dog.photo_url) { document.getElementById('expDogImg').src = dog.photo_url; document.getElementById('expIgImg').src = dog.photo_url; document.getElementById('phPhoto').src = dog.photo_url; }
             document.getElementById('expDogName').textContent = (dog.name || 'RANGER').toUpperCase();
             document.getElementById('expDogMeta').textContent = (dog.breed || 'Mixed') + ' · ' + (dog.shelter || 'South LA').replace(/SOUTH L\.A\./i,'South LA');
