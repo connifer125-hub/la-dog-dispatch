@@ -466,7 +466,7 @@
         const date = new Date(dateString);
         return `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear().toString().slice(-2)}`;
     }
-    function getDaysUntil(deadline) { return Math.ceil((new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24)); }
+    function getDaysUntil(deadline) { const d = new Date(deadline); const today = new Date(); d.setHours(0,0,0,0); today.setHours(0,0,0,0); return Math.round((d - today) / (1000 * 60 * 60 * 24)); }
 
     function createDogCard(dog) {
         const raisedAmount = 0;
@@ -566,7 +566,7 @@
             if (!allDogs.length) { setTimeout(tryPopulateAnimDog, 500); return; }
             const dog = allDogs.find(d => d.photo_url) || allDogs[0];
             if (!dog) return;
-            const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+            const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
             if (dog.photo_url) { document.getElementById('iExpDogImg').src = dog.photo_url; document.getElementById('iExpIgImg').src = dog.photo_url; document.getElementById('iphPhoto').src = dog.photo_url; }
             document.getElementById('iExpDogName').textContent = (dog.name || 'RANGER').toUpperCase();
             document.getElementById('iExpDogMeta').textContent = (dog.breed || 'Mixed') + ' · ' + (dog.shelter || 'South LA').replace(/SOUTH L\.A\./i,'South LA');
@@ -613,7 +613,7 @@
         } catch(e) { btn.textContent='🏷 Rescues to Tag'; btn.classList.remove('loading'); }
     }
     async function copyDogCaption(btn, dog) {
-        const daysLeft = Math.ceil((new Date(dog.deadline)-new Date())/86400000);
+        const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
@@ -628,7 +628,7 @@
 
     async function openShareModal(dog) {
         const overlay = document.getElementById('share-preview-overlay');
-        const daysLeft = Math.ceil((new Date(dog.deadline)-new Date())/86400000);
+        const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
@@ -681,7 +681,7 @@
 
     let fundDog = null;
     const STRIPE_LINKS = { 10:'https://buy.stripe.com/9B69ATdxH32M3mB5jD4ow08', 25:'https://buy.stripe.com/7sYcN5ctDbzi8GVfYh4ow09', 50:'https://buy.stripe.com/4gM28rbpzcDm7CR9zT4ow0a', 100:'https://buy.stripe.com/7sY8wPctD7j21et5jD4ow0b', 200:'https://buy.stripe.com/3cI3cv3X7eLug9n4fz4ow0c' };
-    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${Math.ceil((new Date(dog.deadline)-new Date())/86400000)} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
+    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${(() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
     function closeFundModal(e) { if (e.target===document.getElementById('fund-modal-overlay')) document.getElementById('fund-modal-overlay').classList.remove('open'); }
     function donateDirect(amount) { const link = STRIPE_LINKS[amount]; if (link) { window.open(link,'_blank'); document.getElementById('fund-modal-overlay').classList.remove('open'); } }
     </script>
