@@ -616,11 +616,12 @@
         const daysLeft = Math.ceil((new Date(dog.deadline)-new Date())/86400000);
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
-        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 ${window.NOTES_DISCLAIMER}\n` : '';
+        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
+        const disclaimerBlock = `\n📋 ${window.NOTES_DISCLAIMER}`;
         const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
         const caption = window.FUNDING_ENABLED
-            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly.'}\n${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
-            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility.\n\nFollow for daily dog updates → @la_dog_dispatch\nSee all urgent dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly.'}\n${notesBlock}${disclaimerBlock}\n\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
+            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\n\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility.\n\nFollow for daily dog updates → @la_dog_dispatch\nSee all urgent dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
         try { await navigator.clipboard.writeText(caption); btn.textContent='✓ Copied!'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2500); }
         catch(e) { prompt('Copy this caption:',caption); }
     }
@@ -630,13 +631,14 @@
         const daysLeft = Math.ceil((new Date(dog.deadline)-new Date())/86400000);
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
-        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n\n📋 ${window.NOTES_DISCLAIMER}\n` : '';
+        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
+        const disclaimerBlock = `\n📋 ${window.NOTES_DISCLAIMER}`;
         const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
         document.getElementById('spm-dog-name').textContent = dog.name || dog.shelter_id;
         document.getElementById('spm-dog-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${urgency}`;
         const caption = window.FUNDING_ENABLED
-            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY':'✅ OPEN TO PUBLIC'}\n${notesBlock}\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
-            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog.':'✅ OPEN TO PUBLIC — Anyone can adopt or foster directly.'}\n${notesBlock}\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility.\n\nFollow → @la_dog_dispatch\nSee all dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY':'✅ OPEN TO PUBLIC'}\n${notesBlock}${disclaimerBlock}\n\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
+            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog.':'✅ OPEN TO PUBLIC — Anyone can adopt or foster directly.'}\n${notesBlock}${disclaimerBlock}\n\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility.\n\nFollow → @la_dog_dispatch\nSee all dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
         document.getElementById('spm-caption-text').value = caption;
         window._spmDog = dog; window._spmCaption = caption;
         const cardWrap = document.getElementById('spm-card-wrap');
