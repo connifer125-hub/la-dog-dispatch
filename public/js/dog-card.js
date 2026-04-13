@@ -2,9 +2,8 @@
 // Used by: index.html, social.html, rescue.html
 // To update the card design, edit ONLY this file.
 
-const NOTES_DISCLAIMER = "Shelter behavioral notes are snapshots written in stressful environments to dog & staff and may not reflect a dog's full personality. This dog may require behavioral training & needs a patient caregiver.";
+const NOTES_DISCLAIMER = "Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.";
 
-// Safe JSON serialization for inline onclick attributes
 function safeJson(dog) {
     return JSON.stringify(dog)
         .replace(/"/g, '&quot;')
@@ -19,6 +18,14 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
 }
 
+function calcDaysLeft(deadline) {
+    const d = new Date(deadline);
+    const today = new Date();
+    d.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    return Math.round((d - today) / 86400000);
+}
+
 async function generateCard(dog) {
     const c = document.getElementById('card-canvas');
     const ctx = c.getContext('2d');
@@ -26,7 +33,7 @@ async function generateCard(dog) {
     c.width = W; c.height = H;
     ctx.clearRect(0, 0, W, H);
 
-    const daysLeft = Math.ceil((new Date(dog.deadline) - new Date()) / 86400000);
+    const daysLeft = calcDaysLeft(dog.deadline);
     const isCritical = daysLeft <= 1;
     const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
     const hasNotes = dog.notes && dog.notes.trim().length > 0;
@@ -53,18 +60,15 @@ async function generateCard(dog) {
         ctx.restore();
     }
 
-    // ── BACKGROUND ──
     ctx.fillStyle = '#141414'; ctx.fillRect(0,0,W,H);
     const vignette = ctx.createRadialGradient(W/2,H/2,W*0.25,W/2,H/2,W*0.75);
     vignette.addColorStop(0,'rgba(0,0,0,0)'); vignette.addColorStop(1,'rgba(0,0,0,0.5)');
     ctx.fillStyle = vignette; ctx.fillRect(0,0,W,H);
 
-    // ── TOP GREEN BAR ──
     const topBar = ctx.createLinearGradient(0,0,W,0);
     topBar.addColorStop(0,'#3d7a5c'); topBar.addColorStop(0.5,'#7ec8a0'); topBar.addColorStop(1,'#3d7a5c');
     ctx.fillStyle = topBar; ctx.fillRect(0,0,W,14);
 
-    // ── TOP ROW ──
     const rowH = 76, rowMid = 14+rowH/2;
     ctx.fillStyle = '#c4281c'; rr(36,rowMid-24,200,48,24); ctx.fill();
     ctx.fillStyle = 'white'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
@@ -94,7 +98,6 @@ async function generateCard(dog) {
     ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(44,14+rowH); ctx.lineTo(W-44,14+rowH); ctx.stroke();
 
-    // ── NAME, META, DEADLINE ──
     const SAFE_W = W-80;
     const name = (dog.name||dog.shelter_id||'UNKNOWN').toUpperCase();
     let fontSize = 220;
@@ -122,7 +125,6 @@ async function generateCard(dog) {
         ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', W/2, nameY+183, SAFE_W);
     }
 
-    // ── DIVIDER ──
     const divY = H/2+20;
     const dg = ctx.createLinearGradient(44,0,W-44,0);
     dg.addColorStop(0,'rgba(255,255,255,0)'); dg.addColorStop(0.15,'rgba(255,255,255,0.18)');
@@ -130,7 +132,6 @@ async function generateCard(dog) {
     ctx.strokeStyle=dg; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(44,divY); ctx.lineTo(W-44,divY); ctx.stroke();
 
-    // ── BOTTOM: left text + right photo ──
     const photoSize = H-divY-28-16;
     const photoX = W-photoSize-36;
     const photoY = divY+14;
@@ -167,7 +168,6 @@ async function generateCard(dog) {
     ctx.fillStyle='#ffffff'; ctx.font='bold 42px sans-serif';
     ctx.fillText('ladogdispatch.com', 44, divY+86, leftMax);
 
-    // ── IG HANDLE ──
     ctx.fillStyle='#7ec8a0'; ctx.font='bold 28px sans-serif';
     (function drawIGIcon(x, y, sz) {
         const r=sz*0.22, ix=x, iy=y-sz*0.85;
@@ -190,7 +190,6 @@ async function generateCard(dog) {
     })(44, divY+130, 28);
     ctx.fillText('@la_dog_dispatch', 44+28+8, divY+130, leftMax-36);
 
-    // ── SHELTER NOTES (bottom-left, below IG handle, vertically centered in remaining space) ──
     if (hasNotes) {
         const PAD_L = 44, PAD_R = 20;
         const boxW = leftMax - PAD_R;
@@ -219,16 +218,7 @@ async function generateCard(dog) {
         const lineH = 32;
         const discLineH = 30;
 
-        // Calculate total box height dynamically based on actual wrapped lines
-        const boxH = 14          // top padding
-            + 22                 // label height
-            + 10                 // divider gap
-            + noteLines.length * lineH  // note lines
-            + 12                 // gap before disclaimer
-            + discLines.length * discLineH  // disclaimer lines
-            + 14;                // bottom padding
-
-        // Vertically center the box between the IG handle baseline and the bottom bar
+        const boxH = 14 + 22 + 10 + noteLines.length * lineH + 12 + discLines.length * discLineH + 14;
         const igHandleBottom = divY + 130 + 10;
         const bottomBarTop = H - 16;
         const availableSpace = bottomBarTop - igHandleBottom;
@@ -242,34 +232,23 @@ async function generateCard(dog) {
         const textX = PAD_L + 14;
         let curY = noteStartY + 14;
 
-        // Label
         ctx.fillStyle = '#fcd34d'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'left';
         curY += 18;
         ctx.fillText('⚠️  SHELTER NOTES', textX, curY);
 
-        // Divider line
         curY += 8;
         ctx.strokeStyle = 'rgba(251,191,36,0.25)'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(textX, curY); ctx.lineTo(PAD_L+boxW-14, curY); ctx.stroke();
         curY += 6;
 
-        // Note lines
         ctx.fillStyle = '#ffffff'; ctx.font = noteFont; ctx.textAlign = 'left';
-        noteLines.forEach(l => {
-            curY += lineH;
-            ctx.fillText(l, textX, curY, innerW);
-        });
+        noteLines.forEach(l => { curY += lineH; ctx.fillText(l, textX, curY, innerW); });
 
-        // Disclaimer lines
         curY += 12;
         ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = discFont;
-        discLines.forEach(l => {
-            curY += discLineH;
-            ctx.fillText(l, textX, curY, innerW);
-        });
+        discLines.forEach(l => { curY += discLineH; ctx.fillText(l, textX, curY, innerW); });
     }
 
-    // ── BOTTOM GREEN BAR ──
     const botBar = ctx.createLinearGradient(0,0,W,0);
     botBar.addColorStop(0,'#3d7a5c'); botBar.addColorStop(0.5,'#7ec8a0'); botBar.addColorStop(1,'#3d7a5c');
     ctx.fillStyle=botBar; ctx.fillRect(0,H-16,W,16);
