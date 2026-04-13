@@ -477,7 +477,7 @@
         const percentage = goalAmount > 0 ? Math.round((raisedAmount / goalAmount) * 100) : 0;
         const daysText = daysUntil === 1 ? '1 day' : `${daysUntil} days`;
         const notesText = dog.notes_short || (dog.notes && dog.notes.length > 200 ? dog.notes.substring(0, 200) + '…' : dog.notes);
-        const notesHtml = notesText ? `<div class="dog-notes"><span class="dog-notes-label">⚠️ Shelter Notes</span>${notesText}<span class="dog-notes-disclaimer">${window.NOTES_DISCLAIMER}</span></div>` : '';
+        const notesHtml = notesText ? `<div class="dog-notes"><span class="dog-notes-label">⚠️ Shelter Notes</span>${notesText}<span class="dog-notes-disclaimer">Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.</span></div>` : '';
         const actionHtml = window.FUNDING_ENABLED ? `
             <div class="funding-progress">
                 <div class="funding-amount">$${raisedAmount.toFixed(2)}</div>
@@ -617,7 +617,7 @@
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
-        const disclaimerBlock = `\n📋 ${window.NOTES_DISCLAIMER}`;
+        const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
         const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
         const caption = window.FUNDING_ENABLED
             ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — this dog cannot be adopted or fostered directly.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly.'}\n${notesBlock}${disclaimerBlock}\n\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
@@ -632,7 +632,7 @@
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
-        const disclaimerBlock = `\n📋 ${window.NOTES_DISCLAIMER}`;
+        const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
         const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
         document.getElementById('spm-dog-name').textContent = dog.name || dog.shelter_id;
         document.getElementById('spm-dog-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${urgency}`;
