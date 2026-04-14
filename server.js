@@ -97,6 +97,15 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// ── DEBUG: check what path Railway sees ──
+app.get('/api/debug-path', (req, res) => {
+  const fs = require('fs');
+  const publicPath = path.join(__dirname, 'public');
+  let files = [];
+  try { files = fs.readdirSync(publicPath); } catch(e) { files = ['ERROR: ' + e.message]; }
+  res.json({ __dirname, publicPath, files: files.slice(0, 20) });
+});
+
 // ── ACTIVE ROUTES ──
 app.use('/api/stripe', require('./routes/stripe'));
 app.use('/api/rescue-directory', require('./routes/rescue-directory'));
