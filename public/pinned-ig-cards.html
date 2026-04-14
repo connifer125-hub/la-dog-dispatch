@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IG Cards — LA Dog Dispatch (Internal)</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Source Sans 3', sans-serif; background: #111; color: white; min-height: 100vh; padding: 2rem; }
+  .page-header { max-width: 1200px; margin: 0 auto 2rem; display: flex; align-items: center; justify-content: space-between; }
+  .page-header h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; }
+  .page-header p { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; }
+  .back-link { color: #4a8c6a; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+  .cards-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 2rem; }
+  .card-section { background: #1a1614; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+  .card-section-header { padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .card-section-header h2 { font-size: 1rem; font-weight: 700; color: #4a8c6a; }
+  .card-section-header p { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; }
+  .canvas-wrap { padding: 1rem; display: flex; justify-content: center; background: #0d0d0d; }
+  canvas { width: 100%; max-width: 360px; border-radius: 4px; cursor: pointer; }
+  .card-section-footer { padding: 0.8rem 1.2rem; display: flex; gap: 0.6rem; }
+  .btn-dl { background: #4a8c6a; color: white; border: none; border-radius: 6px; padding: 0.55rem 1.2rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; flex: 1; transition: background 0.2s; }
+  .btn-dl:hover { background: #3d7a5c; }
+  .btn-replay { background: transparent; color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.55rem 1rem; font-size: 0.85rem; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+  .btn-replay:hover { border-color: rgba(255,255,255,0.3); color: white; }
+  .copy-section { padding: 0.8rem 1.2rem; border-top: 1px solid rgba(255,255,255,0.06); }
+  .copy-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 0.5rem; }
+  .copy-box { background: #0d0d0d; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 0.7rem; font-size: 0.78rem; color: rgba(255,255,255,0.6); line-height: 1.6; white-space: pre-wrap; max-height: 140px; overflow-y: auto; }
+  .btn-copy { background: transparent; color: #4a8c6a; border: 1px solid #4a8c6a; border-radius: 6px; padding: 0.4rem 0.9rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 0.5rem; transition: all 0.2s; }
+  .btn-copy:hover { background: #4a8c6a; color: white; }
+  .btn-copy.copied { background: #166534; border-color: #166534; color: white; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>IG Cards</h1>
+    <p>Internal use only · Not linked from the main site</p>
+  </div>
+  <a href="/" class="back-link">← Back to site</a>
+</div>
+
+<div class="cards-grid">
+
+  <!-- CARD 1: HOW IT WORKS EXPLAINER -->
+  <div class="card-section">
+    <div class="card-section-header">
+      <h2>Card 1 — How It Works</h2>
+      <p>Step-by-step explainer · Pin to profile</p>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c1" width="1080" height="1080"></canvas>
+    </div>
+    <div class="card-section-footer">
+      <button class="btn-dl" onclick="downloadCard('c1', 'ladogdispatch-how-it-works')">⬇ Download 1080×1080</button>
+      <button class="btn-replay" onclick="runCard1()">↺</button>
+    </div>
+    <div class="copy-section">
+      <div class="copy-label">Caption Copy</div>
+      <div class="copy-box" id="copy1">The second a dog hits the euthanasia list, LA Dog Dispatch creates a fully built post — ready to share, ready to spread, ready to save time.
+
+⚡ Real-time post creation from shelter data
+📢 Caption, tags, and share card done instantly
+🐕 Every dog gets a chance to be seen
+
+We are not a rescue. We are the automation that gives every urgent dog visibility before it's too late.
+
+Follow @la_dog_dispatch for daily urgent dogs.
+See all dogs → ladogdispatch.com
+
+#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #shelterdog</div>
+      <button class="btn-copy" onclick="copyText('copy1', this)">Copy Caption</button>
+    </div>
+  </div>
+
+  <!-- CARD 2: MISSION STATEMENT -->
+  <div class="card-section">
+    <div class="card-section-header">
+      <h2>Card 2 — Mission Statement</h2>
+      <p>Who we are · Social sharer CTA · Pin to profile</p>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c2" width="1080" height="1080"></canvas>
+    </div>
+    <div class="card-section-footer">
+      <button class="btn-dl" onclick="downloadCard('c2', 'ladogdispatch-mission')">⬇ Download 1080×1080</button>
+      <button class="btn-replay" onclick="runCard2()">↺</button>
+    </div>
+    <div class="copy-section">
+      <div class="copy-label">Caption Copy</div>
+      <div class="copy-box" id="copy2">Every dog deserves to be seen before it's too late. We automate the visibility. You save the dogs.
+
+LA Dog Dispatch scrapes the euthanasia list in near real time and automatically creates a shareable post for every dog the moment they're listed.
+
+No shelter visit required. Just a phone and a following.
+
+🐾 Become a Social Sharer — get urgent dog posts sent straight to you, ready to share in one tap.
+
+Sign up → ladogdispatch.com/social-sharer-signup.html
+Follow → @la_dog_dispatch
+
+#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #socialsharernetwork</div>
+      <button class="btn-copy" onclick="copyText('copy2', this)">Copy Caption</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const GREEN = '#4a8c6a';
+const GREEN_LIGHT = '#7ec8a0';
+const DARK = '#1a1614';
+const WHITE = '#ffffff';
+
+// ── SHARED HELPERS ──────────────────────────────────────────
+function drawBase(ctx, W, H) {
+  ctx.fillStyle = '#141414';
+  ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(74,140,106,0.07)';
+  ctx.lineWidth = 1;
+  for (let i = -H; i < W + H; i += 48) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke();
+  }
+  ctx.restore();
+  ctx.fillStyle = GREEN; ctx.fillRect(0, 0, W, 12);
+  ctx.fillRect(0, H - 12, W, 12);
+}
+
+function drawLogo(ctx, W, img, y, h) {
+  if (img && img.complete && img.naturalWidth > 0) {
+    const scale = h / img.naturalHeight;
+    const w = img.naturalWidth * scale;
+    ctx.drawImage(img, (W - w) / 2, y, w, h);
+  } else {
+    ctx.fillStyle = WHITE;
+    ctx.font = 'bold 56px Arial Black, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('LA DOG DISPATCH', W / 2, y + h * 0.6);
+    ctx.fillStyle = GREEN_LIGHT;
+    ctx.font = '28px Arial';
+    ctx.fillText('URGENT RESCUE NETWORK', W / 2, y + h * 0.85);
+  }
+}
+
+function dividerLine(ctx, W, y) {
+  const g = ctx.createLinearGradient(80, 0, W - 80, 0);
+  g.addColorStop(0, 'rgba(74,140,106,0)');
+  g.addColorStop(0.5, 'rgba(74,140,106,0.45)');
+  g.addColorStop(1, 'rgba(74,140,106,0)');
+  ctx.save(); ctx.strokeStyle = g; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(80, y); ctx.lineTo(W - 80, y); ctx.stroke();
+  ctx.restore();
+}
+
+// Load logo once
+const logoImg = new Image();
+logoImg.src = '/logo-wordmark.png';
+logoImg.onload = () => { runCard1(); runCard2(); };
+logoImg.onerror = () => { runCard1(); runCard2(); };
+
+// ── CARD 1: HOW IT WORKS ──────────────────────────────────
+const steps = [
+  { emoji: '🏚', label: 'STEP 1', title: 'Dog hits the euth list', sub: 'Buried in shelter data. No visibility. Clock already started.' },
+  { emoji: '⚡', label: 'STEP 2', title: 'We build the post automatically', sub: 'Photo card, caption, rescue tags — done in seconds.' },
+  { emoji: '📢', label: 'STEP 3', title: 'You share in one tap', sub: 'IG Story opens with the card ready. Caption already copied.' },
+  { emoji: '🐕', label: 'STEP 4', title: 'Dog gets seen in time', sub: 'Rescues, fosters, and the community can now move.' },
+];
+
+let card1Timers = [];
+
+function drawCard1(visibleCount, footerAlpha) {
+  const canvas = document.getElementById('c1');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+
+  drawBase(ctx, W, H);
+  drawLogo(ctx, W, logoImg, 28, 130);
+  dividerLine(ctx, W, 185);
+
+  const startY = 210;
+  const stepH = 172;
+
+  for (let i = 0; i < visibleCount; i++) {
+    const s = steps[i];
+    const y = startY + i * stepH;
+
+    ctx.save();
+
+    // Icon circle
+    ctx.fillStyle = 'rgba(74,140,106,0.2)';
+    ctx.beginPath(); ctx.arc(108, y + 46, 42, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = GREEN; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.font = '42px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(s.emoji, 108, y + 60);
+
+    // Step label
+    ctx.fillStyle = GREEN_LIGHT; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'left';
+    ctx.fillText(s.label, 178, y + 20);
+
+    // Title
+    ctx.fillStyle = WHITE; ctx.font = 'bold 40px Arial';
+    ctx.fillText(s.title, 178, y + 62, W - 220);
+
+    // Sub
+    ctx.fillStyle = 'rgba(255,255,255,0.52)'; ctx.font = '28px Arial';
+    ctx.fillText(s.sub, 178, y + 100, W - 220);
+
+    // Connector
+    if (i < steps.length - 1) {
+      ctx.strokeStyle = 'rgba(74,140,106,0.25)'; ctx.lineWidth = 2;
+      ctx.setLineDash([5, 8]);
+      ctx.beginPath(); ctx.moveTo(108, y + 90); ctx.lineTo(108, y + stepH); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.restore();
+  }
+
+  // Footer pill
+  if (footerAlpha > 0) {
+    ctx.save(); ctx.globalAlpha = footerAlpha;
+    ctx.fillStyle = GREEN;
+    ctx.beginPath(); ctx.roundRect(W/2 - 300, H - 105, 600, 68, 34); ctx.fill();
+    ctx.fillStyle = WHITE; ctx.font = 'bold 30px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('@la_dog_dispatch  ·  ladogdispatch.com', W / 2, H - 62);
+    ctx.restore();
+  }
+}
+
+function runCard1() {
+  card1Timers.forEach(t => clearTimeout(t));
+  card1Timers = [];
+  drawCard1(0, 0);
+  const sched = [[500,1],[1300,2],[2100,3],[2900,4],[3700,4,true]];
+  sched.forEach(([d, n, f]) => {
+    card1Timers.push(setTimeout(() => drawCard1(n, f ? 1 : 0), d));
+  });
+}
+
+// ── CARD 2: MISSION STATEMENT ─────────────────────────────
+let card2Timers = [];
+
+function drawCard2(phase) {
+  const canvas = document.getElementById('c2');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+
+  drawBase(ctx, W, H);
+  drawLogo(ctx, W, logoImg, 40, 130);
+  dividerLine(ctx, W, 200);
+
+  // Big headline — word by word reveal
+  const lines = [
+    { text: 'Every Dog Deserves', size: 72, y: 310, color: WHITE },
+    { text: 'to Be Seen', size: 72, y: 400, color: WHITE },
+    { text: 'Before It\'s Too Late.', size: 72, y: 490, color: GREEN_LIGHT },
+  ];
+
+  if (phase >= 1) {
+    lines.slice(0, Math.min(phase, 3)).forEach(l => {
+      ctx.fillStyle = l.color;
+      ctx.font = `bold ${l.size}px 'Playfair Display', Georgia, serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(l.text, W / 2, l.y, W - 100);
+    });
+  }
+
+  if (phase >= 4) {
+    dividerLine(ctx, W, 540);
+
+    // Body copy
+    const body = [
+      'We automate the visibility.',
+      'You save the dogs.',
+    ];
+    body.forEach((line, i) => {
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.font = '38px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(line, W / 2, 600 + i * 56, W - 100);
+    });
+  }
+
+  if (phase >= 5) {
+    // CTA box
+    ctx.fillStyle = 'rgba(74,140,106,0.15)';
+    ctx.strokeStyle = 'rgba(74,140,106,0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(80, 700, W - 160, 200, 16); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = GREEN_LIGHT;
+    ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('🐾  BECOME A SOCIAL SHARER', W / 2, 755);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '28px Arial';
+    ctx.fillText('Get urgent dog posts sent to you —', W / 2, 800, W - 200);
+    ctx.fillText('share in one tap. No shelter visit required.', W / 2, 838, W - 200);
+
+    ctx.fillStyle = WHITE;
+    ctx.font = 'bold 28px Arial';
+    ctx.fillText('ladogdispatch.com/social-sharer-signup', W / 2, 880, W - 200);
+  }
+
+  if (phase >= 6) {
+    // Footer
+    ctx.fillStyle = GREEN;
+    ctx.beginPath(); ctx.roundRect(W/2 - 300, H - 105, 600, 68, 34); ctx.fill();
+    ctx.fillStyle = WHITE; ctx.font = 'bold 30px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('@la_dog_dispatch  ·  ladogdispatch.com', W / 2, H - 62);
+  }
+}
+
+function runCard2() {
+  card2Timers.forEach(t => clearTimeout(t));
+  card2Timers = [];
+  drawCard2(0);
+  [[400,1],[900,2],[1400,3],[2200,4],[3200,5],[4200,6]].forEach(([d, p]) => {
+    card2Timers.push(setTimeout(() => drawCard2(p), d));
+  });
+}
+
+// ── DOWNLOAD & COPY ──────────────────────────────────────
+function downloadCard(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  // Draw final full state first
+  if (canvasId === 'c1') drawCard1(4, 1);
+  if (canvasId === 'c2') drawCard2(6);
+  setTimeout(() => {
+    const a = document.createElement('a');
+    a.download = filename + '.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  }, 200);
+}
+
+function copyText(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Caption'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+// Start on load
+window.addEventListener('load', () => {
+  setTimeout(runCard1, 300);
+  setTimeout(runCard2, 500);
+});
+</script>
+</body>
+</html>
