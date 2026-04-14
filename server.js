@@ -19,7 +19,6 @@ app.use(express.static('public'));
 const db = require('./config/database');
 
 // ── WRAP db.query WITH A 10s TIMEOUT ──
-// Prevents hung DB connections from stalling the entire API indefinitely
 const originalQuery = db.query.bind(db);
 db.query = (...args) => {
   return Promise.race([
@@ -30,11 +29,10 @@ db.query = (...args) => {
   ]);
 };
 
-// Run migrations to fix ALL field lengths
+// Run migrations
 const runMigrations = async () => {
   try {
     console.log('🔧 Running database migrations...');
-    
     const migrations = [
       "ALTER TABLE dogs ALTER COLUMN name TYPE VARCHAR(255)",
       "ALTER TABLE dogs ALTER COLUMN breed TYPE VARCHAR(255)",
@@ -52,7 +50,6 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)"
     ];
-    
     for (const migration of migrations) {
       try {
         await db.query(migration);
@@ -71,13 +68,11 @@ const runMigrations = async () => {
     await db.query("UPDATE dogs SET shelter_priority = 6 WHERE shelter ILIKE '%HARBOR%'");
     console.log('✅ Updated shelter priorities');
     console.log('✅ All migrations complete!');
-    
   } catch (error) {
     console.error('❌ Migration error:', error.message);
   }
 };
 
-// Initialize database tables
 const initDB = async () => {
   try {
     const fs = require('fs');
@@ -90,12 +85,11 @@ const initDB = async () => {
   }
 };
 
-// ── HEALTH CHECK — use this to diagnose DB issues ──
-// Visit: /api/health
+// ── HEALTH CHECK ──
 app.get('/api/health', async (req, res) => {
   try {
     const start = Date.now();
-    await originalQuery('SELECT 1'); // bypass timeout wrapper for health check
+    await originalQuery('SELECT 1');
     res.json({ status: 'ok', db: 'connected', latency_ms: Date.now() - start, time: new Date().toISOString() });
   } catch (err) {
     console.error('❌ Health check failed:', err.message);
@@ -104,14 +98,12 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ── ACTIVE ROUTES ──
-// Stripe webhook needs raw body — registered before json middleware routes
 app.use('/api/stripe', require('./routes/stripe'));
 app.use('/api/rescue-directory', require('./routes/rescue-directory'));
 app.use('/api/dogs', require('./routes/dogs'));
 app.use('/api', require('./routes/fix-photos'));
 app.use('/api', require('./routes/diagnose-photos'));
 
-// Force migration endpoint
 app.get('/api/run-migrations', async (req, res) => {
   try {
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE");
@@ -120,26 +112,20 @@ app.get('/api/run-migrations', async (req, res) => {
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)");
     res.json({ message: 'Migrations complete - columns added' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Manual scraper trigger
 app.get('/api/scrape-now', async (req, res) => {
   try {
     const { scrapePetHarbor } = require('./services/petharborScraper');
     res.json({ message: 'Scrape started' });
     scrapePetHarbor();
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.use('/api/rescues', require('./routes/rescues'));
 app.use('/api/fosters', require('./routes/fosters'));
 
-// Debug: fetch one dog from PetHarbor
 app.get('/api/debug-petharbor', async (req, res) => {
   try {
     const axios = require('axios');
@@ -162,12 +148,9 @@ app.get('/api/debug-petharbor', async (req, res) => {
       });
     });
     res.json(samples);
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Debug: test parseNotes against live Pet Harbor data
 app.get('/api/test-notes', async (req, res) => {
   try {
     const axios = require('axios');
@@ -176,15 +159,11 @@ app.get('/api/test-notes', async (req, res) => {
     const response = await axios.get(url, { timeout: 15000, headers: { 'User-Agent': 'Mozilla/5.0' } });
     const $ = cheerio.load(response.data);
     const results = [];
-
     $('table.ResultsTable tr').each((i, row) => {
       if (results.length >= 5) return;
       const text = $(row).find('td').eq(1).text();
       if (!text.match(/A\d{7}/)) return;
-
       const id = (text.match(/A\d{7}/) || [])[0];
-
-      // Run parseNotes inline (same logic as scraper)
       const NOTES_SHORT_MAX = 280;
       const patterns = [
         /Reason for euthanasia:\s*(.+?)(?=At Risk Category:|$)/is,
@@ -195,109 +174,60 @@ app.get('/api/test-notes', async (req, res) => {
         const match = text.match(pattern);
         if (match && match[1]) { rawNotes = match[1].trim(); break; }
       }
-
       const hasEuthReason = text.includes('Reason for euthanasia:');
       const euthReasonIndex = text.indexOf('Reason for euthanasia:');
-      const rawEuthSnippet = euthReasonIndex >= 0
-        ? text.substring(euthReasonIndex, euthReasonIndex + 200)
-        : 'NOT FOUND IN TEXT';
-
-      results.push({
-        id,
-        has_euthanasia_reason_text: hasEuthReason,
-        raw_euthanasia_snippet: rawEuthSnippet,
-        parse_notes_result: rawNotes || 'NO MATCH',
-        full_text_length: text.length,
-        full_text: text
-      });
+      const rawEuthSnippet = euthReasonIndex >= 0 ? text.substring(euthReasonIndex, euthReasonIndex + 200) : 'NOT FOUND IN TEXT';
+      results.push({ id, has_euthanasia_reason_text: hasEuthReason, raw_euthanasia_snippet: rawEuthSnippet, parse_notes_result: rawNotes || 'NO MATCH', full_text_length: text.length, full_text: text });
     });
-
     res.json(results);
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Debug: check rescue_only values in DB
 app.get('/api/debug-rescue-only', async (req, res) => {
   try {
-    const result = await db.query(`
-      SELECT shelter_id, name, rescue_only 
-      FROM dogs 
-      WHERE shelter_id IN ('A2079962','A2188525','A2198173')
-      OR name ILIKE '%zeus%' OR name ILIKE '%carter%' OR name ILIKE '%trucker%'
-      ORDER BY name
-    `);
+    const result = await db.query(`SELECT shelter_id, name, rescue_only FROM dogs WHERE shelter_id IN ('A2079962','A2188525','A2198173') OR name ILIKE '%zeus%' OR name ILIKE '%carter%' OR name ILIKE '%trucker%' ORDER BY name`);
     res.json(result.rows);
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Subscribers (newsletter sign-ups)
 app.post('/api/subscribers', async (req, res) => {
   try {
     const { name, email, phone, dog_alerts, newsletter, text_ok } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });
-    await db.query(`CREATE TABLE IF NOT EXISTS subscribers (
-      id SERIAL PRIMARY KEY, name VARCHAR(200), email VARCHAR(255) UNIQUE,
-      phone VARCHAR(50), dog_alerts BOOLEAN, newsletter BOOLEAN, text_ok BOOLEAN,
-      instagram_handle VARCHAR(100), is_sharer BOOLEAN DEFAULT FALSE,
-      created_at TIMESTAMP DEFAULT NOW())`);
+    await db.query(`CREATE TABLE IF NOT EXISTS subscribers (id SERIAL PRIMARY KEY, name VARCHAR(200), email VARCHAR(255) UNIQUE, phone VARCHAR(50), dog_alerts BOOLEAN, newsletter BOOLEAN, text_ok BOOLEAN, instagram_handle VARCHAR(100), is_sharer BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())`);
     await db.query(`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS instagram_handle VARCHAR(100)`).catch(()=>{});
     await db.query(`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS is_sharer BOOLEAN DEFAULT FALSE`).catch(()=>{});
     const { instagram_handle, is_sharer } = req.body;
-    await db.query(
-      `INSERT INTO subscribers (name, email, phone, dog_alerts, newsletter, text_ok, instagram_handle, is_sharer)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (email) DO UPDATE 
-       SET name=$1, phone=$3, dog_alerts=$4, newsletter=$5, text_ok=$6, instagram_handle=$7, is_sharer=$8`,
-      [name, email, phone, dog_alerts, newsletter, text_ok, instagram_handle || null, is_sharer || false]
-    );
+    await db.query(`INSERT INTO subscribers (name, email, phone, dog_alerts, newsletter, text_ok, instagram_handle, is_sharer) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (email) DO UPDATE SET name=$1, phone=$3, dog_alerts=$4, newsletter=$5, text_ok=$6, instagram_handle=$7, is_sharer=$8`, [name, email, phone, dog_alerts, newsletter, text_ok, instagram_handle || null, is_sharer || false]);
     console.log('📧 New subscriber:', email);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Transporters sign-ups
 app.post('/api/transporters', async (req, res) => {
   try {
     const { first_name, last_name, email, phone, city, zip, range, contact_pref } = req.body;
     if (!email || !first_name) return res.status(400).json({ error: 'Name and email required' });
-    await db.query(`CREATE TABLE IF NOT EXISTS transporters (
-      id SERIAL PRIMARY KEY, first_name VARCHAR(100), last_name VARCHAR(100),
-      email VARCHAR(255), phone VARCHAR(50), city VARCHAR(100), zip VARCHAR(20),
-      range VARCHAR(50), contact_pref VARCHAR(100), created_at TIMESTAMP DEFAULT NOW())`);
-    await db.query(
-      `INSERT INTO transporters (first_name, last_name, email, phone, city, zip, range, contact_pref)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [first_name, last_name, email, phone, city, zip, range, contact_pref]
-    );
+    await db.query(`CREATE TABLE IF NOT EXISTS transporters (id SERIAL PRIMARY KEY, first_name VARCHAR(100), last_name VARCHAR(100), email VARCHAR(255), phone VARCHAR(50), city VARCHAR(100), zip VARCHAR(20), range VARCHAR(50), contact_pref VARCHAR(100), created_at TIMESTAMP DEFAULT NOW())`);
+    await db.query(`INSERT INTO transporters (first_name, last_name, email, phone, city, zip, range, contact_pref) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`, [first_name, last_name, email, phone, city, zip, range, contact_pref]);
     console.log('🚗 New transporter:', first_name, email);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Test SMS alert
 app.get('/api/test-sms', async (req, res) => {
   try {
     const sid = process.env.TWILIO_ACCOUNT_SID;
     const token = process.env.TWILIO_AUTH_TOKEN;
     const fromNumber = process.env.TWILIO_FROM_NUMBER;
     const adminNumbers = (process.env.ADMIN_PHONE_NUMBERS || '').split(',').map(n => n.trim()).filter(Boolean);
-    if (!sid || !token || !fromNumber || !adminNumbers.length) {
-      return res.status(400).json({ error: 'Twilio env vars not configured' });
-    }
+    if (!sid || !token || !fromNumber || !adminNumbers.length) return res.status(400).json({ error: 'Twilio env vars not configured' });
     const client = require('twilio')(sid, token);
     const message = `🚨 TEST — New dog on euth list: BUDDY\nSouth L.A. · Mixed Breed · 3 YRS\nDeadline: Feb 25 (5 days)\n✅ Foster/adopt eligible\nladogdispatch.com`;
     const results = [];
-    for (const to of adminNumbers) {
-      await client.messages.create({ body: message, from: fromNumber, to });
-      results.push(to);
-    }
+    for (const to of adminNumbers) { await client.messages.create({ body: message, from: fromNumber, to }); results.push(to); }
     res.json({ success: true, sent_to: results });
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── STATIC PAGE ROUTES ──
@@ -305,25 +235,24 @@ app.get('/SouthLAComplaint', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'SouthLAComplaint.html'));
 });
 
+// Internal IG cards tool
+app.get('/ig-cards', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'ig-cards.html'));
+});
+
 // Serve frontend (catch-all — must stay LAST)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
+  res.status(500).json({ error: 'Something went wrong!', message: process.env.NODE_ENV === 'development' ? err.message : undefined });
 });
 
-// Initialize DB and start server
 initDB().then(() => {
   const { startScraper } = require('./services/petharborScraper');
   startScraper();
-  
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 LA Dog Dispatch server running on port ${PORT}`);
     console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
