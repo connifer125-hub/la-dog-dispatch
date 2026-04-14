@@ -13,13 +13,14 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+
+// ── STATIC FILES ──
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection
 const db = require('./config/database');
 
 // ── WRAP db.query WITH A 10s TIMEOUT ──
-// Prevents hung DB connections from stalling the entire API indefinitely
 const originalQuery = db.query.bind(db);
 db.query = (...args) => {
   return Promise.race([
@@ -30,11 +31,10 @@ db.query = (...args) => {
   ]);
 };
 
-// Run migrations to fix ALL field lengths
+// Run migrations
 const runMigrations = async () => {
   try {
     console.log('🔧 Running database migrations...');
-    
     const migrations = [
       "ALTER TABLE dogs ALTER COLUMN name TYPE VARCHAR(255)",
       "ALTER TABLE dogs ALTER COLUMN breed TYPE VARCHAR(255)",
@@ -52,7 +52,6 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)"
     ];
-    
     for (const migration of migrations) {
       try {
         await db.query(migration);
@@ -71,13 +70,11 @@ const runMigrations = async () => {
     await db.query("UPDATE dogs SET shelter_priority = 6 WHERE shelter ILIKE '%HARBOR%'");
     console.log('✅ Updated shelter priorities');
     console.log('✅ All migrations complete!');
-    
   } catch (error) {
     console.error('❌ Migration error:', error.message);
   }
 };
 
-// Initialize database tables
 const initDB = async () => {
   try {
     const fs = require('fs');
@@ -90,12 +87,11 @@ const initDB = async () => {
   }
 };
 
-// ── HEALTH CHECK — use this to diagnose DB issues ──
-// Visit: /api/health
+// ── HEALTH CHECK ──
 app.get('/api/health', async (req, res) => {
   try {
     const start = Date.now();
-    await originalQuery('SELECT 1'); // bypass timeout wrapper for health check
+    await originalQuery('SELECT 1');
     res.json({ status: 'ok', db: 'connected', latency_ms: Date.now() - start, time: new Date().toISOString() });
   } catch (err) {
     console.error('❌ Health check failed:', err.message);
@@ -104,14 +100,12 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ── ACTIVE ROUTES ──
-// Stripe webhook needs raw body — registered before json middleware routes
 app.use('/api/stripe', require('./routes/stripe'));
 app.use('/api/rescue-directory', require('./routes/rescue-directory'));
 app.use('/api/dogs', require('./routes/dogs'));
 app.use('/api', require('./routes/fix-photos'));
 app.use('/api', require('./routes/diagnose-photos'));
 
-// Force migration endpoint
 app.get('/api/run-migrations', async (req, res) => {
   try {
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS rescue_only BOOLEAN DEFAULT FALSE");
@@ -125,7 +119,6 @@ app.get('/api/run-migrations', async (req, res) => {
   }
 });
 
-// Manual scraper trigger
 app.get('/api/scrape-now', async (req, res) => {
   try {
     const { scrapePetHarbor } = require('./services/petharborScraper');
@@ -139,7 +132,6 @@ app.get('/api/scrape-now', async (req, res) => {
 app.use('/api/rescues', require('./routes/rescues'));
 app.use('/api/fosters', require('./routes/fosters'));
 
-// Debug: fetch one dog from PetHarbor
 app.get('/api/debug-petharbor', async (req, res) => {
   try {
     const axios = require('axios');
@@ -167,7 +159,6 @@ app.get('/api/debug-petharbor', async (req, res) => {
   }
 });
 
-// Debug: test parseNotes against live Pet Harbor data
 app.get('/api/test-notes', async (req, res) => {
   try {
     const axios = require('axios');
@@ -176,16 +167,11 @@ app.get('/api/test-notes', async (req, res) => {
     const response = await axios.get(url, { timeout: 15000, headers: { 'User-Agent': 'Mozilla/5.0' } });
     const $ = cheerio.load(response.data);
     const results = [];
-
     $('table.ResultsTable tr').each((i, row) => {
       if (results.length >= 5) return;
       const text = $(row).find('td').eq(1).text();
       if (!text.match(/A\d{7}/)) return;
-
       const id = (text.match(/A\d{7}/) || [])[0];
-
-      // Run parseNotes inline (same logic as scraper)
-      const NOTES_SHORT_MAX = 280;
       const patterns = [
         /Reason for euthanasia:\s*(.+?)(?=At Risk Category:|$)/is,
         /Euthanasia Reason[^:]*:\s*(.+?)(?=At Risk Category:|$)/is,
@@ -195,30 +181,17 @@ app.get('/api/test-notes', async (req, res) => {
         const match = text.match(pattern);
         if (match && match[1]) { rawNotes = match[1].trim(); break; }
       }
-
       const hasEuthReason = text.includes('Reason for euthanasia:');
       const euthReasonIndex = text.indexOf('Reason for euthanasia:');
-      const rawEuthSnippet = euthReasonIndex >= 0
-        ? text.substring(euthReasonIndex, euthReasonIndex + 200)
-        : 'NOT FOUND IN TEXT';
-
-      results.push({
-        id,
-        has_euthanasia_reason_text: hasEuthReason,
-        raw_euthanasia_snippet: rawEuthSnippet,
-        parse_notes_result: rawNotes || 'NO MATCH',
-        full_text_length: text.length,
-        full_text: text
-      });
+      const rawEuthSnippet = euthReasonIndex >= 0 ? text.substring(euthReasonIndex, euthReasonIndex + 200) : 'NOT FOUND IN TEXT';
+      results.push({ id, has_euthanasia_reason_text: hasEuthReason, raw_euthanasia_snippet: rawEuthSnippet, parse_notes_result: rawNotes || 'NO MATCH', full_text_length: text.length, full_text: text });
     });
-
     res.json(results);
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// Debug: check rescue_only values in DB
 app.get('/api/debug-rescue-only', async (req, res) => {
   try {
     const result = await db.query(`
@@ -234,7 +207,6 @@ app.get('/api/debug-rescue-only', async (req, res) => {
   }
 });
 
-// Subscribers (newsletter sign-ups)
 app.post('/api/subscribers', async (req, res) => {
   try {
     const { name, email, phone, dog_alerts, newsletter, text_ok } = req.body;
@@ -258,7 +230,6 @@ app.post('/api/subscribers', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Transporters sign-ups
 app.post('/api/transporters', async (req, res) => {
   try {
     const { first_name, last_name, email, phone, city, zip, range, contact_pref } = req.body;
@@ -277,7 +248,6 @@ app.post('/api/transporters', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Test SMS alert
 app.get('/api/test-sms', async (req, res) => {
   try {
     const sid = process.env.TWILIO_ACCOUNT_SID;
@@ -307,6 +277,12 @@ app.get('/SouthLAComplaint', (req, res) => {
 
 app.get('/ig-cards', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'ig-cards.html'));
+});
+
+// ── CATCH ALL .html REQUESTS — serves any file in public/ by name ──
+app.get('/:filename([^/]+\\.html)', (req, res, next) => {
+  const filePath = path.join(__dirname, 'public', req.params.filename);
+  res.sendFile(filePath, (err) => { if (err) next(); });
 });
 
 // Serve frontend (catch-all — must stay LAST)
