@@ -8,10 +8,8 @@ const BASE_URL = 'https://petharbor.com/results.asp?WHERE=type_DOG&searchtype=AL
 
 const SOUTH_LA_ONLY = false;
 
-// ── NOTES: max chars to store in notes_short ──────────────────────
 const NOTES_SHORT_MAX = 280;
 
-// ── TWILIO SMS ALERTS ──────────────────────────────────────────────
 async function sendNewDogAlert(dog) {
   try {
     const now = new Date();
@@ -73,12 +71,9 @@ function truncateText(text, maxLength) {
   return text.substring(0, maxLength - 3) + '...';
 }
 
-// ── NOTES: extract and clean behavioral notes from Pet Harbor text ─
 function parseNotes(text) {
   if (!text) return { notes: null, notes_short: null };
 
-  // LAAS Pet Harbor uses "Euthanasia Reason - Reason for euthanasia:" as the label
-  // Also try fallback patterns in case format varies
   const patterns = [
     /Reason for euthanasia:\s*(.+?)(?=At Risk Category:|$)/is,
     /Euthanasia Reason[^:]*:\s*(.+?)(?=At Risk Category:|$)/is,
@@ -100,28 +95,36 @@ function parseNotes(text) {
 
   if (!rawNotes) return { notes: null, notes_short: null };
 
-  // Clean up common shelter shorthand artifacts
   const cleaned = rawNotes
-    .replace(/\s+/g, ' ')           // collapse whitespace
-    .replace(/[<>]/g, '')           // strip any stray HTML
+    .replace(/\s+/g, ' ')
+    .replace(/[<>]/g, '')
     .trim();
 
   if (cleaned.length < 5) return { notes: null, notes_short: null };
 
-  // Full notes saved as-is (no truncation — rescues need complete info)
   const notes = cleaned;
-
-  // notes_short: truncate at word boundary for card/canvas display
   let notes_short = cleaned;
   if (cleaned.length > NOTES_SHORT_MAX) {
     notes_short = cleaned.substring(0, NOTES_SHORT_MAX);
-    // Back up to last full word
     const lastSpace = notes_short.lastIndexOf(' ');
     if (lastSpace > NOTES_SHORT_MAX * 0.8) notes_short = notes_short.substring(0, lastSpace);
     notes_short = notes_short + '…';
   }
 
   return { notes, notes_short };
+}
+
+// ── GENDER: extract from the specific ID line only ────────────────
+// PetHarbor format: "A1234567 - SPAYED FEMALE, Breed..." or "A1234567 - MALE, Breed..."
+// We only read gender from this line to avoid false matches elsewhere in the record
+function parseGender(text) {
+  const idLineMatch = text.match(/A\d{7}\s*[-–]\s*(NEUTERED\s+MALE|SPAYED\s+FEMALE|MALE|FEMALE)/i);
+  if (idLineMatch) {
+    const genderStr = idLineMatch[1].toUpperCase();
+    if (genderStr.includes('FEMALE')) return 'Female';
+    if (genderStr.includes('MALE')) return 'Male';
+  }
+  return 'Unknown';
 }
 
 function cleanBreed(rawBreed) {
@@ -288,11 +291,9 @@ async function scrapePetHarbor() {
             const breedMatch2 = text.match(/A\d{7}\s*[-–]\s*(?:NEUTERED\s+|SPAYED\s+)?(?:MALE|FEMALE),\s*([^.]+)\./i);
             if (breedMatch2 && breedMatch2[1]) breed = cleanBreed(breedMatch2[1].trim());
 
-            let gender = 'Unknown';
-            if (text.match(/NEUTERED\s*MALE/i)) gender = 'Male';
-            else if (text.match(/SPAYED\s*FEMALE/i)) gender = 'Female';
-            else if (text.match(/(?<!NEUTERED\s)MALE/i)) gender = 'Male';
-            else if (text.match(/(?<!SPAYED\s)FEMALE/i)) gender = 'Female';
+            // ── GENDER — read only from the ID line ──
+            const gender = parseGender(text);
+            console.log(`🔍 Gender for ${animalId} (${name}): ${gender}`);
 
             let age = 'Unknown';
             const ageMatch = text.match(/Age:\s*([^\n]+?)(?:Weight:|$)/i);
@@ -311,7 +312,6 @@ async function scrapePetHarbor() {
               deadline = futureDate.toISOString().split('T')[0];
             }
 
-            // ── RESCUE ONLY ──
             let rescue_only = false;
             const normalizedText = text.replace(/\s+/g, ' ');
             const rescueMatch = normalizedText.match(/only available to a rescue:\s*(Yes|No)/i);
@@ -321,7 +321,6 @@ async function scrapePetHarbor() {
               console.log(`🔍 Rescue only: "${rescueMatch[0]}" → ${rescue_only}`);
             }
 
-            // ── INTAKE DATE ──
             let intake_date = null;
             let list_date = null;
             const intakeMatch = text.match(/at the shelter since\s+(\d{1,2})\/(\d{1,2})\/(\d{4})/i);
@@ -335,7 +334,6 @@ async function scrapePetHarbor() {
               list_date = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
             }
 
-            // ── BEHAVIORAL NOTES ──
             const { notes, notes_short } = parseNotes(text);
             if (notes) console.log(`📋 Notes found for ${animalId}: "${notes_short}"`);
 
@@ -393,7 +391,6 @@ async function scrapePetHarbor() {
         );
 
         if (existing.rows.length === 0) {
-          // ── INSERT — includes notes and notes_short ──
           await db.query(
             `INSERT INTO dogs (
               name, breed, age, gender, shelter, shelter_id, deadline,
@@ -412,7 +409,6 @@ async function scrapePetHarbor() {
           console.log(`➕ ${dog.name} (${dog.shelter_id}) - ${dog.shelter} - ${dog.daysUntil} days${dog.rescue_only ? ' - RESCUE ONLY' : ''}${dog.notes ? ' - HAS NOTES' : ''}`);
           await sendNewDogAlert(dog);
         } else {
-          // ── UPDATE — includes notes and notes_short ──
           console.log(`✏️ UPDATE ${dog.shelter_id} ${dog.name} rescue_only=${dog.rescue_only}${dog.notes ? ' notes updated' : ''}`);
           await db.query(
             `UPDATE dogs SET 
@@ -436,7 +432,6 @@ async function scrapePetHarbor() {
     }
     console.log(`✨ Added ${addedCount} new dogs to database`);
 
-    // Remove dogs no longer on euth list
     const scrapedIds = dogs.map(d => d.shelter_id);
     if (scrapedIds.length > 0) {
       const placeholders = scrapedIds.map((_, i) => `$${i + 1}`).join(',');
@@ -455,15 +450,10 @@ async function scrapePetHarbor() {
   }
 }
 
-// ── AUTO-MIGRATION: add notes columns if they don't exist ─────────
 async function runMigrations() {
   try {
-    await db.query(`
-      ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT;
-    `);
-    await db.query(`
-      ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300);
-    `);
+    await db.query(`ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT;`);
+    await db.query(`ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300);`);
     console.log('✅ DB migration: notes columns ready');
   } catch (err) {
     console.error('⚠️ Migration warning (non-fatal):', err.message);
@@ -472,7 +462,6 @@ async function runMigrations() {
 
 function startScraper() {
   const intervalMinutes = process.env.PETHARBOR_SCRAPE_INTERVAL || 60;
-  // Run migrations first, then start scraping
   runMigrations().then(() => {
     setTimeout(() => { scrapePetHarbor(); }, 5000);
     cron.schedule(`*/${intervalMinutes} * * * *`, () => { scrapePetHarbor(); });
