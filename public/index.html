@@ -804,10 +804,11 @@ Follow → @la_dog_dispatch
 function openAdminCards() {
   document.getElementById('admin-cards-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  setTimeout(() => {
-    adminRunCard1();
-    adminRunCard2();
-  }, 200);
+  if (adminLogo.complete && adminLogo.naturalWidth > 0) {
+    setTimeout(() => { adminRunCard1(); adminRunCard2(); }, 100);
+  } else {
+    adminLogo.onload = () => { adminRunCard1(); adminRunCard2(); };
+  }
 }
 
 function closeAdminCards() {
@@ -824,6 +825,7 @@ window.addEventListener('load', checkAdminHash);
 
 // ── SHARED CANVAS HELPERS ──
 const adminLogo = new Image();
+adminLogo.onload = () => { if (document.getElementById('admin-cards-overlay').style.display === 'block') { adminRunCard1(); adminRunCard2(); } };
 adminLogo.src = '/logo-wordmark.png';
 
 function adminDrawBase(ctx, W, H) {
@@ -877,9 +879,9 @@ function adminDrawCard1(n, footer) {
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
   adminDrawBase(ctx, W, H);
-  adminDrawLogo(ctx, W, 28, 130);
-  adminDivider(ctx, W, 185);
-  const startY = 210, stepH = 172;
+  adminDrawLogo(ctx, W, 20, 200);
+  adminDivider(ctx, W, 245);
+  const startY = 268, stepH = 168;
   for (let i = 0; i < n; i++) {
     const s = adminSteps[i]; const y = startY + i * stepH;
     ctx.save();
@@ -915,8 +917,8 @@ function adminDrawCard2(phase) {
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
   adminDrawBase(ctx, W, H);
-  adminDrawLogo(ctx, W, 40, 130);
-  adminDivider(ctx, W, 200);
+  adminDrawLogo(ctx, W, 20, 200);
+  adminDivider(ctx, W, 250);
   const lines = [
     { text: 'Every Dog Deserves', y: 310 },
     { text: 'to Be Seen', y: 400 },
