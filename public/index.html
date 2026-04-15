@@ -1070,9 +1070,17 @@ let adminC3Images = [];
 async function adminLoadDogs() {
   document.getElementById('admin-c3-loading').style.display = 'block';
   try {
-    const res = await fetch('/api/dogs?limit=6&sort=deadline');
+    const res = await fetch('/api/dogs?limit=100');
     const data = await res.json();
-    adminC3Dogs = (data.dogs || data || []).slice(0, 6);
+    const allDogs = data.dogs || data || [];
+    const today = new Date(); today.setHours(0,0,0,0);
+    adminC3Dogs = allDogs
+      .filter(dog => {
+        const d = new Date(dog.deadline); d.setHours(0,0,0,0);
+        return Math.round((d - today) / 86400000) >= 3;
+      })
+      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
+      .slice(0, 6);
     // Preload images
     adminC3Images = await Promise.all(adminC3Dogs.map(dog => new Promise(resolve => {
       if (!dog.photo_url) return resolve(null);
