@@ -516,7 +516,7 @@
             const response = await fetch('/api/dogs');
             const data = await response.json();
             const now = new Date();
-            allDogs = data.dogs.filter(dog => new Date(dog.deadline) > now);
+            const today = new Date(); today.setHours(0,0,0,0); allDogs = data.dogs.filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; });
             renderDogs();
         } catch (error) { console.error('Error loading dogs:', error); }
     }
