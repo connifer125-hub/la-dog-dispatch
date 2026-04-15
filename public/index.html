@@ -719,5 +719,265 @@
     </div>
 
     <script src="/js/dog-card.js"></script>
+
+<!-- ── ADMIN: IG CARD GENERATOR (access via /#admin-cards) ── -->
+<div id="admin-cards-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;overflow-y:auto;">
+  <div style="max-width:1100px;margin:0 auto;padding:2rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <div>
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#4a8c6a;margin-bottom:0.3rem;">Internal Tool</div>
+        <h2 style="font-family:'Playfair Display',serif;color:white;font-size:1.6rem;">IG Card Generator</h2>
+      </div>
+      <button onclick="closeAdminCards()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:8px;padding:0.5rem 1.2rem;cursor:pointer;font-size:0.9rem;font-family:inherit;">✕ Close</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:2rem;">
+
+      <!-- CARD 1: HOW IT WORKS -->
+      <div style="background:#1a1614;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+        <div style="padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:0.8rem;font-weight:700;color:#4a8c6a;">Card 1 — How It Works</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.2rem;">Step-by-step explainer · Pin to profile</div>
+        </div>
+        <div style="padding:1rem;background:#0d0d0d;display:flex;justify-content:center;">
+          <canvas id="admin-c1" width="1080" height="1080" style="width:100%;max-width:340px;border-radius:4px;"></canvas>
+        </div>
+        <div style="padding:0.8rem 1.2rem;display:flex;gap:0.6rem;">
+          <button onclick="adminDownload('admin-c1','ladogdispatch-how-it-works',1)" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⬇ Download 1080×1080</button>
+          <button onclick="adminRunCard1()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 1rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">↺</button>
+        </div>
+        <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Caption Copy</div>
+          <div id="admin-copy1" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:120px;overflow-y:auto;">The second a dog hits the euthanasia list, LA Dog Dispatch creates a fully built post — ready to share, ready to spread, ready to save time.
+
+⚡ Real-time post creation from shelter data
+📢 Caption, tags, and share card done instantly
+🐕 Every dog gets a chance to be seen
+
+We are not a rescue. We are the automation that gives every urgent dog visibility before it's too late.
+
+Follow @la_dog_dispatch for daily urgent dogs.
+See all dogs → ladogdispatch.com
+
+#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #shelterdog</div>
+          <button onclick="adminCopyText('admin-copy1',this)" style="margin-top:0.5rem;background:transparent;color:#4a8c6a;border:1px solid #4a8c6a;border-radius:6px;padding:0.4rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy Caption</button>
+        </div>
+      </div>
+
+      <!-- CARD 2: MISSION STATEMENT -->
+      <div style="background:#1a1614;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+        <div style="padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:0.8rem;font-weight:700;color:#4a8c6a;">Card 2 — Mission Statement</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.2rem;">Who we are · Social Sharer CTA · Pin to profile</div>
+        </div>
+        <div style="padding:1rem;background:#0d0d0d;display:flex;justify-content:center;">
+          <canvas id="admin-c2" width="1080" height="1080" style="width:100%;max-width:340px;border-radius:4px;"></canvas>
+        </div>
+        <div style="padding:0.8rem 1.2rem;display:flex;gap:0.6rem;">
+          <button onclick="adminDownload('admin-c2','ladogdispatch-mission',2)" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⬇ Download 1080×1080</button>
+          <button onclick="adminRunCard2()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 1rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">↺</button>
+        </div>
+        <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Caption Copy</div>
+          <div id="admin-copy2" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:120px;overflow-y:auto;">Every dog deserves to be seen before it's too late. We automate the visibility. You save the dogs.
+
+LA Dog Dispatch scrapes the euthanasia list in near real time and automatically creates a shareable post for every dog the moment they're listed.
+
+No shelter visit required. Just a phone and a following.
+
+🐾 Become a Social Sharer — get urgent dog posts sent straight to you, ready to share in one tap.
+
+Sign up → ladogdispatch.com/social-sharer-signup.html
+Follow → @la_dog_dispatch
+
+#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue #socialsharernetwork</div>
+          <button onclick="adminCopyText('admin-copy2',this)" style="margin-top:0.5rem;background:transparent;color:#4a8c6a;border:1px solid #4a8c6a;border-radius:6px;padding:0.4rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy Caption</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── ADMIN CARD PANEL ──────────────────────────────────────────
+function openAdminCards() {
+  document.getElementById('admin-cards-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => {
+    adminRunCard1();
+    adminRunCard2();
+  }, 200);
+}
+
+function closeAdminCards() {
+  document.getElementById('admin-cards-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// Check hash on load and on hash change
+function checkAdminHash() {
+  if (window.location.hash === '#admin-cards') openAdminCards();
+}
+window.addEventListener('hashchange', checkAdminHash);
+window.addEventListener('load', checkAdminHash);
+
+// ── SHARED CANVAS HELPERS ──
+const adminLogo = new Image();
+adminLogo.src = '/logo-wordmark.png';
+
+function adminDrawBase(ctx, W, H) {
+  ctx.fillStyle = '#141414'; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.strokeStyle = 'rgba(74,140,106,0.07)'; ctx.lineWidth = 1;
+  for (let i = -H; i < W + H; i += 48) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke(); }
+  ctx.restore();
+  ctx.fillStyle = '#4a8c6a'; ctx.fillRect(0, 0, W, 12); ctx.fillRect(0, H - 12, W, 12);
+}
+
+function adminDrawLogo(ctx, W, y, h) {
+  if (adminLogo.complete && adminLogo.naturalWidth > 0) {
+    const scale = h / adminLogo.naturalHeight;
+    const w = adminLogo.naturalWidth * scale;
+    ctx.drawImage(adminLogo, (W - w) / 2, y, w, h);
+  } else {
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 52px Arial Black, Arial'; ctx.textAlign = 'center';
+    ctx.fillText('LA DOG DISPATCH', W / 2, y + h * 0.6);
+    ctx.fillStyle = '#7ec8a0'; ctx.font = '26px Arial';
+    ctx.fillText('URGENT RESCUE NETWORK', W / 2, y + h * 0.85);
+  }
+}
+
+function adminDivider(ctx, W, y) {
+  const g = ctx.createLinearGradient(80, 0, W - 80, 0);
+  g.addColorStop(0, 'rgba(74,140,106,0)'); g.addColorStop(0.5, 'rgba(74,140,106,0.45)'); g.addColorStop(1, 'rgba(74,140,106,0)');
+  ctx.save(); ctx.strokeStyle = g; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(80, y); ctx.lineTo(W - 80, y); ctx.stroke(); ctx.restore();
+}
+
+function adminFooterPill(ctx, W, H) {
+  ctx.fillStyle = '#4a8c6a';
+  ctx.beginPath(); ctx.roundRect(W/2 - 300, H - 105, 600, 68, 34); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 30px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('@la_dog_dispatch  ·  ladogdispatch.com', W / 2, H - 62);
+}
+
+// ── CARD 1: HOW IT WORKS ──
+const adminSteps = [
+  { emoji: '🏚', label: 'STEP 1', title: 'Dog hits the euth list', sub: 'Buried in shelter data. No visibility. Clock already started.' },
+  { emoji: '⚡', label: 'STEP 2', title: 'We build the post automatically', sub: 'Photo card, caption, rescue tags — done in seconds.' },
+  { emoji: '📢', label: 'STEP 3', title: 'You share in one tap', sub: 'IG Story opens with the card ready. Caption already copied.' },
+  { emoji: '🐕', label: 'STEP 4', title: 'Dog gets seen in time', sub: 'Rescues, fosters, and the community can now move.' },
+];
+
+let adminC1Timers = [];
+
+function adminDrawCard1(n, footer) {
+  const canvas = document.getElementById('admin-c1');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+  adminDrawBase(ctx, W, H);
+  adminDrawLogo(ctx, W, 28, 130);
+  adminDivider(ctx, W, 185);
+  const startY = 210, stepH = 172;
+  for (let i = 0; i < n; i++) {
+    const s = adminSteps[i]; const y = startY + i * stepH;
+    ctx.save();
+    ctx.fillStyle = 'rgba(74,140,106,0.2)'; ctx.beginPath(); ctx.arc(108, y+46, 42, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.font = '42px Arial'; ctx.textAlign = 'center'; ctx.fillText(s.emoji, 108, y+60);
+    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'left'; ctx.fillText(s.label, 178, y+20);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 40px Arial'; ctx.fillText(s.title, 178, y+62, W-220);
+    ctx.fillStyle = 'rgba(255,255,255,0.52)'; ctx.font = '28px Arial'; ctx.fillText(s.sub, 178, y+100, W-220);
+    if (i < adminSteps.length - 1) {
+      ctx.strokeStyle = 'rgba(74,140,106,0.25)'; ctx.lineWidth = 2; ctx.setLineDash([5,8]);
+      ctx.beginPath(); ctx.moveTo(108, y+90); ctx.lineTo(108, y+stepH); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.restore();
+  }
+  if (footer) adminFooterPill(ctx, W, H);
+}
+
+function adminRunCard1() {
+  adminC1Timers.forEach(t => clearTimeout(t)); adminC1Timers = [];
+  adminDrawCard1(0, false);
+  [[500,1],[1300,2],[2100,3],[2900,4],[3700,4,true]].forEach(([d,n,f]) => {
+    adminC1Timers.push(setTimeout(() => adminDrawCard1(n, !!f), d));
+  });
+}
+
+// ── CARD 2: MISSION STATEMENT ──
+let adminC2Timers = [];
+
+function adminDrawCard2(phase) {
+  const canvas = document.getElementById('admin-c2');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+  adminDrawBase(ctx, W, H);
+  adminDrawLogo(ctx, W, 40, 130);
+  adminDivider(ctx, W, 200);
+  const lines = [
+    { text: 'Every Dog Deserves', y: 310 },
+    { text: 'to Be Seen', y: 400 },
+    { text: "Before It's Too Late.", y: 490, green: true },
+  ];
+  if (phase >= 1) {
+    lines.slice(0, Math.min(phase, 3)).forEach(l => {
+      ctx.fillStyle = l.green ? '#7ec8a0' : '#ffffff';
+      ctx.font = 'bold 72px Georgia, serif'; ctx.textAlign = 'center';
+      ctx.fillText(l.text, W/2, l.y, W-100);
+    });
+  }
+  if (phase >= 4) {
+    adminDivider(ctx, W, 540);
+    ['We automate the visibility.', 'You save the dogs.'].forEach((line, i) => {
+      ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = '38px Arial'; ctx.textAlign = 'center';
+      ctx.fillText(line, W/2, 600 + i*56, W-100);
+    });
+  }
+  if (phase >= 5) {
+    ctx.fillStyle = 'rgba(74,140,106,0.15)'; ctx.strokeStyle = 'rgba(74,140,106,0.5)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(80, 700, W-160, 200, 16); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('🐾  BECOME A SOCIAL SHARER', W/2, 755);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '28px Arial';
+    ctx.fillText('Get urgent dog posts sent to you —', W/2, 800, W-200);
+    ctx.fillText('share in one tap. No shelter visit required.', W/2, 838, W-200);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px Arial';
+    ctx.fillText('ladogdispatch.com/social-sharer-signup.html', W/2, 880, W-200);
+  }
+  if (phase >= 6) adminFooterPill(ctx, W, H);
+}
+
+function adminRunCard2() {
+  adminC2Timers.forEach(t => clearTimeout(t)); adminC2Timers = [];
+  adminDrawCard2(0);
+  [[400,1],[900,2],[1400,3],[2200,4],[3200,5],[4200,6]].forEach(([d,p]) => {
+    adminC2Timers.push(setTimeout(() => adminDrawCard2(p), d));
+  });
+}
+
+// ── DOWNLOAD & COPY ──
+function adminDownload(canvasId, filename, cardNum) {
+  if (cardNum === 1) adminDrawCard1(4, true);
+  if (cardNum === 2) adminDrawCard2(6);
+  setTimeout(() => {
+    const a = document.createElement('a');
+    a.download = filename + '.png';
+    a.href = document.getElementById(canvasId).toDataURL('image/png');
+    a.click();
+  }, 200);
+}
+
+function adminCopyText(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!'; btn.style.background = '#166534'; btn.style.color = 'white'; btn.style.borderColor = '#166534';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; btn.style.color = '#4a8c6a'; btn.style.borderColor = '#4a8c6a'; }, 2500);
+  });
+}
+</script>
+
 </body>
 </html>
