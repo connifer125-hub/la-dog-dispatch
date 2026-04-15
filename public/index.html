@@ -899,7 +899,7 @@ function checkAdminHash() {
   if (window.location.hash === '#admin-cards') openAdminCards();
 }
 window.addEventListener('hashchange', checkAdminHash);
-window.addEventListener('load', checkAdminHash);
+document.addEventListener('DOMContentLoaded', () => setTimeout(checkAdminHash, 300));
 
 // ── SHARED CANVAS HELPERS ──
 const adminLogo = new Image();
