@@ -1000,8 +1000,8 @@ function adminRunCard2() {
 
 // ── RECORD VIDEO ──
 function adminRecordCard(cardNum) {
-  const canvasId = cardNum === 1 ? 'admin-c1' : 'admin-c2';
-  const filename = cardNum === 1 ? 'ladogdispatch-how-it-works' : 'ladogdispatch-mission';
+  const canvasId = cardNum === 1 ? 'admin-c1' : cardNum === 2 ? 'admin-c2' : 'admin-c3';
+  const filename = cardNum === 1 ? 'ladogdispatch-how-it-works' : cardNum === 2 ? 'ladogdispatch-mission' : 'ladogdispatch-how-to-help';
   const btn = document.getElementById('admin-rec-btn-' + cardNum);
   const canvas = document.getElementById(canvasId);
 
