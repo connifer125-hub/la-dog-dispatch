@@ -743,7 +743,8 @@
           <canvas id="admin-c1" width="1080" height="1080" style="width:100%;max-width:340px;border-radius:4px;"></canvas>
         </div>
         <div style="padding:0.8rem 1.2rem;display:flex;gap:0.6rem;">
-          <button onclick="adminDownload('admin-c1','ladogdispatch-how-it-works',1)" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⬇ Download 1080×1080</button>
+          <button onclick="adminRecordCard(1)" id="admin-rec-btn-1" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⏺ Record Video</button>
+          <button onclick="adminDownload('admin-c1','ladogdispatch-how-it-works',1)" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">PNG</button>
           <button onclick="adminRunCard1()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 1rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">↺</button>
         </div>
         <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
@@ -774,7 +775,8 @@ See all dogs → ladogdispatch.com
           <canvas id="admin-c2" width="1080" height="1080" style="width:100%;max-width:340px;border-radius:4px;"></canvas>
         </div>
         <div style="padding:0.8rem 1.2rem;display:flex;gap:0.6rem;">
-          <button onclick="adminDownload('admin-c2','ladogdispatch-mission',2)" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⬇ Download 1080×1080</button>
+          <button onclick="adminRecordCard(2)" id="admin-rec-btn-2" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⏺ Record Video</button>
+          <button onclick="adminDownload('admin-c2','ladogdispatch-mission',2)" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">PNG</button>
           <button onclick="adminRunCard2()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 1rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">↺</button>
         </div>
         <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
@@ -958,6 +960,53 @@ function adminRunCard2() {
   [[400,1],[900,2],[1400,3],[2200,4],[3200,5],[4200,6]].forEach(([d,p]) => {
     adminC2Timers.push(setTimeout(() => adminDrawCard2(p), d));
   });
+}
+
+// ── RECORD VIDEO ──
+function adminRecordCard(cardNum) {
+  const canvasId = cardNum === 1 ? 'admin-c1' : 'admin-c2';
+  const filename = cardNum === 1 ? 'ladogdispatch-how-it-works' : 'ladogdispatch-mission';
+  const btn = document.getElementById('admin-rec-btn-' + cardNum);
+  const canvas = document.getElementById(canvasId);
+
+  // Check support
+  if (!canvas.captureStream) {
+    alert('Video recording not supported in this browser. Try Chrome or Edge.');
+    return;
+  }
+
+  btn.textContent = '⏹ Recording...';
+  btn.style.background = '#c4281c';
+  btn.disabled = true;
+
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8000000 });
+  const chunks = [];
+
+  recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: mimeType });
+    const a = document.createElement('a');
+    a.download = filename + (mimeType === 'video/mp4' ? '.mp4' : '.webm');
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    URL.revokeObjectURL(a.href);
+    btn.textContent = '⏺ Record Video';
+    btn.style.background = '#4a8c6a';
+    btn.disabled = false;
+  };
+
+  recorder.start();
+
+  // Run the animation while recording
+  if (cardNum === 1) {
+    adminRunCard1();
+    setTimeout(() => recorder.stop(), 5000);
+  } else {
+    adminRunCard2();
+    setTimeout(() => recorder.stop(), 5500);
+  }
 }
 
 // ── DOWNLOAD & COPY ──
