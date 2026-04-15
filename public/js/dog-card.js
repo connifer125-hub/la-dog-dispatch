@@ -4,6 +4,26 @@
 
 const NOTES_DISCLAIMER = "Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.";
 
+// ── SHELTER COLOR SCHEMES ──────────────────────────────────────────
+function getShelterColors(shelter) {
+  const s = (shelter || '').toUpperCase().replace(/\./g, '');
+  if (s.includes('SOUTH LA') || s.includes('SOUTH L A')) {
+    return { primary: '#4a8c6a', light: '#7ec8a0', dark: '#1a2e24', deadline: '#7ec8a0' };
+  } else if (s.includes('EAST VALLEY')) {
+    return { primary: '#c4281c', light: '#ff6b5b', dark: '#2e1a1a', deadline: '#ff6b5b' };
+  } else if (s.includes('WEST VALLEY')) {
+    return { primary: '#e67e22', light: '#f5a623', dark: '#2e1f0a', deadline: '#f5a623' };
+  } else if (s.includes('HARBOR')) {
+    return { primary: '#d97706', light: '#fbbf24', dark: '#2a1f00', deadline: '#fbbf24' };
+  } else if (s.includes('NORTH CENTRAL')) {
+    return { primary: '#2563eb', light: '#60a5fa', dark: '#0f1e3d', deadline: '#60a5fa' };
+  } else if (s.includes('WEST LA') || s.includes('WEST L A')) {
+    return { primary: '#7c3aed', light: '#a78bfa', dark: '#1e1040', deadline: '#a78bfa' };
+  }
+  // Default fallback — brand green
+  return { primary: '#4a8c6a', light: '#7ec8a0', dark: '#1a2e24', deadline: '#7ec8a0' };
+}
+
 function safeJson(dog) {
     return JSON.stringify(dog)
         .replace(/"/g, '&quot;')
@@ -37,6 +57,7 @@ async function generateCard(dog) {
     const isCritical = daysLeft <= 1;
     const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
     const hasNotes = dog.notes && dog.notes.trim().length > 0;
+    const colors = getShelterColors(dog.shelter);
 
     function rr(x, y, w, h, r) {
         ctx.beginPath();
@@ -51,29 +72,36 @@ async function generateCard(dog) {
         ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
         ctx.textAlign = 'center'; ctx.lineJoin = 'round'; ctx.miterLimit = 2;
         ctx.lineWidth = fontSize*0.22; ctx.strokeStyle = 'rgba(0,0,0,0.75)'; ctx.strokeText(text, centerX, y, maxWidth);
-        ctx.lineWidth = fontSize*0.18; ctx.strokeStyle = '#3d7a5c'; ctx.strokeText(text, centerX, y, maxWidth);
-        ctx.lineWidth = fontSize*0.10; ctx.strokeStyle = '#5aaa80'; ctx.strokeText(text, centerX, y, maxWidth);
-        ctx.lineWidth = fontSize*0.04; ctx.strokeStyle = '#a8e6c3'; ctx.strokeText(text, centerX, y, maxWidth);
+        ctx.lineWidth = fontSize*0.18; ctx.strokeStyle = colors.dark; ctx.strokeText(text, centerX, y, maxWidth);
+        ctx.lineWidth = fontSize*0.10; ctx.strokeStyle = colors.primary; ctx.strokeText(text, centerX, y, maxWidth);
+        ctx.lineWidth = fontSize*0.04; ctx.strokeStyle = colors.light; ctx.strokeText(text, centerX, y, maxWidth);
         const grad = ctx.createLinearGradient(0, y-fontSize, 0, y);
-        grad.addColorStop(0,'#ffffff'); grad.addColorStop(0.35,'#f0fff8'); grad.addColorStop(1,'#7ec8a0');
+        grad.addColorStop(0,'#ffffff'); grad.addColorStop(0.35, colors.light); grad.addColorStop(1, colors.primary);
         ctx.fillStyle = grad; ctx.fillText(text, centerX, y, maxWidth);
         ctx.restore();
     }
 
+    // ── BACKGROUND ──
     ctx.fillStyle = '#141414'; ctx.fillRect(0,0,W,H);
     const vignette = ctx.createRadialGradient(W/2,H/2,W*0.25,W/2,H/2,W*0.75);
     vignette.addColorStop(0,'rgba(0,0,0,0)'); vignette.addColorStop(1,'rgba(0,0,0,0.5)');
     ctx.fillStyle = vignette; ctx.fillRect(0,0,W,H);
 
+    // ── TOP BAR — shelter color ──
     const topBar = ctx.createLinearGradient(0,0,W,0);
-    topBar.addColorStop(0,'#3d7a5c'); topBar.addColorStop(0.5,'#7ec8a0'); topBar.addColorStop(1,'#3d7a5c');
+    topBar.addColorStop(0, colors.dark); topBar.addColorStop(0.5, colors.primary); topBar.addColorStop(1, colors.dark);
     ctx.fillStyle = topBar; ctx.fillRect(0,0,W,14);
 
+    // ── TOP ROW ──
     const rowH = 76, rowMid = 14+rowH/2;
+
+    // Urgent badge — ALWAYS RED
     ctx.fillStyle = '#c4281c'; rr(36,rowMid-24,200,48,24); ctx.fill();
     ctx.fillStyle = 'white'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(isCritical ? '🚨 CRITICAL' : '⚠️ URGENT', 136, rowMid+8);
-    ctx.fillStyle = '#a8e6c3'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+
+    // Shelter badge — shelter color
+    ctx.fillStyle = colors.deadline; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('📍 '+(dog.shelter||'LA COUNTY').toUpperCase(), W/2, rowMid+9, 520);
 
     const lr=32, lx=W-36-lr, ly=rowMid;
@@ -83,13 +111,13 @@ async function generateCard(dog) {
             ctx.save(); ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2); ctx.clip();
             ctx.drawImage(logoImg, lx-lr, ly-lr, lr*2, lr*2); ctx.restore();
             ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2);
-            ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=3; ctx.stroke(); resolve();
+            ctx.strokeStyle=colors.primary; ctx.lineWidth=3; ctx.stroke(); resolve();
         };
         logoImg.onerror = () => {
             ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2);
-            ctx.fillStyle='#1a2e24'; ctx.fill();
-            ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=3; ctx.stroke();
-            ctx.fillStyle='#7ec8a0'; ctx.font='26px sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle=colors.dark; ctx.fill();
+            ctx.strokeStyle=colors.primary; ctx.lineWidth=3; ctx.stroke();
+            ctx.fillStyle=colors.light; ctx.font='26px sans-serif'; ctx.textAlign='center';
             ctx.fillText('🐾', lx, ly+9); resolve();
         };
         logoImg.src = '/logo-icon.png';
@@ -98,6 +126,7 @@ async function generateCard(dog) {
     ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(44,14+rowH); ctx.lineTo(W-44,14+rowH); ctx.stroke();
 
+    // ── NAME, META, DEADLINE ──
     const SAFE_W = W-80;
     const name = (dog.name||dog.shelter_id||'UNKNOWN').toUpperCase();
     let fontSize = 220;
@@ -116,8 +145,12 @@ async function generateCard(dog) {
     while(ctx.measureText(dlLabel+dlDays).width > SAFE_W && dlSize>26){ dlSize-=2; ctx.font=`bold ${dlSize}px sans-serif`; }
     const dlLabelW = ctx.measureText(dlLabel).width, dlDaysW = ctx.measureText(dlDays).width;
     const dlStartX = W/2-(dlLabelW+dlDaysW)/2;
-    ctx.fillStyle='white'; ctx.textAlign='left'; ctx.fillText(dlLabel, dlStartX, nameY+134);
-    ctx.fillStyle=isCritical?'#ff5252':'#e05555'; ctx.fillText(dlDays, dlStartX+dlLabelW, nameY+134);
+
+    // Deadline — solid shelter color
+    ctx.fillStyle = colors.deadline; ctx.textAlign='left';
+    ctx.fillText(dlLabel, dlStartX, nameY+134);
+    ctx.fillStyle = isCritical ? '#ff5252' : colors.deadline;
+    ctx.fillText(dlDays, dlStartX+dlLabelW, nameY+134);
 
     if (isRescueOnly) {
         ctx.fillStyle='rgba(254,243,199,0.1)'; rr(W/2-280,nameY+152,560,46,23); ctx.fill();
@@ -125,6 +158,7 @@ async function generateCard(dog) {
         ctx.fillText('🔒 RESCUE ORGANIZATIONS ONLY', W/2, nameY+183, SAFE_W);
     }
 
+    // ── DIVIDER ──
     const divY = H/2+20;
     const dg = ctx.createLinearGradient(44,0,W-44,0);
     dg.addColorStop(0,'rgba(255,255,255,0)'); dg.addColorStop(0.15,'rgba(255,255,255,0.18)');
@@ -132,6 +166,7 @@ async function generateCard(dog) {
     ctx.strokeStyle=dg; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(44,divY); ctx.lineTo(W-44,divY); ctx.stroke();
 
+    // ── BOTTOM: left text + right photo ──
     const photoSize = H-divY-28-16;
     const photoX = W-photoSize-36;
     const photoY = divY+14;
@@ -147,19 +182,19 @@ async function generateCard(dog) {
                 ctx.drawImage(img,photoX+(photoSize-dw)/2,photoY+(photoSize-dh)/2,dw,dh);
                 ctx.restore();
                 rr(photoX,photoY,photoSize,photoSize,20);
-                ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=4; ctx.stroke(); resolve();
+                ctx.strokeStyle=colors.primary; ctx.lineWidth=4; ctx.stroke(); resolve();
             };
             img.onerror = () => {
                 rr(photoX,photoY,photoSize,photoSize,20);
                 ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.fill();
-                ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=3; ctx.stroke(); resolve();
+                ctx.strokeStyle=colors.primary; ctx.lineWidth=3; ctx.stroke(); resolve();
             };
             img.src = dog.photo_url.startsWith('http') ? dog.photo_url : window.location.origin+dog.photo_url;
         });
     } else {
         rr(photoX,photoY,photoSize,photoSize,20);
         ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.fill();
-        ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=3; ctx.stroke();
+        ctx.strokeStyle=colors.primary; ctx.lineWidth=3; ctx.stroke();
     }
 
     ctx.textAlign='left';
@@ -168,7 +203,8 @@ async function generateCard(dog) {
     ctx.fillStyle='#ffffff'; ctx.font='bold 42px sans-serif';
     ctx.fillText('ladogdispatch.com', 44, divY+86, leftMax);
 
-    ctx.fillStyle='#7ec8a0'; ctx.font='bold 28px sans-serif';
+    // ── IG HANDLE — solid shelter deadline color ──
+    ctx.fillStyle = colors.deadline; ctx.font='bold 28px sans-serif';
     (function drawIGIcon(x, y, sz) {
         const r=sz*0.22, ix=x, iy=y-sz*0.85;
         const igGrad=ctx.createLinearGradient(ix,iy,ix+sz,iy+sz);
@@ -190,6 +226,7 @@ async function generateCard(dog) {
     })(44, divY+130, 28);
     ctx.fillText('@la_dog_dispatch', 44+28+8, divY+130, leftMax-36);
 
+    // ── SHELTER NOTES ──
     if (hasNotes) {
         const PAD_L = 44, PAD_R = 20;
         const boxW = leftMax - PAD_R;
@@ -215,8 +252,7 @@ async function generateCard(dog) {
         const noteLines = wrapText(dog.notes, noteFont, innerW).slice(0, 3);
         const disclaimerText = "Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.";
         const discLines = wrapText(disclaimerText, discFont, innerW);
-        const lineH = 32;
-        const discLineH = 30;
+        const lineH = 32, discLineH = 30;
 
         const boxH = 14 + 22 + 10 + noteLines.length * lineH + 12 + discLines.length * discLineH + 14;
         const igHandleBottom = divY + 130 + 10;
@@ -231,26 +267,22 @@ async function generateCard(dog) {
 
         const textX = PAD_L + 14;
         let curY = noteStartY + 14;
-
         ctx.fillStyle = '#fcd34d'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'left';
-        curY += 18;
-        ctx.fillText('⚠️  SHELTER NOTES', textX, curY);
-
+        curY += 18; ctx.fillText('⚠️  SHELTER NOTES', textX, curY);
         curY += 8;
         ctx.strokeStyle = 'rgba(251,191,36,0.25)'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(textX, curY); ctx.lineTo(PAD_L+boxW-14, curY); ctx.stroke();
         curY += 6;
-
-        ctx.fillStyle = '#ffffff'; ctx.font = noteFont; ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff'; ctx.font = noteFont;
         noteLines.forEach(l => { curY += lineH; ctx.fillText(l, textX, curY, innerW); });
-
         curY += 12;
         ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = discFont;
         discLines.forEach(l => { curY += discLineH; ctx.fillText(l, textX, curY, innerW); });
     }
 
+    // ── BOTTOM BAR — shelter color ──
     const botBar = ctx.createLinearGradient(0,0,W,0);
-    botBar.addColorStop(0,'#3d7a5c'); botBar.addColorStop(0.5,'#7ec8a0'); botBar.addColorStop(1,'#3d7a5c');
+    botBar.addColorStop(0, colors.dark); botBar.addColorStop(0.5, colors.primary); botBar.addColorStop(1, colors.dark);
     ctx.fillStyle=botBar; ctx.fillRect(0,H-16,W,16);
 
     return c;
