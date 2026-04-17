@@ -284,6 +284,12 @@ async function generateCard(dog) {
         discLines.forEach(l => { curY += discLineH; ctx.fillText(l, textX, curY, innerW); });
     }
 
+    // ── SHELTER ID — small, bottom left corner ──
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.font = '22px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(dog.shelter_id || '', 44, H - 28);
+
     // ── BOTTOM BAR — shelter color ──
     const botBar = ctx.createLinearGradient(0,0,W,0);
     botBar.addColorStop(0, colors.dark); botBar.addColorStop(0.5, colors.primary); botBar.addColorStop(1, colors.dark);
