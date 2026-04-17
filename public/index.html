@@ -1365,55 +1365,7 @@ function adminRunCard4() {
 }
 
 // ── RECORD VIDEO ──
-function adminRecordCard(cardNum) {
-  const canvasId = cardNum === 1 ? 'admin-c1' : cardNum === 2 ? 'admin-c2' : cardNum === 3 ? 'admin-c3' : 'admin-c4';
-  const filename = cardNum === 1 ? 'ladogdispatch-how-it-works' : cardNum === 2 ? 'ladogdispatch-mission' : cardNum === 3 ? 'ladogdispatch-how-to-help' : 'ladogdispatch-weekly';
-  const btn = document.getElementById('admin-rec-btn-' + cardNum);
-  const canvas = document.getElementById(canvasId);
-
-  if (!canvas.captureStream) {
-    alert('Video recording not supported in this browser. Try Chrome or Edge.');
-    return;
-  }
-
-  btn.textContent = '⏹ Recording...';
-  btn.style.background = '#c4281c';
-  btn.disabled = true;
-
-  function doRecord(runFn, duration) {
-    const stream = canvas.captureStream(30);
-    const mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' : 'video/webm';
-    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8000000 });
-    const chunks = [];
-    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-    recorder.onstop = () => {
-      const blob = new Blob(chunks, { type: mimeType });
-      const a = document.createElement('a');
-      a.download = filename + (mimeType === 'video/mp4' ? '.mp4' : '.webm');
-      a.href = URL.createObjectURL(blob);
-      a.click();
-      URL.revokeObjectURL(a.href);
-      btn.textContent = '⏺ Record Video';
-      btn.style.background = '#4a8c6a';
-      btn.disabled = false;
-    };
-    recorder.start();
-    runFn();
-    setTimeout(() => recorder.stop(), duration);
-  }
-
-  if (cardNum === 1) {
-    doRecord(adminRunCard1, 5000);
-  } else if (cardNum === 2) {
-    doRecord(adminRunCard2, 5500);
-  } else if (cardNum === 3) {
-    const go3 = () => doRecord(adminRunCard3, (Math.min(adminC3Dogs.length, 6) * 1200) + 2000);
-    adminC3Dogs.length === 0 ? adminLoadDogs().then(go3) : go3();
-  } else {
-    const go4 = () => doRecord(adminRunCard4, 2500 + (Math.min(adminC4Dogs.length, 6) * 1200) + 3000);
-    adminC4Dogs.length === 0 ? adminLoadWeeklyDogs().then(go4) : go4();
-  }
-}
+// adminRecordCard moved to separate script tag below
 
 // ── DOWNLOAD & COPY ──
 function adminDownload(canvasId, filename, cardNum) {
@@ -1579,5 +1531,58 @@ function adminCopyText(id, btn) {
 })();
 </script>
 
+
+<script>
+// ── RECORD FUNCTION — outside IIFE to avoid captureStream scope issues ──
+function adminRecordCard(cardNum) {
+  var canvasId = cardNum === 1 ? 'admin-c1' : cardNum === 2 ? 'admin-c2' : cardNum === 3 ? 'admin-c3' : 'admin-c4';
+  var filename = cardNum === 1 ? 'ladogdispatch-how-it-works' : cardNum === 2 ? 'ladogdispatch-mission' : cardNum === 3 ? 'ladogdispatch-how-to-help' : 'ladogdispatch-weekly';
+  var btn = document.getElementById('admin-rec-btn-' + cardNum);
+  var canvas = document.getElementById(canvasId);
+
+  if (!canvas || !canvas.captureStream) {
+    alert('Video recording not supported in this browser. Try Chrome or Edge.');
+    return;
+  }
+
+  btn.textContent = '⏹ Recording...';
+  btn.style.background = '#c4281c';
+  btn.disabled = true;
+
+  function doRecord(runFn, duration) {
+    var stream = canvas.captureStream(30);
+    var mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' : 'video/webm';
+    var recorder = new MediaRecorder(stream, { mimeType: mimeType, videoBitsPerSecond: 8000000 });
+    var chunks = [];
+    recorder.ondataavailable = function(e) { if (e.data.size > 0) chunks.push(e.data); };
+    recorder.onstop = function() {
+      var blob = new Blob(chunks, { type: mimeType });
+      var a = document.createElement('a');
+      a.download = filename + (mimeType === 'video/mp4' ? '.mp4' : '.webm');
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      btn.textContent = '⏺ Record Video';
+      btn.style.background = '#4a8c6a';
+      btn.disabled = false;
+    };
+    recorder.start();
+    runFn();
+    setTimeout(function() { recorder.stop(); }, duration);
+  }
+
+  if (cardNum === 1) {
+    doRecord(window.adminRunCard1, 5000);
+  } else if (cardNum === 2) {
+    doRecord(window.adminRunCard2, 5500);
+  } else if (cardNum === 3) {
+    var go3 = function() { doRecord(window.adminRunCard3, (Math.min(window.adminC3Dogs ? window.adminC3Dogs.length : 6, 6) * 1200) + 2000); };
+    (!window.adminC3Dogs || window.adminC3Dogs.length === 0) ? window.adminLoadDogs().then(go3) : go3();
+  } else {
+    var go4 = function() { doRecord(window.adminRunCard4, 2500 + (Math.min(window.adminC4Dogs ? window.adminC4Dogs.length : 6, 6) * 1200) + 3000); };
+    (!window.adminC4Dogs || window.adminC4Dogs.length === 0) ? window.adminLoadWeeklyDogs().then(go4) : go4();
+  }
+}
+</script>
 </body>
 </html>
