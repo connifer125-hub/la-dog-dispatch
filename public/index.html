@@ -879,8 +879,8 @@ Sign up → ladogdispatch.com/social-sharer-signup.html
 </div>
 
 <script>
-// ── ADMIN CARD PANEL ──────────────────────────────────────────
-function openAdminCards() {
+(function() { // ── ADMIN CARD PANEL ─────────────────────────────
+window.openAdminCards = function openAdminCards() {
   document.getElementById('admin-cards-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
   if (adminLogo.complete && adminLogo.naturalWidth > 0) {
@@ -890,14 +890,14 @@ function openAdminCards() {
   }
 }
 
-function closeAdminCards() {
+window.closeAdminCards = function closeAdminCards() {
   document.getElementById('admin-cards-overlay').style.display = 'none';
   document.body.style.overflow = '';
 }
 
 // Check hash on load and on hash change
 function checkAdminHash() {
-  if (window.location.hash === '#admin-cards') openAdminCards();
+  if (window.location.hash === '#admin-cards') window.openAdminCards();
 }
 window.addEventListener('hashchange', checkAdminHash);
 document.addEventListener('DOMContentLoaded', () => setTimeout(checkAdminHash, 300));
@@ -1426,6 +1426,7 @@ function adminCopyText(id, btn) {
     setTimeout(() => { btn.textContent = orig; btn.style.background = ''; btn.style.color = '#4a8c6a'; btn.style.borderColor = '#4a8c6a'; }, 2500);
   });
 }
+})();
 </script>
 
 </body>
