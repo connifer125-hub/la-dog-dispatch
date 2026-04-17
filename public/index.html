@@ -1007,7 +1007,7 @@ Sign up → ladogdispatch.com/social-sharer-signup.html
         </div>
         <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
           <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Caption Copy</div>
-          <div id="admin-copy4" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;">This week, dogs in LA County were listed for euthanasia. Every single one of them got a post — automatically, in real time, the moment they were listed.
+          <div id="admin-copy4" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;">This week, <span id="admin-copy4-count">—</span> dogs in LA County were listed for euthanasia. Every single one of them got a post — automatically, in real time, the moment they were listed.
 
 That's what LA Dog Dispatch does. We are not a rescue. We are the visibility engine that makes sure no dog disappears quietly.
 
@@ -1213,13 +1213,8 @@ async function adminLoadWeeklyDogs() {
       .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
       .slice(0, 6);
     // Update caption with real dog count
-    const countEl = document.getElementById('admin-copy4');
-    if (countEl) {
-      countEl.textContent = countEl.textContent.replace(
-        'dogs in LA County were listed for euthanasia',
-        `${c4Dogs.length} dogs in LA County were listed for euthanasia`
-      );
-    }
+    const countEl = document.getElementById('admin-copy4-count');
+    if (countEl) countEl.textContent = c4Dogs.length;
     adminC4Images = await Promise.all(adminC4Dogs.map(dog => new Promise(resolve => {
       if (!dog.photo_url) return resolve(null);
       const img = new Image(); img.crossOrigin = 'anonymous';
