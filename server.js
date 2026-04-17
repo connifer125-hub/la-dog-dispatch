@@ -50,7 +50,8 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT",
-      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)"
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS photo_crop_offset FLOAT DEFAULT 0"
     ];
     for (const migration of migrations) {
       try {
@@ -112,7 +113,8 @@ app.get('/api/run-migrations', async (req, res) => {
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS intake_date DATE");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT");
-    await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)");
+    await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS photo_crop_offset FLOAT DEFAULT 0");
     res.json({ message: 'Migrations complete - columns added' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -267,6 +269,23 @@ app.get('/api/test-sms', async (req, res) => {
     res.json({ success: true, sent_to: results });
   } catch(e) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+// ── PATCH /api/dogs/:id/crop — save photo crop offset ──
+app.patch('/api/dogs/:id/crop', async (req, res) => {
+  try {
+    const { photo_crop_offset } = req.body;
+    const offset = Math.max(-1, Math.min(1, parseFloat(photo_crop_offset) || 0));
+    await db.query(
+      'UPDATE dogs SET photo_crop_offset = $1 WHERE id = $2',
+      [offset, req.params.id]
+    );
+    console.log(`✏️ Crop offset updated for dog ${req.params.id}: ${offset}`);
+    res.json({ success: true, photo_crop_offset: offset });
+  } catch (err) {
+    console.error('❌ Crop update error:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
