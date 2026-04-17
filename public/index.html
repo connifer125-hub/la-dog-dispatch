@@ -1211,7 +1211,7 @@ async function adminLoadWeeklyDogs() {
     const c4Filtered = c4Dogs
       .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
       .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
-    window.adminC4TotalCount = c4Filtered.length;
+    window.adminC4TotalCount = c4Dogs.filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); const t2 = new Date(); t2.setHours(0,0,0,0); return d >= t2; }).length;
     adminC4Dogs = c4Filtered.slice(0, 6);
     // Update caption with real dog count
     const countEl = document.getElementById('admin-copy4-count');
@@ -1412,9 +1412,17 @@ function adminRecordCard(cardNum) {
     const duration = (Math.min(adminC3Dogs.length, 6) * 1200) + 2000;
     setTimeout(() => recorder.stop(), duration);
   } else {
-    adminRunCard4();
-    const duration = 2500 + (Math.min(adminC4Dogs.length, 6) * 1200) + 3000;
-    setTimeout(() => recorder.stop(), duration);
+    // Wait for dogs to load before recording card 4
+    const startCard4Recording = () => {
+      adminRunCard4();
+      const duration = 2500 + (Math.min(adminC4Dogs.length, 6) * 1200) + 3000;
+      setTimeout(() => recorder.stop(), duration);
+    };
+    if (adminC4Dogs.length === 0) {
+      adminLoadWeeklyDogs().then(startCard4Recording);
+    } else {
+      startCard4Recording();
+    }
   }
 }
 
