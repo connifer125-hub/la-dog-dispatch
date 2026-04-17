@@ -1050,9 +1050,9 @@ async function adminLoadWeeklyDogs() {
     const res = await fetch('/api/dogs');
     const data = await res.json();
     const today = new Date(); today.setHours(0,0,0,0);
-    const allDogs = data.dogs || data || [];
+    const c4Dogs = data.dogs || data || [];
     // Get up to 6 dogs with photos, sorted by furthest deadline
-    adminC4Dogs = allDogs
+    adminC4Dogs = c4Dogs
       .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
       .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
       .slice(0, 6);
@@ -1061,7 +1061,7 @@ async function adminLoadWeeklyDogs() {
     if (countEl) {
       countEl.textContent = countEl.textContent.replace(
         'dogs in LA County were listed for euthanasia',
-        `${allDogs.length} dogs in LA County were listed for euthanasia`
+        `${c4Dogs.length} dogs in LA County were listed for euthanasia`
       );
     }
     adminC4Images = await Promise.all(adminC4Dogs.map(dog => new Promise(resolve => {
@@ -1289,9 +1289,9 @@ async function adminLoadDogs() {
   try {
     const res = await fetch('/api/dogs?limit=100');
     const data = await res.json();
-    const allDogs = data.dogs || data || [];
+    const c3Dogs = data.dogs || data || [];
     const today = new Date(); today.setHours(0,0,0,0);
-    adminC3Dogs = allDogs
+    adminC3Dogs = c3Dogs
       .filter(dog => {
         const d = new Date(dog.deadline); d.setHours(0,0,0,0);
         return Math.round((d - today) / 86400000) >= 3;
