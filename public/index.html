@@ -1208,13 +1208,14 @@ async function adminLoadWeeklyDogs() {
     const today = new Date(); today.setHours(0,0,0,0);
     const c4Dogs = data.dogs || data || [];
     // Get up to 6 dogs with photos, sorted by furthest deadline
-    adminC4Dogs = c4Dogs
+    const c4Filtered = c4Dogs
       .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
-      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
-      .slice(0, 6);
+      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
+    window.adminC4TotalCount = c4Filtered.length;
+    adminC4Dogs = c4Filtered.slice(0, 6);
     // Update caption with real dog count
     const countEl = document.getElementById('admin-copy4-count');
-    if (countEl) countEl.textContent = c4Dogs.length;
+    if (countEl) countEl.textContent = window.adminC4TotalCount || adminC4Dogs.length;
     adminC4Images = await Promise.all(adminC4Dogs.map(dog => new Promise(resolve => {
       if (!dog.photo_url) return resolve(null);
       const img = new Image(); img.crossOrigin = 'anonymous';
@@ -1242,8 +1243,9 @@ function adminDrawCard4(phase, dogIndex) {
     ctx.fillText('This Week in LA County', W/2, 340, W - 80);
 
     const dogCount = adminC4Dogs.length;
-    ctx.fillStyle = '#7ec8a0'; ctx.font = `900 ${dogCount > 9 ? 160 : 200}px Arial Black, Arial`; ctx.textAlign = 'center';
-    ctx.fillText(String(adminC4Dogs.length > 0 ? adminC4Dogs.length : '?'), W/2, 580);
+    const totalCount = window.adminC4TotalCount || adminC4Dogs.length;
+    ctx.fillStyle = '#7ec8a0'; ctx.font = `900 ${totalCount > 9 ? 160 : 200}px Arial Black, Arial`; ctx.textAlign = 'center';
+    ctx.fillText(String(totalCount > 0 ? totalCount : '?'), W/2, 580);
 
     ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 48px Arial'; ctx.textAlign = 'center';
     ctx.fillText('dogs on the euthanasia list', W/2, 650, W - 80);
