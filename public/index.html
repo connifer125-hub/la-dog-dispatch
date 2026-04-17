@@ -719,7 +719,163 @@
     </div>
 
     <script src="/js/dog-card.js"></script>
-    <script src="/js/crop-editor.js"></script>
+
+
+<!-- ── CROP EDITOR (access via /#crop-editor) ── -->
+<div id="crop-editor-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9998;overflow-y:auto;">
+  <div style="max-width:900px;margin:0 auto;padding:2rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <div>
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#4a8c6a;margin-bottom:0.3rem;">Internal Tool</div>
+        <h2 style="font-family:'Playfair Display',serif;color:white;font-size:1.6rem;">Fix Dog Card Photos</h2>
+        <p style="color:rgba(255,255,255,0.4);font-size:0.82rem;margin-top:0.3rem;">Adjust the crop position for any dog whose head is cut off.</p>
+      </div>
+      <button onclick="closeCropEditorPanel()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:8px;padding:0.5rem 1.2rem;cursor:pointer;font-size:0.9rem;font-family:inherit;">✕ Close</button>
+    </div>
+
+    <!-- Dog selector -->
+    <div id="crop-dog-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;"></div>
+
+    <!-- Editor -->
+    <div id="crop-editor-panel" style="display:none;background:#1a1614;border-radius:12px;border:1px solid rgba(255,255,255,0.1);padding:1.5rem;">
+      <h3 id="crop-editor-dog-name" style="font-family:'Playfair Display',serif;color:white;font-size:1.1rem;margin-bottom:0.3rem;">Select a dog above</h3>
+      <p style="color:rgba(255,255,255,0.4);font-size:0.78rem;margin-bottom:1rem;">Drag slider to reposition. Left = show head · Right = show body.</p>
+      <canvas id="crop-preview-canvas" width="600" height="340" style="width:100%;border-radius:6px;display:block;margin-bottom:1rem;"></canvas>
+      <div style="display:flex;justify-content:space-between;font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;">
+        <span>⬆ Show Head</span><span>Show Body ⬇</span>
+      </div>
+      <input type="range" id="crop-slider" min="-1" max="1" step="0.05" value="0" style="width:100%;margin-bottom:1.2rem;accent-color:#4a8c6a;">
+      <div style="display:flex;gap:0.6rem;">
+        <button id="crop-save-btn" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:8px;padding:0.7rem;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:inherit;">Save Fix</button>
+        <button onclick="document.getElementById('crop-slider').value=0;cropRenderPreview(0);" style="background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0.7rem 1rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CROP EDITOR PANEL ──────────────────────────────────────────────
+var cropCurrentDog = null;
+var cropImg = null;
+
+function openCropEditorPanel() {
+  document.getElementById('crop-editor-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  cropBuildDogList();
+}
+
+function closeCropEditorPanel() {
+  document.getElementById('crop-editor-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function cropBuildDogList() {
+  var list = document.getElementById('crop-dog-list');
+  list.innerHTML = '';
+  if (!allDogs || !allDogs.length) {
+    list.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Dogs still loading...</p>';
+    setTimeout(cropBuildDogList, 1000);
+    return;
+  }
+  allDogs.forEach(function(dog) {
+    var card = document.createElement('div');
+    card.style.cssText = 'background:#0d0d0d;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,0.1);transition:border-color 0.2s;';
+    card.onmouseover = function() { this.style.borderColor = '#4a8c6a'; };
+    card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.1)'; };
+    var img = document.createElement('img');
+    img.src = dog.photo_url || '';
+    img.style.cssText = 'width:100%;height:100px;object-fit:cover;display:block;';
+    img.onerror = function() { this.style.background='#222'; };
+    var info = document.createElement('div');
+    info.style.cssText = 'padding:0.5rem;';
+    info.innerHTML = '<div style="font-size:0.8rem;font-weight:700;color:white;">' + (dog.name||dog.shelter_id) + '</div>'
+      + '<div style="font-size:0.7rem;color:rgba(255,255,255,0.4);">' + (dog.shelter||'') + '</div>'
+      + (dog.photo_crop_offset && dog.photo_crop_offset != 0 ? '<div style="font-size:0.65rem;color:#4a8c6a;margin-top:2px;">✓ Fixed</div>' : '');
+    card.appendChild(img);
+    card.appendChild(info);
+    card.onclick = function() { cropSelectDog(dog); };
+    list.appendChild(card);
+  });
+}
+
+function cropSelectDog(dog) {
+  cropCurrentDog = dog;
+  document.getElementById('crop-editor-panel').style.display = 'block';
+  document.getElementById('crop-editor-dog-name').textContent = 'Fixing: ' + (dog.name||dog.shelter_id);
+  var slider = document.getElementById('crop-slider');
+  slider.value = dog.photo_crop_offset || 0;
+  cropImg = null;
+  cropRenderPreview(parseFloat(slider.value));
+  if (dog.photo_url) {
+    cropImg = new Image(); cropImg.crossOrigin = 'anonymous';
+    cropImg.onload = function() { cropRenderPreview(parseFloat(slider.value)); };
+    cropImg.src = dog.photo_url;
+  }
+  document.getElementById('crop-editor-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function cropRenderPreview(offset) {
+  var canvas = document.getElementById('crop-preview-canvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#141414'; ctx.fillRect(0,0,W,H);
+  if (cropImg && cropImg.complete && cropImg.naturalWidth) {
+    var scale = Math.max(W/cropImg.naturalWidth, H/cropImg.naturalHeight);
+    var dw = cropImg.naturalWidth*scale, dh = cropImg.naturalHeight*scale;
+    var defaultY = (H-dh)/2;
+    var maxShift = Math.abs(defaultY);
+    var adjustedY = defaultY - (offset * maxShift);
+    ctx.drawImage(cropImg, (W-dw)/2, adjustedY, dw, dh);
+  } else {
+    ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('Loading photo...', W/2, H/2);
+  }
+  ctx.strokeStyle = 'rgba(74,140,106,0.5)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+document.getElementById('crop-slider').addEventListener('input', function() {
+  cropRenderPreview(parseFloat(this.value));
+});
+
+document.getElementById('crop-save-btn').addEventListener('click', async function() {
+  if (!cropCurrentDog) return;
+  var offset = parseFloat(document.getElementById('crop-slider').value);
+  this.textContent = 'Saving...'; this.disabled = true;
+  try {
+    var res = await fetch('/api/dogs/' + cropCurrentDog.id + '/crop', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ photo_crop_offset: offset })
+    });
+    if (res.ok) {
+      cropCurrentDog.photo_crop_offset = offset;
+      this.textContent = '✓ Saved!'; this.style.background = '#166534';
+      setTimeout(function() {
+        document.getElementById('crop-save-btn').textContent = 'Save Fix';
+        document.getElementById('crop-save-btn').style.background = '';
+        document.getElementById('crop-save-btn').disabled = false;
+        cropBuildDogList();
+      }, 1000);
+    } else { throw new Error(); }
+  } catch(e) {
+    this.textContent = 'Error'; this.style.background = '#c4281c';
+    var btn = this;
+    setTimeout(function() { btn.textContent = 'Save Fix'; btn.style.background = ''; btn.disabled = false; }, 2000);
+  }
+});
+
+// Hash trigger
+function checkCropHash() {
+  if (window.location.hash === '#crop-editor') window.openCropEditorPanel();
+}
+window.openCropEditorPanel = openCropEditorPanel;
+window.addEventListener('hashchange', checkCropHash);
+document.addEventListener('DOMContentLoaded', function() { setTimeout(checkCropHash, 300); });
+</script>
+
 
 <!-- ── ADMIN: IG CARD GENERATOR (access via /#admin-cards) ── -->
 <div id="admin-cards-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;overflow-y:auto;">
