@@ -1036,14 +1036,15 @@ Sign up → ladogdispatch.com/social-sharer-signup.html
 </div>
 
 <script>
-(function() { // ── ADMIN CARD PANEL ─────────────────────────────
+
+// ── ADMIN CARD PANEL ──────────────────────────────────────────
 window.openAdminCards = function openAdminCards() {
   document.getElementById('admin-cards-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  if (adminLogo.complete && adminLogo.naturalWidth > 0) {
+  if (adminLogoImg.complete && adminLogoImg.naturalWidth > 0) {
     setTimeout(() => { adminRunCard1(); adminRunCard2(); adminRunCard3(); adminRunCard4(); }, 100);
   } else {
-    adminLogo.onload = () => { adminRunCard1(); adminRunCard2(); adminRunCard3(); adminRunCard4(); };
+    adminLogoImg.onload = () => { adminRunCard1(); adminRunCard2(); adminRunCard3(); adminRunCard4(); };
   }
 }
 
@@ -1060,9 +1061,9 @@ window.addEventListener('hashchange', checkAdminHash);
 document.addEventListener('DOMContentLoaded', () => setTimeout(checkAdminHash, 300));
 
 // ── SHARED CANVAS HELPERS ──
-const adminLogo = new Image();
-adminLogo.onload = () => { if (document.getElementById('admin-cards-overlay').style.display === 'block') { adminRunCard1(); adminRunCard2(); } };
-adminLogo.src = '/logo-wordmark.png';
+var adminLogoImg = new Image();
+adminLogoImg.onload = () => { if (document.getElementById('admin-cards-overlay').style.display === 'block') { adminRunCard1(); adminRunCard2(); } };
+adminLogoImg.src = '/logo-wordmark.png';
 
 function adminDrawBase(ctx, W, H) {
   ctx.fillStyle = '#141414'; ctx.fillRect(0, 0, W, H);
@@ -1073,9 +1074,9 @@ function adminDrawBase(ctx, W, H) {
 }
 
 function adminDrawLogo(ctx, W, y, h) {
-  if (adminLogo.complete && adminLogo.naturalWidth > 0) {
+  if (adminLogoImg.complete && adminLogoImg.naturalWidth > 0) {
     const scale = h / adminLogo.naturalHeight;
-    const w = adminLogo.naturalWidth * scale;
+    const w = adminLogoImg.naturalWidth * scale;
     ctx.drawImage(adminLogo, (W - w) / 2, y, w, h);
   } else {
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 52px Arial Black, Arial'; ctx.textAlign = 'center';
@@ -1528,7 +1529,6 @@ function adminCopyText(id, btn) {
     setTimeout(() => { btn.textContent = orig; btn.style.background = ''; btn.style.color = '#4a8c6a'; btn.style.borderColor = '#4a8c6a'; }, 2500);
   });
 }
-})();
 </script>
 
 
