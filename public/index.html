@@ -1310,6 +1310,12 @@ function adminDrawCard4(phase, dogIndex) {
     ctx.fillStyle = daysLeft <= 0 ? '#ff5252' : '#fcd34d'; ctx.font = 'bold 36px Arial';
     ctx.fillText(`Deadline: ${dlStr}  ·  ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`, W/2, H - 90, W - 80);
 
+    // Shelter ID — small bottom left
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '28px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(dog.shelter_id || '', 40, H - 22);
+
     // Bottom bar
     ctx.fillStyle = '#4a8c6a'; ctx.fillRect(0, H - 12, W, 12);
 
@@ -1475,6 +1481,12 @@ function adminDrawCard3(phase, dogIndex) {
     const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     ctx.fillStyle = isCrit ? '#ff5252' : '#fcd34d'; ctx.font = 'bold 38px Arial';
     ctx.fillText(`Deadline: ${dlStr}  ·  ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`, W / 2, H - 90, W - 80);
+
+    // Shelter ID — small bottom left
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '28px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(dog.shelter_id || '', 40, H - 22);
 
     // Bottom bar
     ctx.fillStyle = '#4a8c6a'; ctx.fillRect(0, H - 12, W, 12);
