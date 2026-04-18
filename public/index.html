@@ -1209,7 +1209,7 @@ async function adminLoadWeeklyDogs() {
     const data = await res.json();
     const today = new Date(); today.setHours(0,0,0,0);
     const c4Dogs = data.dogs || data || [];
-    // Get up to 6 dogs with photos, sorted by furthest deadline
+    // Get all dogs sorted by furthest deadline
     const c4Filtered = c4Dogs
       .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
       .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
@@ -1409,7 +1409,7 @@ async function adminLoadDogs() {
         return Math.round((d - today) / 86400000) >= 3;
       })
       .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
-      .slice(0, 6);
+
     // Preload images
     adminC3Images = await Promise.all(adminC3Dogs.map(dog => new Promise(resolve => {
       if (!dog.photo_url) return resolve(null);
