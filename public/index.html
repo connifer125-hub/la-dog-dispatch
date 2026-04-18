@@ -1008,7 +1008,7 @@ Sign up → ladogdispatch.com/social-sharer-signup.html
         </div>
         <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
           <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Caption Copy</div>
-          <div id="admin-copy4" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;">This week, <span id="admin-copy4-count">—</span> dogs in LA County were listed for euthanasia. Every single one of them got a post — automatically, in real time, the moment they were listed.
+          <div id="admin-copy4" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;"><span id="admin-copy4-count">—</span> dogs in LA County are on the euth list right now. Every single one of them got a post — automatically, in real time, the moment they were listed.
 
 That's what LA Dog Dispatch does. We are not a rescue. We are the visibility engine that makes sure no dog disappears quietly.
 
@@ -1213,8 +1213,8 @@ async function adminLoadWeeklyDogs() {
     const c4Filtered = c4Dogs
       .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
       .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
-    window.adminC4TotalCount = c4Dogs.filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); const t2 = new Date(); t2.setHours(0,0,0,0); return d >= t2; }).length;
-    adminC4Dogs = c4Filtered.slice(0, 6);
+    window.adminC4TotalCount = c4Filtered.length;
+    adminC4Dogs = c4Filtered;
     // Update caption with real dog count
     const countEl = document.getElementById('admin-copy4-count');
     if (countEl) countEl.textContent = window.adminC4TotalCount || adminC4Dogs.length;
@@ -1250,7 +1250,7 @@ function adminDrawCard4(phase, dogIndex) {
     ctx.fillText(String(totalCount > 0 ? totalCount : '?'), W/2, 580);
 
     ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 48px Arial'; ctx.textAlign = 'center';
-    ctx.fillText('dogs on the euthanasia list', W/2, 650, W - 80);
+    ctx.fillText('dogs on the euth list right now', W/2, 650, W - 80);
     ctx.fillText('Every one got a post.', W/2, 720, W - 80);
 
     adminFooterPill(ctx, W, H);
@@ -1317,28 +1317,36 @@ function adminDrawCard4(phase, dogIndex) {
     adminDrawLogo(ctx, W, 20, 200);
     adminDivider(ctx, W, 245);
 
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 58px Georgia, serif'; ctx.textAlign = 'center';
-    ctx.fillText('Visibility is how', W/2, 340, W - 80);
-    ctx.fillText('we start.', W/2, 415, W - 80);
+    // Main headline
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 62px Georgia, serif'; ctx.textAlign = 'center';
+    ctx.fillText('Every dog deserves', W/2, 340, W - 80);
+    ctx.fillText('to be seen.', W/2, 420, W - 80);
 
-    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 52px Georgia, serif';
-    ctx.fillText('You are how', W/2, 510, W - 80);
-    ctx.fillText('it spreads.', W/2, 578, W - 80);
+    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 54px Georgia, serif';
+    ctx.fillText('We need your help.', W/2, 510, W - 80);
 
-    adminDivider(ctx, W, 620);
+    adminDivider(ctx, W, 560);
 
-    ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.font = '34px Arial';
-    ctx.fillText('Become a Social Sharer.', W/2, 685, W - 80);
-    ctx.fillText('We automate the post,', W/2, 730, W - 80);
-    ctx.fillText('you share it in one tap.', W/2, 775, W - 80);
-
-    // CTA box
+    // Two CTA boxes
+    // Box 1 - Social Sharers
     ctx.fillStyle = 'rgba(74,140,106,0.2)'; ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.roundRect(80, 810, W-160, 140, 16); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
-    ctx.fillText('DM us · @la_dog_dispatch', W/2, 862);
-    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '26px Arial';
-    ctx.fillText('ladogdispatch.com/social-sharer-signup.html', W/2, 912, W - 120);
+    ctx.beginPath(); ctx.roundRect(60, 590, W-120, 140, 16); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 30px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('📢  Become a Social Sharer', W/2, 640);
+    ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.font = '26px Arial';
+    ctx.fillText('We automate the post — you share in one tap', W/2, 682, W - 140);
+    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '22px Arial';
+    ctx.fillText('ladogdispatch.com/social-sharer-signup.html', W/2, 716, W - 140);
+
+    // Box 2 - Volunteers
+    ctx.fillStyle = 'rgba(74,140,106,0.12)'; ctx.strokeStyle = 'rgba(74,140,106,0.4)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(60, 752, W-120, 140, 16); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 30px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('🐾  Dog Walkers & Volunteers', W/2, 802);
+    ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.font = '26px Arial';
+    ctx.fillText('We can tag YOUR rescue in automated posts', W/2, 844, W - 140);
+    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '22px Arial';
+    ctx.fillText('DM us on Instagram → @la_dog_dispatch', W/2, 878, W - 140);
 
     adminFooterPill(ctx, W, H);
   }
@@ -1363,6 +1371,7 @@ function adminRunCard4() {
   }
   // CTA
   adminC4Timers.push(setTimeout(() => adminDrawCard4('cta', 0), t + 300));
+  // Hold CTA for 4 seconds (recording ends after this)
 }
 
 // ── RECORD VIDEO ──
@@ -1581,13 +1590,13 @@ function adminRecordCard(cardNum) {
   } else if (cardNum === 3) {
     var go3 = function() {
       adminRunCard3();
-      setTimeout(function() { recorder.stop(); }, (Math.min(adminC3Dogs.length, 6) * 1200) + 2000);
+      setTimeout(function() { recorder.stop(); }, (adminC3Dogs.length * 1200) + 2000);
     };
     adminC3Dogs.length === 0 ? adminLoadDogs().then(go3) : go3();
   } else {
     var go4 = function() {
       adminRunCard4();
-      setTimeout(function() { recorder.stop(); }, 2500 + (Math.min(adminC4Dogs.length, 6) * 1200) + 3000);
+      setTimeout(function() { recorder.stop(); }, 2500 + (adminC4Dogs.length * 1200) + 4000);
     };
     adminC4Dogs.length === 0 ? adminLoadWeeklyDogs().then(go4) : go4();
 
