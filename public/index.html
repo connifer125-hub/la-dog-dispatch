@@ -1362,9 +1362,8 @@ function adminRunCard4() {
   // Intro
   adminC4Timers.push(setTimeout(() => adminDrawCard4('intro', 0), t));
   t += 2500;
-  // Dogs
-  const dogCount = Math.min(adminC4Dogs.length, 6);
-  for (let i = 0; i < dogCount; i++) {
+  // Dogs — show all
+  for (let i = 0; i < adminC4Dogs.length; i++) {
     const idx = i;
     adminC4Timers.push(setTimeout(() => adminDrawCard4('dog', idx), t));
     t += 1200;
@@ -1520,10 +1519,9 @@ function adminRunCard3() {
     adminLoadDogs().then(() => adminRunCard3());
     return;
   }
-  const dogCount = Math.min(adminC3Dogs.length, 6);
   const dogDuration = 1200;
   let t = 0;
-  for (let i = 0; i < dogCount; i++) {
+  for (let i = 0; i < adminC3Dogs.length; i++) {
     const idx = i;
     adminC3Timers.push(setTimeout(() => adminDrawCard3('dog', idx), t));
     t += dogDuration;
