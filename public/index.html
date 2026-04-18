@@ -1042,9 +1042,9 @@ window.openAdminCards = function openAdminCards() {
   document.getElementById('admin-cards-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
   if (adminLogoImg.complete && adminLogoImg.naturalWidth > 0) {
-    setTimeout(() => { adminRunCard1(); adminRunCard2(); adminRunCard3(); adminRunCard4(); }, 100);
+    setTimeout(() => { adminRunCard1(); adminRunCard2(); adminRunCard3(); }, 100);
   } else {
-    adminLogoImg.onload = () => { adminRunCard1(); adminRunCard2(); adminRunCard3(); adminRunCard4(); };
+    adminLogoImg.onload = () => { adminRunCard1(); adminRunCard2(); adminRunCard3(); };
   }
 }
 
@@ -1592,8 +1592,8 @@ function adminRecordCard(cardNum) {
     var go3 = function() { doRecord(window.adminRunCard3, (Math.min(window.adminC3Dogs ? window.adminC3Dogs.length : 6, 6) * 1200) + 2000); };
     (!window.adminC3Dogs || window.adminC3Dogs.length === 0) ? window.adminLoadDogs().then(go3) : go3();
   } else {
-    var go4 = function() { doRecord(window.adminRunCard4, 2500 + (Math.min(window.adminC4Dogs ? window.adminC4Dogs.length : 6, 6) * 1200) + 3000); };
-    (!window.adminC4Dogs || window.adminC4Dogs.length === 0) ? window.adminLoadWeeklyDogs().then(go4) : go4();
+    var go4 = function() { doRecord(_runCard4Anim, 2500 + (Math.min(adminC4Dogs ? adminC4Dogs.length : 6, 6) * 1200) + 3000); };
+    (!adminC4Dogs || adminC4Dogs.length === 0) ? adminLoadWeeklyDogs().then(go4) : go4();
   }
 }
 </script>
