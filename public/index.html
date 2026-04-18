@@ -1266,7 +1266,11 @@ function adminDrawCard4(phase, dogIndex) {
     if (img) {
       const scale = Math.max(W / img.width, H / img.height);
       const dw = img.width * scale, dh = img.height * scale;
-      ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      const cropOffset = parseFloat(dog.photo_crop_offset || 0);
+      const defaultY = (H - dh) / 2;
+      const maxShift = Math.abs(defaultY);
+      const adjustedY = defaultY - (cropOffset * maxShift);
+      ctx.drawImage(img, (W - dw) / 2, adjustedY, dw, dh);
     }
 
     // Dark gradient
