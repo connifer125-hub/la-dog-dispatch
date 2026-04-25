@@ -2089,99 +2089,145 @@ async function spmDownloadWantedPoster() {
   const d = new Date(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
+  const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'}).toUpperCase();
 
-  // Aged paper background
-  ctx.fillStyle = '#f2e4c4'; ctx.fillRect(0,0,W,H);
-  // Paper grain
-  for (let y=0;y<H;y+=3) {
-    ctx.fillStyle = `rgba(0,0,0,${0.01+Math.random()*0.02})`;
-    ctx.fillRect(0,y,W,2);
+  // ── AGED PAPER BACKGROUND ──
+  ctx.fillStyle = '#e8d5a0'; ctx.fillRect(0,0,W,H);
+  // Horizontal grain
+  for (let y=0;y<H;y++) {
+    ctx.fillStyle = `rgba(80,50,10,${0.008+Math.random()*0.018})`;
+    ctx.fillRect(0,y,W,1);
   }
-  // Corner stains
-  const corners = [[0,0],[W,0],[0,H],[W,H]];
-  corners.forEach(([cx,cy]) => {
-    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,200);
-    g.addColorStop(0,'rgba(120,80,20,0.15)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  // Foxing spots
+  for (let i=0;i<80;i++) {
+    const fx=Math.random()*W, fy=Math.random()*H, fr=2+Math.random()*14;
+    const fg=ctx.createRadialGradient(fx,fy,0,fx,fy,fr);
+    fg.addColorStop(0,'rgba(100,60,20,0.14)'); fg.addColorStop(1,'rgba(100,60,20,0)');
+    ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(fx,fy,fr,0,Math.PI*2); ctx.fill();
+  }
+  // Edge vignette
+  [['h',0],['h',H-80],['v',0],['v',W-80]].forEach(([dir,pos]) => {
+    let g;
+    if (dir==='h') { g=ctx.createLinearGradient(0,pos,0,pos+(pos===0?80:-80)); }
+    else { g=ctx.createLinearGradient(pos,0,pos+(pos===0?80:-80),0); }
+    g.addColorStop(0,'rgba(60,35,5,0.35)'); g.addColorStop(1,'rgba(60,35,5,0)');
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   });
 
-  // Outer border — thick dark brown
-  ctx.strokeStyle='#3a2000'; ctx.lineWidth=16;
-  ctx.strokeRect(20,20,W-40,H-40);
-  // Inner border
-  ctx.strokeStyle='#5c3a00'; ctx.lineWidth=4;
-  ctx.strokeRect(36,36,W-72,H-72);
+  // ── BORDERS ──
+  ctx.strokeStyle='#2a1500'; ctx.lineWidth=14;
+  ctx.strokeRect(18,18,W-36,H-36);
+  ctx.strokeStyle='#2a1500'; ctx.lineWidth=3;
+  ctx.strokeRect(30,30,W-60,H-60);
 
-  // WANTED header
-  ctx.fillStyle='#1a0a00'; ctx.font='900 120px Arial Black,Arial'; ctx.textAlign='center';
-  ctx.fillText('WANTED', W/2, 140);
+  // Corner ornaments
+  ctx.fillStyle='#2a1500'; ctx.font='bold 40px serif'; ctx.textAlign='center';
+  [[46,56],[W-46,56],[46,H-30],[W-46,H-30]].forEach(([cx,cy]) => ctx.fillText('✦',cx,cy));
 
-  // Subheader
-  ctx.fillStyle='#c4281c'; ctx.font='bold 46px Arial'; ctx.textAlign='center';
-  ctx.fillText('A LOVING, PATIENT HOME', W/2, 192);
+  // ── WANTED ──
+  ctx.fillStyle='#1a0800';
+  ctx.font='900 148px Georgia,"Times New Roman",serif'; ctx.textAlign='center';
+  ctx.save(); ctx.translate(W/2,148); ctx.rotate(-0.006);
+  ctx.fillText('WANTED',0,0);
+  ctx.restore();
 
-  // Divider
-  ctx.strokeStyle='#3a2000'; ctx.lineWidth=3;
-  ctx.beginPath(); ctx.moveTo(80,210); ctx.lineTo(W-80,210); ctx.stroke();
+  // Rules
+  ctx.fillStyle='#2a1500';
+  ctx.fillRect(50,165,W-100,5); ctx.fillRect(50,172,W-100,2);
 
-  // Dog photo — large, centered
-  const photoSize = 480;
-  const photoX = (W-photoSize)/2;
-  const photoY = 228;
-  ctx.fillStyle='#d4b896';
-  ctx.fillRect(photoX-4,photoY-4,photoSize+8,photoSize+8);
-  ctx.strokeStyle='#3a2000'; ctx.lineWidth=4;
-  ctx.strokeRect(photoX-4,photoY-4,photoSize+8,photoSize+8);
+  // Subhead
+  ctx.fillStyle='#1a0800'; ctx.font='bold 38px Georgia,serif'; ctx.textAlign='center';
+  ctx.fillText('A LOVING, PATIENT HOME',W/2,214);
+
+  ctx.fillStyle='#2a1500';
+  ctx.fillRect(50,224,W-100,2); ctx.fillRect(50,230,W-100,5);
+
+  // ── PHOTO — fixed position, no overlap ──
+  const photoW=520, photoH=420;
+  const photoX=(W-photoW)/2, photoY=248;
+
+  // Photo border/mat
+  ctx.fillStyle='#c8b07a'; ctx.fillRect(photoX-8,photoY-8,photoW+16,photoH+16);
+  ctx.strokeStyle='#2a1500'; ctx.lineWidth=4;
+  ctx.strokeRect(photoX-8,photoY-8,photoW+16,photoH+16);
+  ctx.strokeStyle='#4a3010'; ctx.lineWidth=2;
+  ctx.strokeRect(photoX-14,photoY-14,photoW+28,photoH+28);
 
   if (dog.photo_url) {
     await new Promise(resolve => {
-      const img = new Image(); img.crossOrigin='anonymous';
-      img.onload = () => {
-        const cropOffset = parseFloat(dog.photo_crop_offset||0);
+      const img=new Image(); img.crossOrigin='anonymous';
+      img.onload=()=>{
+        const cropOffset=parseFloat(dog.photo_crop_offset||0);
         ctx.save();
-        ctx.rect(photoX,photoY,photoSize,photoSize); ctx.clip();
-        const scale=Math.max(photoSize/img.width,photoSize/img.height);
-        const dw=img.width*scale,dh=img.height*scale;
-        const defY=photoY+(photoSize-dh)/2;
+        ctx.beginPath(); ctx.rect(photoX,photoY,photoW,photoH); ctx.clip();
+        const scale=Math.max(photoW/img.width,photoH/img.height);
+        const dw=img.width*scale, dh=img.height*scale;
+        const defY=photoY+(photoH-dh)/2;
         const adj=defY-(cropOffset*Math.abs(defY-photoY));
-        ctx.drawImage(img,photoX+(photoSize-dw)/2,adj,dw,dh);
+        ctx.drawImage(img,photoX+(photoW-dw)/2,adj,dw,dh);
         ctx.restore();
         resolve();
       };
       img.onerror=()=>resolve();
       img.src=dog.photo_url;
     });
+  } else {
+    ctx.fillStyle='#b8a060'; ctx.fillRect(photoX,photoY,photoW,photoH);
+    ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.font='bold 32px Georgia'; ctx.textAlign='center';
+    ctx.fillText('[ DOG PHOTO ]',photoX+photoW/2,photoY+photoH/2);
   }
 
-  // Name
-  ctx.fillStyle='#1a0a00'; ctx.font='900 96px Arial Black,Arial'; ctx.textAlign='center';
-  let ns=96; ctx.font=`900 ${ns}px Arial Black,Arial`;
-  const nm=(dog.name||dog.shelter_id).toUpperCase();
-  while(ctx.measureText(nm).width>W-120&&ns>50){ns-=4;ctx.font=`900 ${ns}px Arial Black,Arial`;}
-  ctx.fillText(nm,W/2,788);
+  // Photo caption
+  ctx.fillStyle='#2a1500'; ctx.font='italic 26px Georgia,serif'; ctx.textAlign='center';
+  ctx.fillText(`${(dog.name||dog.shelter_id).toUpperCase()} · ${dog.breed||'Mixed'} · ${dog.shelter||'LA County'}`, W/2, photoY+photoH+38);
 
-  // Info line
-  ctx.fillStyle='#3a2000'; ctx.font='bold 36px Arial'; ctx.textAlign='center';
-  ctx.fillText([dog.breed,dog.age,dog.gender].filter(Boolean).join('  ·  '),W/2,836);
+  // Rule after photo
+  ctx.fillStyle='#2a1500';
+  ctx.fillRect(50, photoY+photoH+50, W-100, 2);
+  ctx.fillRect(50, photoY+photoH+56, W-100, 5);
+
+  // ── NAME ──
+  const nameY = photoY+photoH+110;
+  ctx.fillStyle='#1a0800';
+  let ns=108; ctx.font=`900 ${ns}px Georgia,"Times New Roman",serif`; ctx.textAlign='center';
+  const nm=(dog.name||dog.shelter_id).toUpperCase();
+  while(ctx.measureText(`"${nm}"`).width>W-120&&ns>60){ns-=4;ctx.font=`900 ${ns}px Georgia,"Times New Roman",serif`;}
+  ctx.save(); ctx.translate(W/2,nameY); ctx.rotate(0.005);
+  ctx.fillText(`"${nm}"`,0,0);
+  ctx.restore();
+
+  // Info
+  ctx.fillStyle='#2a1500'; ctx.font='bold 30px Georgia,serif'; ctx.textAlign='center';
+  ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '),W/2,nameY+46);
+
+  // Rule
+  ctx.fillStyle='#2a1500';
+  ctx.fillRect(50,nameY+62,W-100,3);
+
+  // Quote
+  ctx.fillStyle='#3a1a00'; ctx.font='italic 28px Georgia,serif'; ctx.textAlign='center';
+  ctx.fillText('"Guilty only of needing a home"',W/2,nameY+96);
+
+  // Rule
+  ctx.fillStyle='#2a1500';
+  ctx.fillRect(50,nameY+110,W-100,3);
+  ctx.fillRect(50,nameY+116,W-100,5);
+
+  // Deadline
+  ctx.fillStyle='rgba(160,30,20,0.9)'; ctx.font='bold 34px Georgia,serif'; ctx.textAlign='center';
+  ctx.fillText(`⚠  DEADLINE: ${dlStr}  —  ${daysLeft<=0?'TODAY':daysLeft+' DAYS'}  ⚠`,W/2,nameY+156,W-80);
 
   // Shelter + ID
-  ctx.fillStyle='#5c3a00'; ctx.font='bold 30px Arial';
-  ctx.fillText(`${dog.shelter||'LA County'}  ·  ID: ${dog.shelter_id||''}`,W/2,878);
+  ctx.fillStyle='#2a1500'; ctx.font='bold 26px Georgia,serif';
+  ctx.fillText(`${dog.shelter||'LA County'}  ·  ID: ${dog.shelter_id||''}`,W/2,nameY+194);
 
-  // Deadline — red stamp style
-  ctx.fillStyle='rgba(196,40,28,0.15)';
-  ctx.beginPath(); ctx.roundRect(W/2-220,900,440,60,8); ctx.fill();
-  ctx.strokeStyle='#c4281c'; ctx.lineWidth=3;
-  ctx.beginPath(); ctx.roundRect(W/2-220,900,440,60,8); ctx.stroke();
-  ctx.fillStyle='#c4281c'; ctx.font='bold 30px Arial'; ctx.textAlign='center';
-  const dlStr=new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
-  ctx.fillText(`⚠ DEADLINE: ${dlStr.toUpperCase()} — ${daysLeft<=0?'TODAY':daysLeft+' DAYS'}`,W/2,939);
-
-  // Footer
-  ctx.fillStyle='#3a2000'; ctx.font='bold 26px Arial';
-  ctx.fillText('Share · Foster · Rescue · ladogdispatch.com',W/2,994);
-  ctx.fillStyle='#5c3a00'; ctx.font='24px Arial';
-  ctx.fillText('@la_dog_dispatch',W/2,1028);
+  // Final rule + footer
+  ctx.fillStyle='#2a1500';
+  ctx.fillRect(50,nameY+208,W-100,2); ctx.fillRect(50,nameY+213,W-100,5);
+  ctx.font='bold 24px Georgia,serif';
+  ctx.fillText('Share · Foster · Rescue  ·  ladogdispatch.com',W/2,nameY+238,W-80);
+  ctx.fillStyle='#4a3010'; ctx.font='22px Georgia,serif';
+  ctx.fillText('@la_dog_dispatch',W/2,nameY+266);
 
   setTimeout(()=>{
     const a=document.createElement('a');
