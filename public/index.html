@@ -1769,7 +1769,7 @@ async function spmDownloadCountdownCalendar() {
   );
 
   // Month name
-  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 28px Arial';
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px Arial';
   ctx.fillText(monthName.toUpperCase(), W/2, 190);
 
   // ── DAY HEADERS ──
@@ -1817,51 +1817,56 @@ async function spmDownloadCountdownCalendar() {
       ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.fill();
     }
 
+    // ── Draw grid cell outline ──
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 2, cy - 34, cellW - 4, cellH - 4, 6); ctx.stroke();
+
     // Day number color
     if (isDeadline) {
       ctx.fillStyle = '#ff5252';
     } else if (isToday) {
       ctx.fillStyle = '#ffffff';
     } else if (isShelterDay) {
-      ctx.fillStyle = 'rgba(255,255,255,0.25)'; // greyed out shelter days
+      ctx.fillStyle = '#ffffff'; // bright white, X will show it's past
     } else if (isPast || isAfterDeadline) {
-      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
     } else if (isUrgent) {
-      ctx.fillStyle = '#ff5252'; // red for days still left
+      ctx.fillStyle = '#ff5252';
     } else {
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillStyle = '#ffffff';
     }
 
-    ctx.font = `bold ${isToday || isDeadline ? '36' : '30'}px Arial`;
+    ctx.font = `bold ${isToday || isDeadline ? '38' : '32'}px Arial`;
     ctx.textAlign = 'center';
     ctx.fillText(day, cx, cy);
 
-    // Greyed X for shelter days (dog has been waiting)
+    // Full-cell X for shelter days
     if (isShelterDay) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 2;
-      const x1 = cx - 16, y1 = cy - 26, x2 = cx + 16, y2 = cy + 6;
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2.5;
+      const x1 = cx - cellW/2 + 8, y1 = cy - 30;
+      const x2 = cx + cellW/2 - 8, y2 = cy + cellH - 42;
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(x2, y1); ctx.lineTo(x1, y2); ctx.stroke();
     }
 
-    // Today indicator
+    // Today indicator dot
     if (isToday) {
       ctx.fillStyle = colors.primary;
-      ctx.beginPath(); ctx.arc(cx, cy + 18, 5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy + 20, 6, 0, Math.PI*2); ctx.fill();
     }
 
-    // Intake date — green circle
+    // Intake date — green circle + bold arrived label
     if (isIntake) {
       ctx.strokeStyle = colors.primary; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(cx, cy - 12, 22, 0, Math.PI*2); ctx.stroke();
-      ctx.fillStyle = colors.primary; ctx.font = '14px Arial';
-      ctx.fillText('arrived', cx, cy + 22);
+      ctx.beginPath(); ctx.arc(cx, cy - 10, 26, 0, Math.PI*2); ctx.stroke();
+      ctx.fillStyle = colors.primary; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
+      ctx.fillText('ARRIVED', cx, cy + 26);
     }
 
     // Deadline — sad face
     if (isDeadline) {
-      ctx.font = '28px Arial'; ctx.textAlign = 'center';
-      ctx.fillText('😢', cx, cy + 24);
+      ctx.font = '30px Arial'; ctx.textAlign = 'center';
+      ctx.fillText('😢', cx, cy + 26);
     }
 
     col++;
@@ -1899,7 +1904,7 @@ async function spmDownloadCountdownCalendar() {
       ctx.fillText(i+1, lx+10, ly+5);
     }
 
-    ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '19px Arial'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 19px Arial'; ctx.textAlign = 'left';
     ctx.fillText(item.label, lx + 28, ly + 7);
     legX += ctx.measureText(item.label).width + 60;
   });
@@ -1907,7 +1912,7 @@ async function spmDownloadCountdownCalendar() {
   // ── FOOTER ──
   ctx.fillStyle = colors.deadline; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
   ctx.fillText('@la_dog_dispatch  ·  ' + (dog.shelter_id||''), W/2, H - 50);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '22px Arial';
+  ctx.fillStyle = '#ffffff'; ctx.font = '22px Arial';
   ctx.fillText(dog.shelter || '', W/2, H - 22);
 
   // Bottom bar
