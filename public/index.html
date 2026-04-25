@@ -2091,28 +2091,79 @@ async function spmDownloadWantedPoster() {
   const daysLeft = Math.round((d-t)/86400000);
   const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'}).toUpperCase();
 
-  // ── AGED PAPER BACKGROUND ──
-  ctx.fillStyle = '#e8d5a0'; ctx.fillRect(0,0,W,H);
-  // Horizontal grain
+  // ── AGED PAPER BACKGROUND — dusty like old wanted poster ──
+  // Base — warm tan/khaki, not too yellow
+  ctx.fillStyle = '#c9b47a'; ctx.fillRect(0,0,W,H);
+
+  // Mottled overlay — uneven aging across the page
+  const mottleGrad = ctx.createRadialGradient(W*0.3,H*0.35,0,W*0.3,H*0.35,W*0.8);
+  mottleGrad.addColorStop(0,'rgba(220,195,130,0.7)');
+  mottleGrad.addColorStop(0.5,'rgba(180,145,85,0.3)');
+  mottleGrad.addColorStop(1,'rgba(120,85,30,0.4)');
+  ctx.fillStyle=mottleGrad; ctx.fillRect(0,0,W,H);
+
+  // Second mottle — different center
+  const mottleGrad2 = ctx.createRadialGradient(W*0.75,H*0.6,0,W*0.75,H*0.6,W*0.7);
+  mottleGrad2.addColorStop(0,'rgba(210,180,110,0.5)');
+  mottleGrad2.addColorStop(1,'rgba(100,70,20,0.3)');
+  ctx.fillStyle=mottleGrad2; ctx.fillRect(0,0,W,H);
+
+  // Heavy horizontal grain — aged paper fiber look
   for (let y=0;y<H;y++) {
-    ctx.fillStyle = `rgba(80,50,10,${0.008+Math.random()*0.018})`;
+    const alpha = 0.015 + Math.random()*0.04;
+    ctx.fillStyle = `rgba(60,35,5,${alpha})`;
     ctx.fillRect(0,y,W,1);
   }
-  // Foxing spots
-  for (let i=0;i<80;i++) {
-    const fx=Math.random()*W, fy=Math.random()*H, fr=2+Math.random()*14;
+
+  // Large foxing/age blotches
+  for (let i=0;i<120;i++) {
+    const fx=Math.random()*W, fy=Math.random()*H;
+    const fr=4+Math.random()*30;
     const fg=ctx.createRadialGradient(fx,fy,0,fx,fy,fr);
-    fg.addColorStop(0,'rgba(100,60,20,0.14)'); fg.addColorStop(1,'rgba(100,60,20,0)');
+    const alpha = 0.08+Math.random()*0.18;
+    fg.addColorStop(0,`rgba(80,45,8,${alpha})`);
+    fg.addColorStop(1,'rgba(80,45,8,0)');
     ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(fx,fy,fr,0,Math.PI*2); ctx.fill();
   }
-  // Edge vignette
-  [['h',0],['h',H-80],['v',0],['v',W-80]].forEach(([dir,pos]) => {
+
+  // Dark staining on edges — heavy corner aging
+  [[0,0],[W,0],[0,H],[W,H]].forEach(([cx,cy]) => {
+    const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.55);
+    cg.addColorStop(0,'rgba(50,25,0,0.55)');
+    cg.addColorStop(0.5,'rgba(50,25,0,0.15)');
+    cg.addColorStop(1,'rgba(50,25,0,0)');
+    ctx.fillStyle=cg; ctx.fillRect(0,0,W,H);
+  });
+
+  // Edge vignette — all 4 sides heavy
+  const edgePairs = [
+    [0,0,W,0,0,120,0,H],   // top
+    [0,H,W,H,0,H-120,0,0], // bottom
+    [0,0,0,H,120,0,W,0],   // left
+    [W,0,W,H,W-120,0,0,0]  // right
+  ];
+  edgePairs.forEach(([x1,y1,x2,y2,ex,ey]) => {
+    const g=ctx.createLinearGradient(x1,y1,x1+(ex-x1 ? ex : 0),y1+(ey-y1 ? ey : 0));
+  });
+  // Simpler edge approach
+  ['top','bottom','left','right'].forEach(side => {
     let g;
-    if (dir==='h') { g=ctx.createLinearGradient(0,pos,0,pos+(pos===0?80:-80)); }
-    else { g=ctx.createLinearGradient(pos,0,pos+(pos===0?80:-80),0); }
-    g.addColorStop(0,'rgba(60,35,5,0.35)'); g.addColorStop(1,'rgba(60,35,5,0)');
+    if (side==='top') g=ctx.createLinearGradient(0,0,0,140);
+    else if (side==='bottom') g=ctx.createLinearGradient(0,H,0,H-140);
+    else if (side==='left') g=ctx.createLinearGradient(0,0,140,0);
+    else g=ctx.createLinearGradient(W,0,W-140,0);
+    g.addColorStop(0,'rgba(50,25,0,0.5)');
+    g.addColorStop(1,'rgba(50,25,0,0)');
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   });
+
+  // Dust/dirt specks
+  for (let i=0;i<200;i++) {
+    ctx.fillStyle=`rgba(40,20,0,${0.1+Math.random()*0.25})`;
+    ctx.beginPath();
+    ctx.arc(Math.random()*W, Math.random()*H, Math.random()*2.5, 0, Math.PI*2);
+    ctx.fill();
+  }
 
   // ── BORDERS ──
   ctx.strokeStyle='#2a1500'; ctx.lineWidth=14;
@@ -2165,6 +2216,41 @@ async function spmDownloadWantedPoster() {
         const defY=photoY+(photoH-dh)/2;
         const adj=defY-(cropOffset*Math.abs(defY-photoY));
         ctx.drawImage(img,photoX+(photoW-dw)/2,adj,dw,dh);
+
+        // ── SEPIA FILTER ──
+        const imgData = ctx.getImageData(photoX,photoY,photoW,photoH);
+        const px = imgData.data;
+        for (let i=0;i<px.length;i+=4) {
+          const r=px[i],g=px[i+1],b=px[i+2];
+          const gray = r*0.299+g*0.587+b*0.114;
+          px[i]   = Math.min(255, gray*1.08+40);
+          px[i+1] = Math.min(255, gray*0.86+20);
+          px[i+2] = Math.min(255, gray*0.67+5);
+        }
+        ctx.putImageData(imgData,photoX,photoY);
+
+        // ── ROUGH TORN BORDER / VIGNETTE ──
+        // Dark vignette edges inside photo
+        const vg = ctx.createRadialGradient(
+          photoX+photoW/2, photoY+photoH/2, photoW*0.25,
+          photoX+photoW/2, photoY+photoH/2, photoW*0.75
+        );
+        vg.addColorStop(0,'rgba(0,0,0,0)');
+        vg.addColorStop(1,'rgba(0,0,0,0.65)');
+        ctx.fillStyle=vg; ctx.fillRect(photoX,photoY,photoW,photoH);
+
+        // Rough dark edges — blotchy like old photo
+        ctx.fillStyle='rgba(30,15,0,0.5)';
+        for (let i=0;i<60;i++) {
+          const ex = photoX + Math.random()*photoW;
+          const ey = photoY + Math.random()*photoH;
+          const distFromEdge = Math.min(ex-photoX, photoX+photoW-ex, ey-photoY, photoY+photoH-ey);
+          if (distFromEdge < 60) {
+            const r2 = 5+Math.random()*25;
+            ctx.beginPath(); ctx.arc(ex,ey,r2,0,Math.PI*2); ctx.fill();
+          }
+        }
+
         ctx.restore();
         resolve();
       };
@@ -2183,11 +2269,11 @@ async function spmDownloadWantedPoster() {
 
   // Rule after photo
   ctx.fillStyle='#2a1500';
-  ctx.fillRect(50, photoY+photoH+50, W-100, 2);
-  ctx.fillRect(50, photoY+photoH+54, W-100, 5);
+  ctx.fillRect(50, photoY+photoH+52, W-100, 2);
+  ctx.fillRect(50, photoY+photoH+57, W-100, 5);
 
   // ── NAME ──
-  const nameY = photoY+photoH+110;
+  const nameY = photoY+photoH+130;
   ctx.fillStyle='#1a0800';
   let ns=96; ctx.font=`900 ${ns}px Georgia,"Times New Roman",serif`; ctx.textAlign='center';
   const nm=(dog.name||dog.shelter_id).toUpperCase();
