@@ -700,7 +700,7 @@
                 <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6b6560;margin-bottom:0.8rem;">📱 Creative Carousel & Reel Cards</div>
                 <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
                   <button onclick="spmDownloadPhoneWrapper()" style="background:#1a1614;color:white;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">📱 Phone Wrapper</button>
-                  <button onclick="spmComingSoon('Countdown Calendar')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">📅 Countdown Calendar</button>
+                  <button onclick="spmDownloadCountdownCalendar()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">📅 Countdown Calendar</button>
                   <button onclick="spmComingSoon('Wanted Poster')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🪧 Wanted Poster</button>
                   <button onclick="spmComingSoon('Crayon Drawing')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🖍 Crayon Drawing</button>
                   <button onclick="spmComingSoon('GRWM')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">✨ GRWM</button>
@@ -1705,6 +1705,220 @@ async function spmDownloadPhoneWrapper() {
   setTimeout(() => {
     const a = document.createElement('a');
     a.download = (dog.name || dog.shelter_id) + '-phone-wrapper.png';
+    a.href = canvas.toDataURL('image/png');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, 100);
+}
+
+async function spmDownloadCountdownCalendar() {
+  const dog = window._spmCurrentDog;
+  if (!dog) return;
+
+  const canvas = document.getElementById('phone-wrapper-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+  canvas.style.display = 'none';
+
+  const colors = getShelterColors(dog.shelter);
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const deadline = new Date(dog.deadline); deadline.setHours(0,0,0,0);
+  const intakeDate = dog.intake_date ? new Date(dog.intake_date) : null;
+  if (intakeDate) intakeDate.setHours(0,0,0,0);
+  const daysLeft = Math.round((deadline - today) / 86400000);
+
+  // Use the month of the deadline
+  const year = deadline.getFullYear();
+  const month = deadline.getMonth();
+  const monthName = deadline.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // ── BACKGROUND ──
+  ctx.fillStyle = '#141414'; ctx.fillRect(0, 0, W, H);
+  const vignette = ctx.createRadialGradient(W/2, H/2, W*0.2, W/2, H/2, W*0.75);
+  vignette.addColorStop(0, 'rgba(0,0,0,0)'); vignette.addColorStop(1, 'rgba(0,0,0,0.6)');
+  ctx.fillStyle = vignette; ctx.fillRect(0, 0, W, H);
+
+  // ── BORDER — shelter color ──
+  ctx.strokeStyle = colors.primary; ctx.lineWidth = 8;
+  ctx.beginPath(); ctx.roundRect(16, 16, W-32, H-32, 24); ctx.stroke();
+
+  // ── TOP BAR ──
+  const topBarGrad = ctx.createLinearGradient(0, 0, W, 0);
+  topBarGrad.addColorStop(0, colors.dark); topBarGrad.addColorStop(0.5, colors.primary); topBarGrad.addColorStop(1, colors.dark);
+  ctx.fillStyle = topBarGrad; ctx.fillRect(16, 16, W-32, 10);
+
+  // ── HEADER ──
+  // Dog name
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 72px Arial Black, Arial'; ctx.textAlign = 'center';
+  let nameSize = 72;
+  const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
+  while (ctx.measureText(name).width > W - 80 && nameSize > 40) { nameSize -= 4; ctx.font = `900 ${nameSize}px Arial Black, Arial`; }
+  ctx.fillText(name, W/2, 100);
+
+  // Urgency line
+  ctx.fillStyle = daysLeft <= 1 ? '#ff5252' : colors.deadline;
+  ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center';
+  ctx.fillText(
+    daysLeft <= 0 ? '🚨 DEADLINE IS TODAY' : `⏰ ${daysLeft} day${daysLeft===1?'':'s'} until deadline`,
+    W/2, 148
+  );
+
+  // Month name
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 28px Arial';
+  ctx.fillText(monthName.toUpperCase(), W/2, 190);
+
+  // ── DAY HEADERS ──
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const calLeft = 60;
+  const calTop = 220;
+  const cellW = (W - 120) / 7;
+  const cellH = 110;
+
+  ctx.fillStyle = colors.primary; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
+  days.forEach((d, i) => {
+    ctx.fillText(d, calLeft + i * cellW + cellW/2, calTop + 28);
+  });
+
+  // Divider under day headers
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(calLeft, calTop + 40); ctx.lineTo(W - calLeft, calTop + 40); ctx.stroke();
+
+  // ── CALENDAR GRID ──
+  let col = firstDay;
+  let row = 0;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const cx = calLeft + col * cellW + cellW/2;
+    const cy = calTop + 50 + row * cellH;
+    const thisDate = new Date(year, month, day); thisDate.setHours(0,0,0,0);
+
+    const isToday = thisDate.getTime() === today.getTime();
+    const isDeadline = thisDate.getTime() === deadline.getTime();
+    const isIntake = intakeDate && thisDate.getTime() === intakeDate.getTime();
+    const isPast = thisDate < today;
+    const isShelterDay = intakeDate && thisDate >= intakeDate && thisDate < today;
+    const isAfterDeadline = thisDate > deadline;
+    const isUrgent = thisDate > today && thisDate <= deadline;
+
+    // Cell background
+    if (isDeadline) {
+      ctx.fillStyle = 'rgba(196,40,28,0.25)';
+      ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.fill();
+    } else if (isToday) {
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.fill();
+    } else if (isUrgent) {
+      ctx.fillStyle = 'rgba(196,40,28,0.08)';
+      ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.fill();
+    }
+
+    // Day number color
+    if (isDeadline) {
+      ctx.fillStyle = '#ff5252';
+    } else if (isToday) {
+      ctx.fillStyle = '#ffffff';
+    } else if (isShelterDay) {
+      ctx.fillStyle = 'rgba(255,255,255,0.25)'; // greyed out shelter days
+    } else if (isPast || isAfterDeadline) {
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    } else if (isUrgent) {
+      ctx.fillStyle = '#ff5252'; // red for days still left
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    }
+
+    ctx.font = `bold ${isToday || isDeadline ? '36' : '30'}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.fillText(day, cx, cy);
+
+    // Greyed X for shelter days (dog has been waiting)
+    if (isShelterDay) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 2;
+      const x1 = cx - 16, y1 = cy - 26, x2 = cx + 16, y2 = cy + 6;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2, y1); ctx.lineTo(x1, y2); ctx.stroke();
+    }
+
+    // Today indicator
+    if (isToday) {
+      ctx.fillStyle = colors.primary;
+      ctx.beginPath(); ctx.arc(cx, cy + 18, 5, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Intake date — green circle
+    if (isIntake) {
+      ctx.strokeStyle = colors.primary; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(cx, cy - 12, 22, 0, Math.PI*2); ctx.stroke();
+      ctx.fillStyle = colors.primary; ctx.font = '14px Arial';
+      ctx.fillText('arrived', cx, cy + 22);
+    }
+
+    // Deadline — sad face
+    if (isDeadline) {
+      ctx.font = '28px Arial'; ctx.textAlign = 'center';
+      ctx.fillText('😢', cx, cy + 24);
+    }
+
+    col++;
+    if (col === 7) { col = 0; row++; }
+  }
+
+  // ── LEGEND ──
+  const legY = calTop + 50 + (row + (col > 0 ? 1 : 0)) * cellH + 20;
+
+  const legendItems = [
+    { color: colors.primary, label: 'Arrived at shelter', type: 'circle' },
+    { color: 'rgba(255,255,255,0.25)', label: 'Days waiting', type: 'x' },
+    { color: '#ff5252', label: 'Days remaining', type: 'square' },
+    { color: '#ff5252', label: '😢 Euthanasia deadline', type: 'emoji' },
+  ];
+
+  ctx.font = '20px Arial'; ctx.textAlign = 'left';
+  let legX = 60;
+  legendItems.forEach((item, i) => {
+    if (i === 2) { legX = 60; }  // wrap to second row if needed
+    const lx = legX;
+    const ly = legY + (i >= 2 ? 34 : 0);
+
+    if (item.type === 'circle') {
+      ctx.strokeStyle = item.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(lx + 10, ly, 10, 0, Math.PI*2); ctx.stroke();
+    } else if (item.type === 'x') {
+      ctx.strokeStyle = item.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(lx+2, ly-8); ctx.lineTo(lx+18, ly+8); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(lx+18, ly-8); ctx.lineTo(lx+2, ly+8); ctx.stroke();
+    } else if (item.type === 'square') {
+      ctx.fillStyle = 'rgba(196,40,28,0.25)';
+      ctx.beginPath(); ctx.roundRect(lx, ly-10, 20, 20, 4); ctx.fill();
+      ctx.fillStyle = item.color; ctx.font = 'bold 14px Arial';
+      ctx.fillText(i+1, lx+10, ly+5);
+    }
+
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '19px Arial'; ctx.textAlign = 'left';
+    ctx.fillText(item.label, lx + 28, ly + 7);
+    legX += ctx.measureText(item.label).width + 60;
+  });
+
+  // ── FOOTER ──
+  ctx.fillStyle = colors.deadline; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('@la_dog_dispatch  ·  ' + (dog.shelter_id||''), W/2, H - 50);
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '22px Arial';
+  ctx.fillText(dog.shelter || '', W/2, H - 22);
+
+  // Bottom bar
+  const botGrad = ctx.createLinearGradient(0, 0, W, 0);
+  botGrad.addColorStop(0, colors.dark); botGrad.addColorStop(0.5, colors.primary); botGrad.addColorStop(1, colors.dark);
+  ctx.fillStyle = botGrad; ctx.fillRect(16, H-16, W-32, 8);
+
+  // Download
+  setTimeout(() => {
+    const a = document.createElement('a');
+    a.download = (dog.name||dog.shelter_id) + '-countdown-calendar.png';
     a.href = canvas.toDataURL('image/png');
     document.body.appendChild(a);
     a.click();
