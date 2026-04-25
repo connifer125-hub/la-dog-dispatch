@@ -1775,18 +1775,19 @@ async function spmDownloadCountdownCalendar() {
   // ── DAY HEADERS ──
   const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
   const calLeft = 60;
-  const calTop = 220;
+  const calTop = 210;
   const cellW = (W - 120) / 7;
   const cellH = 110;
 
-  ctx.fillStyle = colors.primary; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
+  // Day headers
+  ctx.fillStyle = colors.primary; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
   days.forEach((d, i) => {
-    ctx.fillText(d, calLeft + i * cellW + cellW/2, calTop + 28);
+    ctx.fillText(d, calLeft + i * cellW + cellW/2, calTop + 26);
   });
 
   // Divider under day headers
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(calLeft, calTop + 40); ctx.lineTo(W - calLeft, calTop + 40); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(calLeft, calTop + 38); ctx.lineTo(W - calLeft, calTop + 38); ctx.stroke();
 
   // ── CALENDAR GRID ──
   let col = firstDay;
@@ -1794,7 +1795,7 @@ async function spmDownloadCountdownCalendar() {
 
   for (let day = 1; day <= daysInMonth; day++) {
     const cx = calLeft + col * cellW + cellW/2;
-    const cy = calTop + 50 + row * cellH;
+    const cy = calTop + 68 + row * cellH;
     const thisDate = new Date(year, month, day); thisDate.setHours(0,0,0,0);
 
     const isToday = thisDate.getTime() === today.getTime();
@@ -1818,7 +1819,7 @@ async function spmDownloadCountdownCalendar() {
     }
 
     // ── Draw grid cell outline ──
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 2, cy - 34, cellW - 4, cellH - 4, 6); ctx.stroke();
 
     // Day number color
