@@ -628,6 +628,7 @@
     }
 
     async function openShareModal(dog) {
+  window._spmCurrentDog = dog;
         const overlay = document.getElementById('share-preview-overlay');
         const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
@@ -1543,6 +1544,159 @@ function adminRunCard3() {
     t += dogDuration;
   }
   adminC3Timers.push(setTimeout(() => adminDrawCard3('message', 0), t + 300));
+}
+
+function spmComingSoon(name) {
+  alert(name + ' cards coming soon!');
+}
+
+async function spmDownloadPhoneWrapper() {
+  const dog = window._spmCurrentDog;
+  if (!dog) return;
+
+  const canvas = document.getElementById('phone-wrapper-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1920;
+  canvas.width = W; canvas.height = H;
+
+  const colors = getShelterColors(dog.shelter);
+
+  // Background
+  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, H);
+
+  // Subtle gradient bg
+  const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, H*0.7);
+  bgGrad.addColorStop(0, 'rgba(74,140,106,0.08)');
+  bgGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, W, H);
+
+  // Phone frame dimensions - portrait, centered
+  const phoneW = 680;
+  const phoneH = 1340;
+  const phoneX = (W - phoneW) / 2;
+  const phoneY = (H - phoneH) / 2 - 80;
+  const phoneR = 56;
+
+  // Phone outer shadow/glow
+  ctx.shadowColor = colors.primary;
+  ctx.shadowBlur = 60;
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.roundRect(phoneX, phoneY, phoneW, phoneH, phoneR); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Phone border
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.roundRect(phoneX, phoneY, phoneW, phoneH, phoneR); ctx.stroke();
+
+  // Screen inset
+  const scrX = phoneX + 14;
+  const scrY = phoneY + 14;
+  const scrW = phoneW - 28;
+  const scrH = phoneH - 28;
+  const scrR = 44;
+
+  // Screen background - dog photo
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(scrX, scrY, scrW, scrH, scrR); ctx.clip();
+
+  if (dog.photo_url) {
+    await new Promise(resolve => {
+      const img = new Image(); img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const cropOffset = parseFloat(dog.photo_crop_offset || 0);
+        const scale = Math.max(scrW / img.width, scrH / img.height);
+        const dw = img.width * scale, dh = img.height * scale;
+        const defaultY = scrY + (scrH - dh) / 2;
+        const maxShift = Math.abs(defaultY - scrY);
+        const adjustedY = defaultY - (cropOffset * maxShift);
+        ctx.drawImage(img, scrX + (scrW - dw) / 2, adjustedY, dw, dh);
+        resolve();
+      };
+      img.onerror = () => { ctx.fillStyle = '#1a2e24'; ctx.fillRect(scrX, scrY, scrW, scrH); resolve(); };
+      img.src = dog.photo_url.startsWith('http') ? dog.photo_url : window.location.origin + dog.photo_url;
+    });
+  } else {
+    ctx.fillStyle = '#1a2e24'; ctx.fillRect(scrX, scrY, scrW, scrH);
+  }
+
+  // Gradient overlay - bottom 40%
+  const scGrad = ctx.createLinearGradient(0, scrY + scrH * 0.5, 0, scrY + scrH);
+  scGrad.addColorStop(0, 'rgba(0,0,0,0)');
+  scGrad.addColorStop(1, 'rgba(0,0,0,0.92)');
+  ctx.fillStyle = scGrad; ctx.fillRect(scrX, scrY, scrW, scrH);
+
+  ctx.restore();
+
+  // Phone speaker/notch at top
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.roundRect(phoneX + phoneW/2 - 80, phoneY + 22, 160, 28, 14); ctx.fill();
+
+  // IG-style top bar on screen
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(scrX, scrY, scrW, 70);
+  // IG dot + handle
+  const igGrad = ctx.createLinearGradient(scrX+16, scrY+18, scrX+16+40, scrY+58);
+  igGrad.addColorStop(0,'#f09433'); igGrad.addColorStop(0.5,'#dc2743'); igGrad.addColorStop(1,'#bc1888');
+  ctx.fillStyle = igGrad;
+  ctx.beginPath(); ctx.arc(scrX+36, scrY+36, 20, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = 'white'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(scrX+36, scrY+36, 20, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle = 'white'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'left';
+  ctx.fillText('@la_dog_dispatch', scrX+68, scrY+44);
+
+  // Urgent badge on screen
+  const d = new Date(dog.deadline); const t = new Date();
+  d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+  const daysLeft = Math.round((d - t) / 86400000);
+  const isCrit = daysLeft <= 1;
+  ctx.fillStyle = isCrit ? '#c4281c' : colors.primary;
+  ctx.beginPath(); ctx.roundRect(scrX + scrW - 220, scrY + 16, 204, 44, 22); ctx.fill();
+  ctx.fillStyle = 'white'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
+  ctx.fillText(isCrit ? '🚨 TODAY' : `⏰ ${daysLeft} DAYS LEFT`, scrX + scrW - 118, scrY + 44);
+
+  // Dog name - big on screen
+  ctx.fillStyle = 'white'; ctx.textAlign = 'center';
+  let nameSize = 120;
+  ctx.font = `900 ${nameSize}px Arial Black, Arial`;
+  const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
+  while (ctx.measureText(name).width > scrW - 60 && nameSize > 60) { nameSize -= 6; ctx.font = `900 ${nameSize}px Arial Black, Arial`; }
+  ctx.fillText(name, scrX + scrW/2, scrY + scrH - 280);
+
+  // Breed + shelter
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'italic 34px Georgia,serif';
+  ctx.fillText([dog.breed, dog.gender, dog.age].filter(Boolean).join('  ·  '), scrX + scrW/2, scrY + scrH - 228);
+
+  // Shelter + ID
+  ctx.fillStyle = colors.deadline; ctx.font = 'bold 30px Arial';
+  ctx.fillText(dog.shelter, scrX + scrW/2, scrY + scrH - 178);
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '24px monospace';
+  ctx.fillText(dog.shelter_id || '', scrX + scrW/2, scrY + scrH - 138);
+
+  // CTA pill
+  ctx.fillStyle = colors.primary;
+  ctx.beginPath(); ctx.roundRect(scrX + 60, scrY + scrH - 112, scrW - 120, 72, 36); ctx.fill();
+  ctx.fillStyle = 'white'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Share to save this dog 🐾', scrX + scrW/2, scrY + scrH - 68);
+
+  // Home button on phone
+  ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(W/2, phoneY + phoneH - 28, 18, 0, Math.PI*2); ctx.stroke();
+
+  // Bottom text outside phone
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('ladogdispatch.com', W/2, phoneY + phoneH + 60);
+  ctx.fillStyle = colors.deadline; ctx.font = 'bold 26px Arial';
+  ctx.fillText('@la_dog_dispatch', W/2, phoneY + phoneH + 100);
+
+  // Download
+  setTimeout(() => {
+    const a = document.createElement('a');
+    a.download = (dog.name || dog.shelter_id) + '-phone-wrapper.png';
+    a.href = canvas.toDataURL('image/png');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, 100);
 }
 
 function adminCopyText(id, btn) {
