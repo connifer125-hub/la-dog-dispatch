@@ -696,6 +696,19 @@
                 <div class="spm-panel"><div class="spm-panel-label">Card Preview</div><div class="spm-card-preview" id="spm-card-wrap"><div class="spm-loading">Generating...</div></div><button class="spm-btn-primary" onclick="spmShareIG()">📱 Share to IG Story — 1 tap</button><button class="spm-btn-secondary" onclick="spmSaveCard()">⬇ Save Card to Camera Roll</button></div>
                 <div class="spm-panel"><div class="spm-panel-label">Caption Preview — Edit if you'd like</div><textarea class="spm-caption-box" id="spm-caption-text"></textarea><button class="spm-btn-secondary" id="spm-copy-caption-btn" onclick="spmCopyCaption(this)">Copy Caption for Feed or Story</button><button class="spm-btn-secondary" id="spm-copy-tags-btn" onclick="spmCopyTags(this)" style="margin-top:0.5rem;">Copy Rescue Tags to Paste</button></div>
             </div>
+            <div style="padding:1rem 1.5rem;border-top:1px solid var(--color-border);background:#f8f6f3;">
+                <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6b6560;margin-bottom:0.8rem;">📱 Creative Carousel & Reel Cards</div>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+                  <button onclick="spmDownloadPhoneWrapper()" style="background:#1a1614;color:white;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">📱 Phone Wrapper</button>
+                  <button onclick="spmComingSoon('Countdown Calendar')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">📅 Countdown Calendar</button>
+                  <button onclick="spmComingSoon('Wanted Poster')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🪧 Wanted Poster</button>
+                  <button onclick="spmComingSoon('Crayon Drawing')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🖍 Crayon Drawing</button>
+                  <button onclick="spmComingSoon('GRWM')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">✨ GRWM</button>
+                  <button onclick="spmComingSoon('Tinder Profile')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🔥 Tinder Profile</button>
+                  <button onclick="spmComingSoon('Still Waiting')" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">👁 Still Waiting</button>
+                </div>
+                <canvas id="phone-wrapper-canvas" style="display:none;" width="1080" height="1920"></canvas>
+            </div>
             <div class="spm-footer"><button class="spm-done-btn" onclick="closeShareModal()">✓ Done sharing</button></div>
         </div>
     </div>
