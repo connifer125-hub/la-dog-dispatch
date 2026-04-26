@@ -2322,133 +2322,120 @@ async function spmDownloadWantedPoster() {
   },100);
 }
 
-// ── GRWM — 6 SLIDES ──
+// ── GRWM — SINGLE CARD ──
 async function spmDownloadGRWM() {
   const dog = window._spmCurrentDog;
   if (!dog) return;
   const canvas = document.getElementById('phone-wrapper-canvas');
   const ctx = canvas.getContext('2d');
-  const W = 1080, H = 1080;
+  // Output at 1536x1280 (grid + footer bar)
+  const W = 1536, H = 1280;
   canvas.width = W; canvas.height = H;
+
   const colors = getShelterColors(dog.shelter);
   const d = new Date(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
-  const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'});
   const name = (dog.name||dog.shelter_id).toUpperCase();
 
-  const img = await new Promise(resolve => {
+  // Placeholder positions from the grid image (1536x1024)
+  // Each: [absX1, absY1, absX2, absY2]
+  const placeholders = [
+    [17,  30,  501, 511],  // cell 1
+    [521, 27,  1009,511],  // cell 2
+    [1030,31,  1514,511],  // cell 3
+    [17,  512, 511, 987],  // cell 4
+    [512, 512, 1023,993],  // cell 5
+    [1024,512, 1514,993],  // cell 6
+  ];
+
+  // Load dog photo
+  const dogImg = await new Promise(resolve => {
     if (!dog.photo_url) return resolve(null);
     const i = new Image(); i.crossOrigin='anonymous';
     i.onload=()=>resolve(i); i.onerror=()=>resolve(null);
-    i.src=dog.photo_url;
+    i.src = dog.photo_url;
   });
 
-  const slides = [
-    { text: 'Get ready with me 💅', sub: 'to go home 🏡', zoom: 1.0 },
-    { text: 'Step 1:', sub: 'Practice my happy face 😄', zoom: 1.15 },
-    { text: 'Step 2:', sub: 'Sit like a very good dog 🐶', zoom: 1.3 },
-    { text: 'Step 3:', sub: 'Wait… and wait… and wait ⏳', zoom: 1.5 },
-    { text: 'Step 4:', sub: 'Try not to get overlooked 💔', zoom: 1.75 },
-    { text: 'Step 5:', sub: 'Hope someone sees me today 🥺', zoom: 2.2, isCTA: true },
-  ];
+  // Load the GRWM grid template
+  const gridImg = await new Promise(resolve => {
+    const i = new Image(); i.crossOrigin='anonymous';
+    i.onload=()=>resolve(i); i.onerror=()=>resolve(null);
+    i.src = '/grwm-grid.png';
+  });
 
-  for (let si = 0; si < slides.length; si++) {
-    const slide = slides[si];
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  // ── STEP 1: Draw dog photo into each placeholder ──
+  ctx.fillStyle = '#fdf5f0'; ctx.fillRect(0,0,W,H);
 
-    // Dog photo with progressive zoom
-    if (img) {
-      const cropOffset = parseFloat(dog.photo_crop_offset||0);
-      const baseScale = Math.max(W/img.width, H/img.height);
-      const scale = baseScale * slide.zoom;
-      const dw = img.width*scale, dh = img.height*scale;
-      const defY = (H-dh)/2;
-      const maxShift = Math.abs(defY);
-      const adjY = defY - (cropOffset * maxShift);
-      // For higher zoom slides, shift up to show face
-      const faceShift = (slide.zoom - 1) * H * 0.15;
-      ctx.drawImage(img, (W-dw)/2, adjY - faceShift, dw, dh);
-    }
-
-    // Gradient overlay — bottom
-    const grad = ctx.createLinearGradient(0, H*0.45, 0, H);
-    grad.addColorStop(0,'rgba(0,0,0,0)'); grad.addColorStop(1,'rgba(0,0,0,0.88)');
-    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
-
-    // Top gradient for text
-    const topGrad = ctx.createLinearGradient(0,0,0,H*0.35);
-    topGrad.addColorStop(0,'rgba(0,0,0,0.7)'); topGrad.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=topGrad; ctx.fillRect(0,0,W,H);
-
-    // @la_dog_dispatch top right
-    ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.font='bold 30px Arial'; ctx.textAlign='right';
-    ctx.fillText('@la_dog_dispatch', W-40, 50);
-
-    // Slide number top left
-    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 26px Arial'; ctx.textAlign='left';
-    ctx.fillText(`${si+1}/6`, 40, 50);
-
-    if (!slide.isCTA) {
-      // Main text
-      ctx.fillStyle='#ffffff'; ctx.font='bold 62px Arial'; ctx.textAlign='center';
-      if (slide.text !== slides[0].text) {
-        ctx.fillText(slide.text, W/2, H-200);
-      }
-      ctx.fillStyle='#ffffff'; ctx.font='900 72px Arial Black,Arial';
-      ctx.lineWidth=12; ctx.strokeStyle='rgba(0,0,0,0.8)'; ctx.lineJoin='round';
-      ctx.strokeText(slide.sub, W/2, H-110, W-80);
-      ctx.fillText(slide.sub, W/2, H-110, W-80);
-      if (si === 0) {
-        // Slide 1 — big hook
-        ctx.fillStyle='#ffffff'; ctx.font='900 80px Arial Black,Arial';
-        ctx.strokeText(slide.text, W/2, H-210, W-80);
-        ctx.fillText(slide.text, W/2, H-210, W-80);
-        ctx.fillStyle=colors.light; ctx.font='900 72px Arial Black,Arial';
-        ctx.strokeText(slide.sub, W/2, H-110, W-80);
-        ctx.fillText(slide.sub, W/2, H-110, W-80);
-      }
-    } else {
-      // CTA slide 6 — full branding
-      // Logo area - white text logo
-      ctx.fillStyle=colors.light; ctx.font='900 44px Arial Black,Arial'; ctx.textAlign='center';
-      ctx.fillText('LA DOG DISPATCH', W/2, 80);
-
-      ctx.fillStyle='#ffffff'; ctx.font='900 68px Arial Black,Arial';
-      ctx.lineWidth=10; ctx.strokeStyle='rgba(0,0,0,0.9)'; ctx.lineJoin='round';
-      ctx.strokeText(slide.text, W/2, H-320, W-80);
-      ctx.fillText(slide.text, W/2, H-320, W-80);
-      ctx.fillStyle=colors.light; ctx.font='900 64px Arial Black,Arial';
-      ctx.strokeText(slide.sub, W/2, H-238, W-80);
-      ctx.fillText(slide.sub, W/2, H-238, W-80);
-
-      // Dog name
-      ctx.fillStyle='#ffffff'; ctx.font=`900 ${name.length>8?72:88}px Arial Black,Arial`;
-      ctx.strokeText(name, W/2, H-148, W-80);
-      ctx.fillStyle=colors.deadline; ctx.fillText(name, W/2, H-148, W-80);
-
-      // Shelter + deadline
-      ctx.fillStyle='#ffffff'; ctx.font='bold 36px Arial';
-      ctx.fillText(`${dog.shelter||'LA County'}  ·  ${daysLeft<=0?'TODAY':daysLeft+' DAYS LEFT'}`, W/2, H-88, W-80);
-
-      // ID + shelter
-      ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='28px monospace';
-      ctx.fillText(`${dog.shelter_id||''}  ·  @la_dog_dispatch`, W/2, H-44);
-    }
-
-    // Download this slide
-    await new Promise(resolve => {
-      setTimeout(() => {
-        const a=document.createElement('a');
-        a.download=`${dog.name||dog.shelter_id}-grwm-slide${si+1}.png`;
-        a.href=canvas.toDataURL('image/png');
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(resolve, 300);
-      }, 100);
+  if (dogImg) {
+    const cropOffset = parseFloat(dog.photo_crop_offset||0);
+    placeholders.forEach(([x1,y1,x2,y2]) => {
+      const pw = x2-x1, ph = y2-y1;
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(x1, y1, pw, ph, 16);
+      ctx.clip();
+      const scale = Math.max(pw/dogImg.width, ph/dogImg.height);
+      const dw = dogImg.width*scale, dh = dogImg.height*scale;
+      const defY = y1 + (ph-dh)/2;
+      const maxShift = Math.abs(defY - y1);
+      const adj = defY - (cropOffset * maxShift);
+      ctx.drawImage(dogImg, x1+(pw-dw)/2, adj, dw, dh);
+      ctx.restore();
     });
   }
+
+  // ── STEP 2: Draw the grid template on top ──
+  if (gridImg) {
+    ctx.drawImage(gridImg, 0, 0, 1536, 1024);
+  } else {
+    // Fallback — draw cream background with text
+    ctx.fillStyle = 'rgba(253,245,240,0.85)'; ctx.fillRect(0,0,W,1024);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('Upload grwm-grid.png to /images/grwm/', W/2, 512);
+  }
+
+  // ── STEP 3: Footer bar ──
+  const footerY = 1024;
+  const footerH = H - footerY;
+  ctx.fillStyle = '#fff0f5'; ctx.fillRect(0, footerY, W, footerH);
+  ctx.strokeStyle = '#f9a8d4'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(0, footerY); ctx.lineTo(W, footerY); ctx.stroke();
+
+  // Dog name
+  ctx.fillStyle = '#1a1a1a'; ctx.font = '900 52px Arial Black,Arial'; ctx.textAlign = 'center';
+  ctx.fillText(`${name}  ·  ${dog.breed||'Mixed'}  ·  ${dog.shelter||'LA County'}`, W/2, footerY+58, W-80);
+
+  // Deadline + ID
+  ctx.fillStyle = daysLeft<=0?'#ef4444':'#f472b6'; ctx.font = 'bold 40px Arial';
+  ctx.fillText(`${daysLeft<=0?'🚨 DEADLINE TODAY':daysLeft+' DAYS LEFT — '+new Date(dog.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}  ·  ${dog.shelter_id||''}`, W/2, footerY+108, W-80);
+
+  // LA Dog Dispatch branding
+  ctx.fillStyle = '#f472b6'; ctx.font = '900 36px Arial Black'; ctx.textAlign = 'left';
+  ctx.fillText('📍 LA DOG DISPATCH', 40, footerY+160);
+  ctx.fillStyle = '#666'; ctx.font = 'bold 28px Arial';
+  ctx.fillText('Los Angeles, CA', 40, footerY+195);
+
+  ctx.fillStyle = '#f472b6'; ctx.font = '900 36px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('❤️  SAVE A LIFE', W/2, footerY+160);
+  ctx.fillStyle = '#666'; ctx.font = 'bold 28px Arial';
+  ctx.fillText('Adopt. Foster. Share.', W/2, footerY+195);
+
+  // DM button
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath(); ctx.roundRect(W-300, footerY+130, 260, 70, 35); ctx.fill();
+  ctx.fillStyle = 'white'; ctx.font = '900 28px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('❤ DM US TO MEET ME!', W-170, footerY+173);
+
+  // Download
+  setTimeout(()=>{
+    const a = document.createElement('a');
+    a.download = `${dog.name||dog.shelter_id}-grwm.png`;
+    a.href = canvas.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }, 100);
 }
+
 
 // ── TINDER PROFILE — 5 SLIDES ──
 async function spmDownloadTinder() {
