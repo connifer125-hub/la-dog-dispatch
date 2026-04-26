@@ -2322,7 +2322,7 @@ async function spmDownloadGRWM() {
   const gridImg = await new Promise(resolve => {
     const i = new Image(); i.crossOrigin='anonymous';
     i.onload=()=>resolve(i); i.onerror=()=>resolve(null);
-    i.src = '/grwm-grid-v2.png';
+    i.src = '/grwm-grid-v3.png';
   });
 
   // ── STEP 1: Fill background (cream - matches grid) ──
@@ -2336,15 +2336,14 @@ async function spmDownloadGRWM() {
 
   const cellW = 512;
   const photoRegions = [
-    // [x1, y1, x2, y2, cornerRadius]
-    // Top row - arch shape (wider radius on top)
-    {x:17,  y:270, w:478, h:240, r:30},  // cell 1
-    {x:529, y:270, w:478, h:240, r:30},  // cell 2
-    {x:1041,y:270, w:478, h:240, r:30},  // cell 3
-    // Bottom row
-    {x:17,  y:755, w:478, h:175, r:30},  // cell 4
-    {x:529, y:755, w:478, h:175, r:30},  // cell 5
-    {x:1041,y:755, w:478, h:175, r:30},  // cell 6
+    // Top row: y=265-511 = 246px tall
+    {x:17,  y:265, w:478, h:246, r:40},  // cell 1
+    {x:529, y:265, w:478, h:246, r:40},  // cell 2
+    {x:1041,y:265, w:478, h:246, r:40},  // cell 3
+    // Bottom row: y=777-934 = 157px tall
+    {x:17,  y:777, w:478, h:157, r:40},  // cell 4
+    {x:529, y:777, w:478, h:157, r:40},  // cell 5
+    {x:1041,y:777, w:478, h:157, r:40},  // cell 6
   ];
 
   if (dogImg) {
@@ -2369,7 +2368,7 @@ async function spmDownloadGRWM() {
   // ── STEP 3: Draw grid template on top (transparent cutouts show photos) ──
   if (gridImg) {
     // Only draw y=0-935 of grid (exclude grid's own footer)
-    ctx.drawImage(gridImg, 0, 0, W, 935, 0, 0, W, 935);
+    ctx.drawImage(gridImg, 0, 0, 1536, 935, 0, 0, W, 935);
   } else {
     // Fallback
     ctx.fillStyle = 'rgba(245,240,235,0.9)'; ctx.fillRect(0,0,W,935);
@@ -2416,12 +2415,12 @@ async function spmDownloadGRWM() {
   ctx.fillStyle='#666'; ctx.font='bold 24px Arial';
   ctx.fillText('Adopt. Foster. Share.', col2x, infoY+10);
 
-  // Col 3: DM button - fits within canvas
-  const btnW=280, btnH=58, btnX=W-btnW-40, btnY=infoY-42;
+  // Col 3: DM button - centered in right third
+  const btnW=320, btnH=62, btnX=W-btnW-60, btnY=infoY-46;
   ctx.fillStyle='#1a1a1a';
-  ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 29); ctx.fill();
-  ctx.fillStyle='white'; ctx.font='900 24px Arial Black'; ctx.textAlign='center';
-  ctx.fillText('❤ DM US TO MEET ME!', btnX+btnW/2, btnY+37);
+  ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 31); ctx.fill();
+  ctx.fillStyle='white'; ctx.font='900 22px Arial Black'; ctx.textAlign='center';
+  ctx.fillText('❤  DM US TO MEET ME!', btnX+btnW/2, btnY+38);
 
   // Download
   setTimeout(()=>{
