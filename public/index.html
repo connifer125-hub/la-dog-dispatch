@@ -2115,12 +2115,12 @@ async function spmDownloadWantedPoster() {
     ctx.fillRect(0,y,W,1);
   }
 
-  // Large foxing/age blotches
-  for (let i=0;i<120;i++) {
+  // Subtle foxing/age blotches — small and faint
+  for (let i=0;i<80;i++) {
     const fx=Math.random()*W, fy=Math.random()*H;
-    const fr=4+Math.random()*30;
+    const fr=2+Math.random()*10;
     const fg=ctx.createRadialGradient(fx,fy,0,fx,fy,fr);
-    const alpha = 0.08+Math.random()*0.18;
+    const alpha = 0.03+Math.random()*0.07;
     fg.addColorStop(0,`rgba(80,45,8,${alpha})`);
     fg.addColorStop(1,'rgba(80,45,8,0)');
     ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(fx,fy,fr,0,Math.PI*2); ctx.fill();
@@ -2273,7 +2273,7 @@ async function spmDownloadWantedPoster() {
   ctx.fillRect(50, photoY+photoH+57, W-100, 5);
 
   // ── NAME ──
-  const nameY = photoY+photoH+130;
+  const nameY = photoY+photoH+160;
   ctx.fillStyle='#1a0800';
   let ns=96; ctx.font=`900 ${ns}px Georgia,"Times New Roman",serif`; ctx.textAlign='center';
   const nm=(dog.name||dog.shelter_id).toUpperCase();
@@ -2338,16 +2338,24 @@ async function spmDownloadGRWM() {
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
 
-  // Placeholder positions from the grid image (1536x1024)
-  // Each: [absX1, absY1, absX2, absY2]
-  const placeholders = [
-    [17,  30,  501, 511],  // cell 1
-    [521, 27,  1009,511],  // cell 2
-    [1030,31,  1514,511],  // cell 3
-    [17,  512, 511, 987],  // cell 4
-    [512, 512, 1023,993],  // cell 5
-    [1024,512, 1514,993],  // cell 6
-  ];
+  // Placeholder positions — bottom portion of each cell where dog photo goes
+  // Grid is 3x2, each cell ~512x512, photo placeholder is bottom ~45% with arch top
+  const cellW2 = 512, cellH2 = 512;
+  const photoStartPct = 0.52; // photo starts 52% down each cell
+  const placeholders = [];
+  for (let row=0; row<2; row++) {
+    for (let col=0; col<3; col++) {
+      const cx = col * cellW2;
+      const cy = row * cellH2;
+      const pad = 18;
+      placeholders.push([
+        cx + pad,
+        cy + Math.round(cellH2 * photoStartPct),
+        cx + cellW2 - pad,
+        cy + cellH2 - pad
+      ]);
+    }
+  }
 
   // Load dog photo
   const dogImg = await new Promise(resolve => {
