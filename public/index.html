@@ -2300,26 +2300,15 @@ async function spmDownloadGRWM() {
   if (!dog) return;
   const canvas = document.getElementById('phone-wrapper-canvas');
   const ctx = canvas.getContext('2d');
-  // Output at 1536x1280 (grid + footer bar)
-  const W = 1536, H = 1280;
+  // Canvas: grid (1536x935 content area) + our footer (200px)
+  const W = 1536, H = 1135;
   canvas.width = W; canvas.height = H;
-
   const colors = getShelterColors(dog.shelter);
   const d = new Date(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
-
-  // Exact placeholder positions measured from the grid image
-  // Top row: y=281-511, Bottom row: y=793-992, x varies by column
-  const placeholders = [
-    [17,  281, 495, 511],   // cell 1 top-left
-    [529, 281, 1007,511],   // cell 2 top-center
-    [1041,281, 1519,511],   // cell 3 top-right
-    [17,  793, 495, 992],   // cell 4 bottom-left
-    [529, 793, 1007,992],   // cell 5 bottom-center
-    [1041,793, 1519,992],   // cell 6 bottom-right
-  ];
+  const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 
   // Load dog photo
   const dogImg = await new Promise(resolve => {
@@ -2329,83 +2318,118 @@ async function spmDownloadGRWM() {
     i.src = dog.photo_url;
   });
 
-  // Load the GRWM grid template
+  // Load transparent grid template
   const gridImg = await new Promise(resolve => {
     const i = new Image(); i.crossOrigin='anonymous';
     i.onload=()=>resolve(i); i.onerror=()=>resolve(null);
-    i.src = '/grwm-grid-transparent.png';
+    i.src = '/grwm-grid-v2.png';
   });
 
-  // ── STEP 1: Draw dog photo into each placeholder ──
-  ctx.fillStyle = '#fdf5f0'; ctx.fillRect(0,0,W,H);
+  // ── STEP 1: Fill background (cream - matches grid) ──
+  ctx.fillStyle = '#f5f0eb'; ctx.fillRect(0,0,W,H);
+
+  // ── STEP 2: Draw dog photo into each transparent placeholder ──
+  // Placeholders are the arch-shaped gray areas in grid image
+  // Top row: approximately y=270-510 per cell
+  // Bottom row: approximately y=755-930 per cell
+  // Each cell is 512px wide, 3 columns
+
+  const cellW = 512;
+  const photoRegions = [
+    // [x1, y1, x2, y2, cornerRadius]
+    // Top row - arch shape (wider radius on top)
+    {x:17,  y:270, w:478, h:240, r:30},  // cell 1
+    {x:529, y:270, w:478, h:240, r:30},  // cell 2
+    {x:1041,y:270, w:478, h:240, r:30},  // cell 3
+    // Bottom row
+    {x:17,  y:755, w:478, h:175, r:30},  // cell 4
+    {x:529, y:755, w:478, h:175, r:30},  // cell 5
+    {x:1041,y:755, w:478, h:175, r:30},  // cell 6
+  ];
 
   if (dogImg) {
     const cropOffset = parseFloat(dog.photo_crop_offset||0);
-    placeholders.forEach(([x1,y1,x2,y2]) => {
-      const pw = x2-x1, ph = y2-y1;
+    photoRegions.forEach(({x, y, w, h, r}) => {
       ctx.save();
+      // Clip to arch shape
       ctx.beginPath();
-      ctx.roundRect(x1, y1, pw, ph, 16);
+      ctx.roundRect(x, y, w, h, {topLeft:r, topRight:r, bottomLeft:8, bottomRight:8});
       ctx.clip();
-      const scale = Math.max(pw/dogImg.width, ph/dogImg.height);
+      // Draw photo scaled to fill this region
+      const scale = Math.max(w/dogImg.width, h/dogImg.height);
       const dw = dogImg.width*scale, dh = dogImg.height*scale;
-      const defY = y1 + (ph-dh)/2;
-      const maxShift = Math.abs(defY - y1);
-      const adj = defY - (cropOffset * maxShift);
-      ctx.drawImage(dogImg, x1+(pw-dw)/2, adj, dw, dh);
+      const defImgY = y + (h-dh)/2;
+      const maxShift = Math.abs(defImgY - y);
+      const adjY = defImgY - (cropOffset * maxShift);
+      ctx.drawImage(dogImg, x+(w-dw)/2, adjY, dw, dh);
       ctx.restore();
     });
   }
 
-  // ── STEP 2: Draw the grid template on top ──
+  // ── STEP 3: Draw grid template on top (transparent cutouts show photos) ──
   if (gridImg) {
-    ctx.drawImage(gridImg, 0, 0, 1536, 1024);
+    // Only draw y=0-935 of grid (exclude grid's own footer)
+    ctx.drawImage(gridImg, 0, 0, W, 935, 0, 0, W, 935);
   } else {
-    // Fallback — draw cream background with text
-    ctx.fillStyle = 'rgba(253,245,240,0.85)'; ctx.fillRect(0,0,W,1024);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center';
-    ctx.fillText('Upload grwm-grid.png to /images/grwm/', W/2, 512);
+    // Fallback
+    ctx.fillStyle = 'rgba(245,240,235,0.9)'; ctx.fillRect(0,0,W,935);
+    ctx.fillStyle = '#c00'; ctx.font='bold 40px Arial'; ctx.textAlign='center';
+    ctx.fillText('Upload grwm-grid-transparent.png to public/', W/2, 467);
   }
 
-  // ── STEP 3: Footer bar ──
-  const footerY = 1024;
-  const footerH = H - footerY;
-  ctx.fillStyle = '#fff0f5'; ctx.fillRect(0, footerY, W, footerH);
-  ctx.strokeStyle = '#f9a8d4'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(0, footerY); ctx.lineTo(W, footerY); ctx.stroke();
+  // ── STEP 4: Our custom footer ──
+  const footerY = 935;
+  const footerH = H - footerY; // 200px
 
-  // Dog name
-  ctx.fillStyle = '#1a1a1a'; ctx.font = '900 52px Arial Black,Arial'; ctx.textAlign = 'center';
-  ctx.fillText(`${name}  ·  ${dog.breed||'Mixed'}  ·  ${dog.shelter||'LA County'}`, W/2, footerY+58, W-80);
+  // Pink top border
+  ctx.fillStyle = '#f9a8d4'; ctx.fillRect(0, footerY, W, 4);
 
-  // Deadline + ID
-  ctx.fillStyle = daysLeft<=0?'#ef4444':'#f472b6'; ctx.font = 'bold 40px Arial';
-  ctx.fillText(`${daysLeft<=0?'🚨 DEADLINE TODAY':daysLeft+' DAYS LEFT — '+new Date(dog.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}  ·  ${dog.shelter_id||''}`, W/2, footerY+108, W-80);
+  // White/cream footer background
+  ctx.fillStyle = '#fff5f8'; ctx.fillRect(0, footerY+4, W, footerH-4);
 
-  // LA Dog Dispatch branding
-  ctx.fillStyle = '#f472b6'; ctx.font = '900 36px Arial Black'; ctx.textAlign = 'left';
-  ctx.fillText('📍 LA DOG DISPATCH', 40, footerY+160);
-  ctx.fillStyle = '#666'; ctx.font = 'bold 28px Arial';
-  ctx.fillText('Los Angeles, CA', 40, footerY+195);
-
-  ctx.fillStyle = '#f472b6'; ctx.font = '900 36px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('❤️  SAVE A LIFE', W/2, footerY+160);
-  ctx.fillStyle = '#666'; ctx.font = 'bold 28px Arial';
-  ctx.fillText('Adopt. Foster. Share.', W/2, footerY+195);
-
-  // DM button
+  // Dog name line
   ctx.fillStyle = '#1a1a1a';
-  ctx.beginPath(); ctx.roundRect(W-300, footerY+130, 260, 70, 35); ctx.fill();
-  ctx.fillStyle = 'white'; ctx.font = '900 28px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('❤ DM US TO MEET ME!', W-170, footerY+173);
+  ctx.font = '900 58px Arial Black,Arial'; ctx.textAlign = 'center';
+  ctx.fillText(`${name}  ·  ${dog.breed||'Mixed'}  ·  ${dog.shelter||'LA County'}`, W/2, footerY+72, W-60);
+
+  // Deadline line
+  ctx.fillStyle = daysLeft<=0?'#ef4444':'#ec4899';
+  ctx.font = 'bold 44px Arial'; ctx.textAlign='center';
+  ctx.fillText(
+    `${daysLeft<=0?'🚨 DEADLINE TODAY':daysLeft+' DAYS LEFT — '+dlStr}  ·  ${dog.shelter_id||''}`,
+    W/2, footerY+128, W-60
+  );
+
+  // Bottom info row - 3 columns
+  const col1x = 120, col2x = W/2, col3x = W-200;
+  const infoY = footerY + 178;
+
+  // Col 1: LA Dog Dispatch
+  ctx.fillStyle='#ec4899'; ctx.font='900 28px Arial Black'; ctx.textAlign='left';
+  ctx.fillText('📍 LA DOG DISPATCH', col1x-80, infoY-18);
+  ctx.fillStyle='#666'; ctx.font='bold 24px Arial';
+  ctx.fillText('Los Angeles, CA', col1x-80, infoY+10);
+
+  // Col 2: Save a life
+  ctx.fillStyle='#ec4899'; ctx.font='900 28px Arial Black'; ctx.textAlign='center';
+  ctx.fillText('❤️  SAVE A LIFE', col2x, infoY-18);
+  ctx.fillStyle='#666'; ctx.font='bold 24px Arial';
+  ctx.fillText('Adopt. Foster. Share.', col2x, infoY+10);
+
+  // Col 3: DM button - fits within canvas
+  const btnW=280, btnH=58, btnX=W-btnW-40, btnY=infoY-42;
+  ctx.fillStyle='#1a1a1a';
+  ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 29); ctx.fill();
+  ctx.fillStyle='white'; ctx.font='900 24px Arial Black'; ctx.textAlign='center';
+  ctx.fillText('❤ DM US TO MEET ME!', btnX+btnW/2, btnY+37);
 
   // Download
   setTimeout(()=>{
-    const a = document.createElement('a');
-    a.download = `${dog.name||dog.shelter_id}-grwm.png`;
-    a.href = canvas.toDataURL('image/png');
+    const a=document.createElement('a');
+    a.download=`${dog.name||dog.shelter_id}-grwm.png`;
+    a.href=canvas.toDataURL('image/png');
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  }, 100);
+  },100);
 }
 
 
