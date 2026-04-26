@@ -2182,22 +2182,21 @@ async function spmDownloadWantedPoster() {
   ctx.fillText('WANTED',0,0);
   ctx.restore();
 
-  // Rules
   ctx.fillStyle='#2a1500';
   ctx.fillRect(50,152,W-100,5); ctx.fillRect(50,159,W-100,2);
 
-  // Subhead
   ctx.fillStyle='#1a0800'; ctx.font='bold 36px Georgia,serif'; ctx.textAlign='center';
   ctx.fillText('A LOVING, PATIENT HOME',W/2,198);
 
   ctx.fillStyle='#2a1500';
   ctx.fillRect(50,212,W-100,2); ctx.fillRect(50,216,W-100,5);
 
-  // ── PHOTO ──
-  const photoW=560, photoH=370;
+  // ── PHOTO: photoH=340, photoY=234 ──
+  const photoW=560, photoH=340;
   const photoX=(W-photoW)/2, photoY=234;
+  const photo_bottom=photoY+photoH; // 574
 
-  // Photo border/mat
+  // Photo mat
   ctx.fillStyle='#c8b07a'; ctx.fillRect(photoX-8,photoY-8,photoW+16,photoH+16);
   ctx.strokeStyle='#2a1500'; ctx.lineWidth=5;
   ctx.strokeRect(photoX-8,photoY-8,photoW+16,photoH+16);
@@ -2217,40 +2216,21 @@ async function spmDownloadWantedPoster() {
         const adj=defY-(cropOffset*Math.abs(defY-photoY));
         ctx.drawImage(img,photoX+(photoW-dw)/2,adj,dw,dh);
 
-        // ── SEPIA FILTER ──
-        const imgData = ctx.getImageData(photoX,photoY,photoW,photoH);
-        const px = imgData.data;
-        for (let i=0;i<px.length;i+=4) {
-          const r=px[i],g=px[i+1],b=px[i+2];
-          const gray = r*0.299+g*0.587+b*0.114;
-          px[i]   = Math.min(255, gray*1.08+40);
-          px[i+1] = Math.min(255, gray*0.86+20);
-          px[i+2] = Math.min(255, gray*0.67+5);
+        // Sepia filter
+        const imgData=ctx.getImageData(photoX,photoY,photoW,photoH);
+        const px=imgData.data;
+        for(let i=0;i<px.length;i+=4){
+          const gray=px[i]*0.299+px[i+1]*0.587+px[i+2]*0.114;
+          px[i]=Math.min(255,gray*1.08+40);
+          px[i+1]=Math.min(255,gray*0.86+20);
+          px[i+2]=Math.min(255,gray*0.67+5);
         }
         ctx.putImageData(imgData,photoX,photoY);
 
-        // ── ROUGH TORN BORDER / VIGNETTE ──
-        // Dark vignette edges inside photo
-        const vg = ctx.createRadialGradient(
-          photoX+photoW/2, photoY+photoH/2, photoW*0.25,
-          photoX+photoW/2, photoY+photoH/2, photoW*0.75
-        );
-        vg.addColorStop(0,'rgba(0,0,0,0)');
-        vg.addColorStop(1,'rgba(0,0,0,0.65)');
+        // Vignette
+        const vg=ctx.createRadialGradient(photoX+photoW/2,photoY+photoH/2,photoW*0.25,photoX+photoW/2,photoY+photoH/2,photoW*0.75);
+        vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.55)');
         ctx.fillStyle=vg; ctx.fillRect(photoX,photoY,photoW,photoH);
-
-        // Rough dark edges — blotchy like old photo
-        ctx.fillStyle='rgba(30,15,0,0.5)';
-        for (let i=0;i<60;i++) {
-          const ex = photoX + Math.random()*photoW;
-          const ey = photoY + Math.random()*photoH;
-          const distFromEdge = Math.min(ex-photoX, photoX+photoW-ex, ey-photoY, photoY+photoH-ey);
-          if (distFromEdge < 60) {
-            const r2 = 5+Math.random()*25;
-            ctx.beginPath(); ctx.arc(ex,ey,r2,0,Math.PI*2); ctx.fill();
-          }
-        }
-
         ctx.restore();
         resolve();
       };
@@ -2259,60 +2239,52 @@ async function spmDownloadWantedPoster() {
     });
   } else {
     ctx.fillStyle='#b8a060'; ctx.fillRect(photoX,photoY,photoW,photoH);
-    ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.font='bold 32px Georgia'; ctx.textAlign='center';
-    ctx.fillText('[ DOG PHOTO ]',photoX+photoW/2,photoY+photoH/2);
   }
 
-  // Photo caption
+  // caption_y=622 (top=600, mat_bottom=590, gap=10px ✓)
   ctx.fillStyle='#2a1500'; ctx.font='italic 26px Georgia,serif'; ctx.textAlign='center';
-  ctx.fillText(`${(dog.name||dog.shelter_id).toUpperCase()} · ${dog.breed||'Mixed'} · ${dog.shelter||'LA County'}`, W/2, photoY+photoH+36);
+  ctx.fillText(`${(dog.name||dog.shelter_id).toUpperCase()} · ${dog.breed||'Mixed'} · ${dog.shelter||'LA County'}`,W/2,622);
 
-  // Rule after photo
-  ctx.fillStyle='#2a1500';
-  ctx.fillRect(50, photoY+photoH+52, W-100, 2);
-  ctx.fillRect(50, photoY+photoH+57, W-100, 5);
+  // rule_ac=[642,649]
+  ctx.fillStyle='#2a1500'; ctx.fillRect(50,642,W-100,2); ctx.fillRect(50,646,W-100,5);
 
-  // ── NAME ──
-  const nameY = photoY+photoH+160;
+  // NAME: nameY=761, top=675, gap from rule=26px ✓
   ctx.fillStyle='#1a0800';
   let ns=96; ctx.font=`900 ${ns}px Georgia,"Times New Roman",serif`; ctx.textAlign='center';
   const nm=(dog.name||dog.shelter_id).toUpperCase();
   while(ctx.measureText(`"${nm}"`).width>W-120&&ns>52){ns-=4;ctx.font=`900 ${ns}px Georgia,"Times New Roman",serif`;}
-  ctx.save(); ctx.translate(W/2,nameY); ctx.rotate(0.005);
+  ctx.save(); ctx.translate(W/2,761); ctx.rotate(0.005);
   ctx.fillText(`"${nm}"`,0,0);
   ctx.restore();
 
-  // Breed/age/gender
+  // breed_y=811, gap from name=50px ✓
   ctx.fillStyle='#2a1500'; ctx.font='bold 28px Georgia,serif'; ctx.textAlign='center';
-  ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '),W/2,nameY+52);
+  ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '),W/2,811);
 
-  // Rule
-  ctx.fillStyle='#2a1500'; ctx.fillRect(50,nameY+68,W-100,3);
+  // rule2=[829,833]
+  ctx.fillStyle='#2a1500'; ctx.fillRect(50,829,W-100,4);
 
-  // Quote
+  // quote_y=865, gap from rule=10px ✓
   ctx.fillStyle='#3a1a00'; ctx.font='italic 26px Georgia,serif'; ctx.textAlign='center';
-  ctx.fillText('"Guilty only of needing a home"',W/2,nameY+108);
+  ctx.fillText('"Guilty only of needing a home"',W/2,865);
 
-  // Rule
-  ctx.fillStyle='#2a1500';
-  ctx.fillRect(50,nameY+122,W-100,3);
-  ctx.fillRect(50,nameY+128,W-100,5);
+  // rule3=[883,889]
+  ctx.fillStyle='#2a1500'; ctx.fillRect(50,883,W-100,3); ctx.fillRect(50,887,W-100,5);
 
-  // Deadline
+  // deadline_y=931, gap from rule=14px ✓
   ctx.fillStyle='rgba(160,30,20,0.9)'; ctx.font='bold 32px Georgia,serif'; ctx.textAlign='center';
-  ctx.fillText(`⚠  DEADLINE: ${dlStr}  —  ${daysLeft<=0?'TODAY':daysLeft+' DAYS'}  ⚠`,W/2,nameY+168,W-80);
+  ctx.fillText(`⚠  DEADLINE: ${dlStr}  —  ${daysLeft<=0?'TODAY':daysLeft+' DAYS'}  ⚠`,W/2,931,W-80);
 
-  // Shelter + ID
+  // shelter_y=975
   ctx.fillStyle='#2a1500'; ctx.font='bold 26px Georgia,serif';
-  ctx.fillText(`${dog.shelter||'LA County'}  ·  ID: ${dog.shelter_id||''}`,W/2,nameY+206);
+  ctx.fillText(`${dog.shelter||'LA County'}  ·  ID: ${dog.shelter_id||''}`,W/2,975);
 
-  // Final rule + footer
-  ctx.fillStyle='#2a1500';
-  ctx.fillRect(50,nameY+220,W-100,2); ctx.fillRect(50,nameY+225,W-100,5);
-  ctx.font='bold 24px Georgia,serif';
-  ctx.fillText('Share · Foster · Rescue  ·  ladogdispatch.com',W/2,nameY+254,W-80);
-  ctx.fillStyle='#4a3010'; ctx.font='22px Georgia,serif';
-  ctx.fillText('@la_dog_dispatch',W/2,nameY+282);
+  // rule4=[991,996]
+  ctx.fillStyle='#2a1500'; ctx.fillRect(50,991,W-100,2); ctx.fillRect(50,994,W-100,5);
+
+  // footer_y=1022 — combined single line, margin from border=14px ✓
+  ctx.fillStyle='#2a1500'; ctx.font='bold 22px Georgia,serif'; ctx.textAlign='center';
+  ctx.fillText('Share · Foster · Rescue · ladogdispatch.com · @la_dog_dispatch',W/2,1022,W-80);
 
   setTimeout(()=>{
     const a=document.createElement('a');
@@ -2338,24 +2310,16 @@ async function spmDownloadGRWM() {
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
 
-  // Placeholder positions — bottom portion of each cell where dog photo goes
-  // Grid is 3x2, each cell ~512x512, photo placeholder is bottom ~45% with arch top
-  const cellW2 = 512, cellH2 = 512;
-  const photoStartPct = 0.52; // photo starts 52% down each cell
-  const placeholders = [];
-  for (let row=0; row<2; row++) {
-    for (let col=0; col<3; col++) {
-      const cx = col * cellW2;
-      const cy = row * cellH2;
-      const pad = 18;
-      placeholders.push([
-        cx + pad,
-        cy + Math.round(cellH2 * photoStartPct),
-        cx + cellW2 - pad,
-        cy + cellH2 - pad
-      ]);
-    }
-  }
+  // Exact placeholder positions measured from the grid image
+  // Top row: y=281-511, Bottom row: y=793-992, x varies by column
+  const placeholders = [
+    [17,  281, 495, 511],   // cell 1 top-left
+    [529, 281, 1007,511],   // cell 2 top-center
+    [1041,281, 1519,511],   // cell 3 top-right
+    [17,  793, 495, 992],   // cell 4 bottom-left
+    [529, 793, 1007,992],   // cell 5 bottom-center
+    [1041,793, 1519,992],   // cell 6 bottom-right
+  ];
 
   // Load dog photo
   const dogImg = await new Promise(resolve => {
@@ -2369,7 +2333,7 @@ async function spmDownloadGRWM() {
   const gridImg = await new Promise(resolve => {
     const i = new Image(); i.crossOrigin='anonymous';
     i.onload=()=>resolve(i); i.onerror=()=>resolve(null);
-    i.src = '/grwm-grid.png';
+    i.src = '/grwm-grid-transparent.png';
   });
 
   // ── STEP 1: Draw dog photo into each placeholder ──
