@@ -2835,103 +2835,107 @@ function s333Base(ctx, bg, accent) {
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = accent; ctx.fillRect(0, 0, W, 10);
   ctx.fillRect(0, H-10, W, 10);
-  // @la_dog_dispatch bottom right
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = 'bold 26px Arial'; ctx.textAlign = 'right';
   ctx.fillText('@la_dog_dispatch', W-50, H-28);
 }
 
 function s333Rule(ctx, y, color) {
   ctx.strokeStyle = color; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(1080-60, y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(1020, y); ctx.stroke();
 }
 
-function s333Wrap(ctx, text, x, y, maxW, size, weight, color, align) {
-  ctx.fillStyle = color; ctx.font = `${weight} ${size}px Arial`; ctx.textAlign = align||'left';
+// Draws wrapped text, returns y of last line baseline
+function s333Text(ctx, text, x, y, maxW, size, weight, color, align) {
+  ctx.fillStyle = color;
+  ctx.font = weight + ' ' + size + 'px Arial';
+  ctx.textAlign = align || 'left';
   const words = text.split(' ');
   let line = '', ly = y;
-  const ax = align === 'center' ? x : x;
   words.forEach((w, i) => {
     const test = line ? line + ' ' + w : w;
     if (ctx.measureText(test).width > maxW && line) {
-      ctx.fillText(line, ax, ly); line = w; ly += size * 1.4;
+      ctx.fillText(line, x, ly); line = w; ly += size * 1.35;
     } else line = test;
-    if (i === words.length-1) { ctx.fillText(line, ax, ly); }
+    if (i === words.length - 1) ctx.fillText(line, x, ly);
   });
-  return ly + size * 1.4;
+  return ly;
 }
 
-function s333Bullet(ctx, x, y, text, dotColor, textColor, maxW) {
+// Draws a bullet point, returns y after bullet (ready for next bullet)
+function s333Bullet(ctx, y, text, dotColor, textColor) {
+  const size = 44, x = 60, maxW = 920;
   ctx.fillStyle = dotColor;
-  ctx.beginPath(); ctx.arc(x+12, y-8, 7, 0, Math.PI*2); ctx.fill();
-  return s333Wrap(ctx, text, x+30, y, maxW-30, 34, '400', textColor, 'left');
+  ctx.beginPath(); ctx.arc(x + 10, y - 10, 8, 0, Math.PI * 2); ctx.fill();
+  const endY = s333Text(ctx, text, x + 28, y, maxW, size, '400', textColor, 'left');
+  return endY;
 }
 
 // SLIDE 1 — COVER
 function draw333Slide1(ctx, logo) {
   s333Base(ctx, '#141210', '#4a8c6a');
-  // Logo
   if (logo) {
-    const lh = 110, lw = logo.width * (lh/logo.height);
-    ctx.drawImage(logo, (1080-lw)/2, 80, lw, lh);
-  } else {
-    ctx.fillStyle = '#4a8c6a'; ctx.font = '900 36px Arial Black'; ctx.textAlign = 'center';
-    ctx.fillText('LA DOG DISPATCH', 540, 140);
+    const lh = 110, lw = logo.width * (lh / logo.height);
+    ctx.drawImage(logo, (1080 - lw) / 2, 70, lw, lh);
   }
-  s333Rule(ctx, 230, '#4a8c6a');
-  s333Wrap(ctx, 'Important Reminders for Adopters', 540, 310, 960, 62, '900', '#ffffff', 'center');
-  s333Rule(ctx, 410, 'rgba(74,140,106,0.5)');
-  s333Wrap(ctx, 'What to expect when bringing home a shelter dog', 540, 500, 900, 42, '400', '#ffffff', 'center');
-  s333Rule(ctx, 590, 'rgba(255,255,255,0.2)');
-  s333Wrap(ctx, 'We know your goal is simple:', 540, 670, 900, 50, '400', '#ffffff', 'center');
-  s333Wrap(ctx, 'to love and care for the dog you just rescued', 540, 732, 900, 50, '400', '#ffffff', 'center');
-  s333Rule(ctx, 820, 'rgba(255,255,255,0.2)');
-  s333Wrap(ctx, 'But before they can give love back,', 540, 910, 900, 50, '400', '#7ec8a0', 'center');
-  s333Wrap(ctx, 'they need a soft landing first.', 540, 972, 900, 50, '400', '#7ec8a0', 'center');
-  // 3 pills at bottom
+  s333Rule(ctx, 228, '#4a8c6a');
+  s333Text(ctx, 'Important Reminders for Adopters', 540, 320, 900, 66, '900', '#ffffff', 'center');
+  s333Rule(ctx, 420, 'rgba(74,140,106,0.5)');
+  s333Text(ctx, 'What to expect when bringing home a shelter dog', 540, 510, 880, 46, '400', '#ffffff', 'center');
+  s333Rule(ctx, 600, 'rgba(255,255,255,0.15)');
+  s333Text(ctx, 'We know your goal is simple:', 540, 690, 880, 48, '400', '#ffffff', 'center');
+  s333Text(ctx, 'to love and care for the dog you just rescued', 540, 748, 880, 48, '400', '#ffffff', 'center');
+  s333Rule(ctx, 820, 'rgba(255,255,255,0.15)');
+  s333Text(ctx, 'But before they can give love back,', 540, 910, 880, 50, '400', '#7ec8a0', 'center');
+  s333Text(ctx, 'they need a soft landing first.', 540, 972, 880, 50, '400', '#7ec8a0', 'center');
+  // Pills
   const pills = [['3 DAYS','Survival Mode','#c4281c'],['3 WEEKS','Danger Zone','#d97706'],['3 MONTHS','True Bonding','#2563eb']];
-  pills.forEach((p,i) => {
-    const px = 60 + i*330, pw = 300, py = 1060;
-    ctx.fillStyle = p[2]; ctx.beginPath(); ctx.roundRect(px,py,pw,110,12); ctx.fill();
-    ctx.fillStyle = 'white'; ctx.font = '900 28px Arial Black'; ctx.textAlign = 'center';
-    ctx.fillText(p[0], px+pw/2, py+44);
-    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = 'bold 22px Arial';
-    ctx.fillText(p[1], px+pw/2, py+80);
+  pills.forEach((p, i) => {
+    const px = 60 + i * 328, pw = 300, py = 1080;
+    ctx.fillStyle = p[2]; ctx.beginPath(); ctx.roundRect(px, py, pw, 110, 12); ctx.fill();
+    ctx.fillStyle = 'white'; ctx.font = '900 30px Arial Black'; ctx.textAlign = 'center';
+    ctx.fillText(p[0], px + pw / 2, py + 48);
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = 'bold 24px Arial';
+    ctx.fillText(p[1], px + pw / 2, py + 82);
   });
 }
 
 // SLIDE 2 — 3 DAYS intro
 function draw333Slide2(ctx, logo) {
   s333Base(ctx, '#0a0e1a', '#60a5fa');
-  ctx.fillStyle = '#60a5fa'; ctx.font = '900 110px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('3 DAYS', 540, 200);
-  ctx.fillStyle = '#ffffff'; ctx.font = '900 44px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('SOFT LANDING', 540, 268);
-  s333Rule(ctx, 310, '#60a5fa');
-  s333Wrap(ctx, "Your dog isn't settled — they're decompressing", 540, 400, 900, 44, "400", "#ffffff", "center");
-  s333Rule(ctx, 490, 'rgba(96,165,250,0.4)');
-  s333Wrap(ctx, 'Everything is new:', 540, 580, 900, 52, '400', '#ffffff', 'center');
-  s333Wrap(ctx, 'new home · new people · new environment', 540, 630, 900, 52, '400', '#60a5fa', 'center');
-  s333Rule(ctx, 710, 'rgba(96,165,250,0.4)');
-  // Warning box
+  ctx.fillStyle = '#60a5fa'; ctx.font = '900 150px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('3 DAYS', 540, 205);
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 58px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('SOFT LANDING', 540, 282);
+  s333Rule(ctx, 320, '#60a5fa');
+  s333Text(ctx, "Your dog isn't settled — they're decompressing", 540, 430, 880, 52, '400', '#ffffff', 'center');
+  s333Rule(ctx, 520, 'rgba(96,165,250,0.3)');
+  s333Text(ctx, 'Everything is new:', 540, 618, 880, 52, '400', '#ffffff', 'center');
+  s333Text(ctx, 'new home · new people · new environment', 540, 682, 880, 52, '400', '#60a5fa', 'center');
+  s333Rule(ctx, 740, 'rgba(96,165,250,0.3)');
+  // Warning box — fixed position well below rule
   ctx.fillStyle = 'rgba(96,165,250,0.12)'; ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(60, 760, 960, 160, 12); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#ffffff'; ctx.font = '900 36px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('A friendly dog may not be a safe dog yet.', 540, 830);
-  ctx.fillStyle = '#60a5fa'; ctx.font = 'bold 30px Arial';
-  ctx.fillText('Animals are unpredictable.', 540, 880);
-  ctx.fillText('Something can change in an instant.', 540, 918);
+  ctx.beginPath(); ctx.roundRect(60, 790, 960, 400, 16); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 52px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('A friendly dog may not be a safe dog yet.', 540, 880, 880);
+  s333Rule(ctx, 920, 'rgba(96,165,250,0.25)');
+  ctx.fillStyle = '#60a5fa'; ctx.font = 'bold 48px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Animals are unpredictable.', 540, 1000);
+  ctx.fillText('Something can change in an instant.', 540, 1062);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 40px Arial';
+  ctx.fillText('No matter how well things seem.', 540, 1148);
 }
 
 // SLIDE 3 — 3 DAYS guidance
 function draw333Slide3(ctx, logo) {
   s333Base(ctx, '#0a0e1a', '#60a5fa');
-  ctx.fillStyle = '#60a5fa'; ctx.font = '900 68px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('3 DAYS — WHAT TO DO', 540, 90);
-  s333Rule(ctx, 120, '#60a5fa');
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 55px Arial'; ctx.textAlign = 'left';
-  ctx.fillText("During this stage it's recommended to:", 60, 195);
-  s333Rule(ctx, 222, 'rgba(96,165,250,0.4)');
-  const bullets3 = [
+  ctx.fillStyle = '#60a5fa'; ctx.font = '900 58px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('3 DAYS — WHAT TO DO', 540, 85);
+  s333Rule(ctx, 112, '#60a5fa');
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 50px Arial'; ctx.textAlign = 'left';
+  ctx.fillText("During this stage it's recommended to:", 60, 182, 960);
+  s333Rule(ctx, 210, 'rgba(96,165,250,0.4)');
+  const b3 = [
     'Keep things quiet and predictable — avoid visitors',
     'Give them one safe space — let them come to you',
     'No face-to-face contact — no kissing, no faces near theirs',
@@ -2940,49 +2944,48 @@ function draw333Slide3(ctx, logo) {
     'No intros to other dogs — inside or outside',
     'Walks should avoid all other dogs — cross the street',
   ];
-  let y = 265;
-  bullets3.forEach(b => { y = s333Bullet(ctx, 60, y, b, '#60a5fa', '#ffffff', 960); y += 6; });
-  s333Rule(ctx, y+16, '#60a5fa');
-  ctx.fillStyle = '#60a5fa'; ctx.font = '900 57px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('"Please give them the full 3 days to decompress."', 540, y+88, 920);
+  let y = 268;
+  b3.forEach(b => { y = s333Bullet(ctx, y, b, '#60a5fa', '#ffffff'); y += 34; });
+  s333Rule(ctx, y + 16, '#60a5fa');
+  ctx.fillStyle = '#60a5fa'; ctx.font = '900 48px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('"Please give them the full 3 days to decompress."', 540, y + 90, 920);
 }
 
 // SLIDE 4 — 3 WEEKS intro
 function draw333Slide4(ctx, logo) {
   s333Base(ctx, '#160e00', '#f5a623');
-  ctx.fillStyle = '#f5a623'; ctx.font = '900 100px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('3 WEEKS', 540, 190);
-  ctx.fillStyle = '#ffffff'; ctx.font = '900 44px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('BUILDING TRUST', 540, 258);
-  s333Rule(ctx, 300, '#f5a623');
-  s333Wrap(ctx, "Your dog seems better — but they're still adjusting", 540, 390, 900, 42, "400", "#ffffff", "center");
-  s333Rule(ctx, 480, 'rgba(245,166,35,0.4)');
-  // Stat box
+  ctx.fillStyle = '#f5a623'; ctx.font = '900 150px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('3 WEEKS', 540, 205);
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 58px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('BUILDING TRUST', 540, 282);
+  s333Rule(ctx, 320, '#f5a623');
+  s333Text(ctx, "Your dog seems better — but they're still adjusting", 540, 430, 880, 52, '400', '#ffffff', 'center');
+  s333Rule(ctx, 520, 'rgba(245,166,35,0.3)');
   ctx.fillStyle = 'rgba(245,166,35,0.15)'; ctx.strokeStyle = '#f5a623'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(60, 540, 960, 200, 12); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#f5a623'; ctx.font = '900 80px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('80%+', 540, 630);
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 32px Arial';
-  ctx.fillText('of newly adopted dogs still show', 540, 680);
-  ctx.fillText('stranger aggression at this stage', 540, 720);
-  s333Rule(ctx, 800, 'rgba(245,166,35,0.4)');
-  // Warning
-  ctx.fillStyle = '#ffffff'; ctx.font = '900 34px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('This is when dog fights happen.', 540, 880);
-  ctx.fillStyle = '#f5a623'; ctx.font = 'bold 30px Arial';
-  ctx.fillText('Owners relax the rules before the dog has earned that trust.', 540, 928, 960);
+  ctx.beginPath(); ctx.roundRect(60, 570, 960, 300, 16); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#f5a623'; ctx.font = '900 130px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('80%+', 540, 692);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 44px Arial';
+  ctx.fillText('of newly adopted dogs still show', 540, 752);
+  ctx.fillText('stranger aggression at this stage', 540, 808);
+  s333Rule(ctx, 940, 'rgba(245,166,35,0.4)');
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 52px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('This is when dog fights happen.', 540, 1040);
+  ctx.fillStyle = '#f5a623'; ctx.font = 'bold 44px Arial';
+  ctx.fillText('Owners relax the rules before the dog', 540, 1112);
+  ctx.fillText('has earned that trust.', 540, 1168);
 }
 
 // SLIDE 5 — 3 WEEKS guidance
 function draw333Slide5(ctx, logo) {
   s333Base(ctx, '#160e00', '#f5a623');
-  ctx.fillStyle = '#f5a623'; ctx.font = '900 68px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('3 WEEKS — WHAT TO DO', 540, 90);
-  s333Rule(ctx, 120, '#f5a623');
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 55px Arial'; ctx.textAlign = 'left';
-  ctx.fillText("At this stage it's recommended to:", 60, 195);
-  s333Rule(ctx, 222, 'rgba(245,166,35,0.4)');
-  const bullets5 = [
+  ctx.fillStyle = '#f5a623'; ctx.font = '900 58px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('3 WEEKS — WHAT TO DO', 540, 85);
+  s333Rule(ctx, 112, '#f5a623');
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 50px Arial'; ctx.textAlign = 'left';
+  ctx.fillText("At this stage it's recommended to:", 60, 182, 960);
+  s333Rule(ctx, 210, 'rgba(245,166,35,0.4)');
+  const b5 = [
     'No off-leash — not in yards, parks, or anywhere',
     'No other dogs off-leash near them — even friendly ones',
     'No dog parks or dog socializing events',
@@ -2991,50 +2994,53 @@ function draw333Slide5(ctx, logo) {
     'No kids approaching unsupervised — not yet',
     'Schedule a vet visit — UTIs and respiratory infections are common from shelters',
   ];
-  let y = 265;
-  bullets5.forEach(b => { y = s333Bullet(ctx, 60, y, b, '#f5a623', '#ffffff', 960); y += 6; });
-  s333Rule(ctx, y+16, '#f5a623');
-  ctx.fillStyle = '#f5a623'; ctx.font = '900 57px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('"Please give them 3 weeks to start learning your routine."', 540, y+88, 920);
+  let y = 268;
+  b5.forEach(b => { y = s333Bullet(ctx, y, b, '#f5a623', '#ffffff'); y += 34; });
+  s333Rule(ctx, y + 16, '#f5a623');
+  ctx.fillStyle = '#f5a623'; ctx.font = '900 48px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('"Please give them 3 weeks to start learning your routine."', 540, y + 90, 920);
 }
 
 // SLIDE 6 — 3 MONTHS intro
 function draw333Slide6(ctx, logo) {
   s333Base(ctx, '#0d0818', '#a78bfa');
-  ctx.fillStyle = '#a78bfa'; ctx.font = '900 130px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('3 MONTHS', 540, 200);
-  ctx.fillStyle = '#ffffff'; ctx.font = '900 52px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('RELATIONSHIP STAGE', 540, 276);
-  s333Rule(ctx, 320, '#a78bfa');
-  s333Wrap(ctx, 'Now your dog feels comfortable and their true personality starts to show', 540, 435, 900, 65, '400', '#ffffff', 'center');
-  s333Rule(ctx, 560, 'rgba(167,139,250,0.35)');
-  // Stat box — bigger
+  ctx.fillStyle = '#a78bfa'; ctx.font = '900 140px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('3 MONTHS', 540, 195);
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 56px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('RELATIONSHIP STAGE', 540, 268);
+  s333Rule(ctx, 308, '#a78bfa');
+  // Body text — fixed size so it doesn't overlap box
+  ctx.fillStyle = '#ffffff'; ctx.font = '400 46px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Now your dog feels comfortable and', 540, 388);
+  ctx.fillText('their true personality starts to show', 540, 446);
+  s333Rule(ctx, 490, 'rgba(167,139,250,0.3)');
+  // Stat box starts at fixed y=540
   ctx.fillStyle = 'rgba(167,139,250,0.15)'; ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(60, 610, 960, 280, 16); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#a78bfa'; ctx.font = '900 120px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('50%+', 540, 730);
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 42px Arial';
-  ctx.fillText('of dog returns happen after 60+ days', 540, 800);
-  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 36px Arial';
-  ctx.fillText('Not after 3 days. After 60.', 540, 858);
-  s333Rule(ctx, 960, 'rgba(167,139,250,0.4)');
-  ctx.fillStyle = '#ffffff'; ctx.font = '900 46px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('Not because the dog is bad.', 540, 1058);
-  ctx.fillStyle = '#a78bfa'; ctx.font = 'bold 40px Arial';
-  ctx.fillText('Because expectations changed', 540, 1126);
-  ctx.fillText('and the rules got relaxed.', 540, 1180);
+  ctx.beginPath(); ctx.roundRect(60, 540, 960, 290, 16); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#a78bfa'; ctx.font = '900 130px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('50%+', 540, 660);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 44px Arial';
+  ctx.fillText('of dog returns happen after 60+ days', 540, 718);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 38px Arial';
+  ctx.fillText('Not after 3 days. After 60.', 540, 800);
+  s333Rule(ctx, 910, 'rgba(167,139,250,0.4)');
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 52px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('Not because the dog is bad.', 540, 1010);
+  ctx.fillStyle = '#a78bfa'; ctx.font = 'bold 46px Arial';
+  ctx.fillText('Because expectations changed', 540, 1082);
+  ctx.fillText('and the rules got relaxed.', 540, 1140);
 }
 
 // SLIDE 7 — 3 MONTHS guidance
 function draw333Slide7(ctx, logo) {
   s333Base(ctx, '#0d0818', '#a78bfa');
-  ctx.fillStyle = '#a78bfa'; ctx.font = '900 68px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('3 MONTHS — WHAT TO DO', 540, 90);
-  s333Rule(ctx, 120, '#a78bfa');
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 55px Arial'; ctx.textAlign = 'left';
-  ctx.fillText("At this stage it's recommended to:", 60, 195);
-  s333Rule(ctx, 222, 'rgba(167,139,250,0.4)');
-  const bullets7 = [
+  ctx.fillStyle = '#a78bfa'; ctx.font = '900 58px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('3 MONTHS — WHAT TO DO', 540, 85);
+  s333Rule(ctx, 112, '#a78bfa');
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 50px Arial'; ctx.textAlign = 'left';
+  ctx.fillText("At this stage it's recommended to:", 60, 182, 960);
+  s333Rule(ctx, 210, 'rgba(167,139,250,0.4)');
+  const b7 = [
     "Keep structure and boundaries — don't get comfortable",
     'Still no off-leash trust. Still no unknown dogs off-leash near them.',
     'Introduce new people slowly — every person is a new variable',
@@ -3043,37 +3049,35 @@ function draw333Slide7(ctx, logo) {
     "Progress isn't linear — setbacks happen",
     'Animals are unpredictable. Something can change in an instant.',
   ];
-  let y = 265;
-  bullets7.forEach(b => { y = s333Bullet(ctx, 60, y, b, '#a78bfa', '#ffffff', 960); y += 6; });
-  s333Rule(ctx, y+16, '#a78bfa');
-  ctx.fillStyle = '#a78bfa'; ctx.font = '900 57px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('"Patience now prevents heartbreak later."', 540, y+88, 920);
+  let y = 268;
+  b7.forEach(b => { y = s333Bullet(ctx, y, b, '#a78bfa', '#ffffff'); y += 34; });
+  s333Rule(ctx, y + 16, '#a78bfa');
+  ctx.fillStyle = '#a78bfa'; ctx.font = '900 48px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('"Patience now prevents heartbreak later."', 540, y + 90, 920);
 }
 
 // SLIDE 8 — FINAL
 function draw333Slide8(ctx, logo) {
   s333Base(ctx, '#141210', '#4a8c6a');
   if (logo) {
-    const lh = 90, lw = logo.width * (lh/logo.height);
-    ctx.drawImage(logo, (1080-lw)/2, 80, lw, lh);
+    const lh = 90, lw = logo.width * (lh / logo.height);
+    ctx.drawImage(logo, (1080 - lw) / 2, 75, lw, lh);
   }
-  s333Rule(ctx, 220, '#4a8c6a');
-  s333Wrap(ctx, "The goal isn't just to rescue a dog.", 540, 360, 900, 54, '900', '#ffffff', 'center');
-  s333Rule(ctx, 460, 'rgba(74,140,106,0.5)');
-  s333Wrap(ctx, "It's to help them feel safe enough to stay.", 540, 560, 900, 54, '900', '#7ec8a0', 'center');
+  s333Rule(ctx, 218, '#4a8c6a');
+  s333Text(ctx, "The goal isn't just to rescue a dog.", 540, 360, 900, 58, '900', '#ffffff', 'center');
+  s333Rule(ctx, 450, 'rgba(74,140,106,0.5)');
+  s333Text(ctx, "It's to help them feel safe enough to stay.", 540, 570, 900, 58, '900', '#7ec8a0', 'center');
   s333Rule(ctx, 660, 'rgba(74,140,106,0.5)');
   // Quote box
   ctx.fillStyle = 'rgba(74,140,106,0.15)'; ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(80, 720, 920, 180, 16); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#ffffff'; ctx.font = '900 44px Arial Black'; ctx.textAlign = 'center';
-  ctx.fillText('Patience now', 540, 796);
-  ctx.fillText('prevents heartbreak later.', 540, 858);
-  ctx.fillStyle = '#4a8c6a'; ctx.font = 'bold 42px Arial'; ctx.textAlign = 'center';
-  ctx.fillText('Share this with anyone adopting a rescue dog.', 540, 980);
-  ctx.fillText('ladogdispatch.com', 540, 1036);
-  ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 42px Arial';
-  ctx.fillText('Follow @la_dog_dispatch for urgent rescue dog posts', 540, 1120, 900);
+  ctx.beginPath(); ctx.roundRect(80, 714, 920, 200, 16); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 56px Arial Black'; ctx.textAlign = 'center';
+  ctx.fillText('Patience now', 540, 800);
+  ctx.fillText('prevents heartbreak later.', 540, 874);
+  // Bottom text — bigger
+  ctx.fillStyle = '#4a8c6a'; ctx.font = 'bold 44px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Share this with anyone adopting a rescue dog.', 540, 1000);
+  ctx.fillText('ladogdispatch.com', 540, 1058);
+  ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 44px Arial';
+  ctx.fillText('Follow @la_dog_dispatch for urgent rescue dog posts', 540, 1150, 900);
 }
-</script>
-</body>
-</html>
