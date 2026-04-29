@@ -39,9 +39,9 @@
         .category-btn:hover { border-color: #4a8c6a; color: #4a8c6a; transform: translateY(-2px); }
         .category-btn.active { background: #4a8c6a; color: white; border-color: #4a8c6a; }
         .dogs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2.5rem; }
-        .dog-card { background: white; border-radius: 12px; overflow: visible; box-shadow: var(--shadow-sm); transition: all 0.4s; cursor: pointer; border: 3px solid #4a8c6a; display: flex; flex-direction: column; }
+        .dog-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); transition: all 0.4s; cursor: pointer; border: 3px solid #4a8c6a; display: flex; flex-direction: column; }
         .dog-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-        .dog-image { width: 100%; height: 260px; object-fit: cover; background: var(--color-tan); flex-shrink: 0; border-radius: 12px 12px 0 0; }
+        .dog-image { width: 100%; height: 260px; object-fit: cover; background: var(--color-tan); flex-shrink: 0; }
         .dog-content { padding: 1.2rem; display: flex; flex-direction: column; flex: 1; }
         .dog-badges { display: flex; gap: 0.6rem; margin-bottom: .4rem; flex-wrap: wrap; }
         .badge { padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
@@ -611,41 +611,22 @@
         try {
             const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
-            const breedSpecific = (data.breed_specific||[]).map(r=>'@'+r.ig_handle);
-            const allTags = [...breedSpecific];
-            if (!allTags.length) { btn.textContent='⚠ No breed-specific rescues found'; setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('loading');},2500); return; }
-
-            // Show list below the button — use insertAdjacentElement to avoid disrupting modal
-            const card = btn.closest('.dog-card') || btn.parentElement.parentElement;
-            let panel = card.querySelector('.rescue-panel');
-            if (!panel) {
-                panel = document.createElement('div');
-                panel.className = 'rescue-panel';
-                panel.style.cssText = 'margin-top:10px;background:#1a1614;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.12);text-align:left;max-height:260px;overflow-y:auto;position:relative;z-index:1;';
-                panel.addEventListener('click', e => e.stopPropagation());
-                panel.addEventListener('touchstart', e => e.stopPropagation(), {passive: true});
-                panel.addEventListener('touchend', e => e.stopPropagation());
-                btn.parentElement.insertAdjacentElement('afterend', panel);
+            const tags = (data.breed_specific||[]).map(r=>'@'+r.ig_handle);
+            if (!tags.length) {
+                btn.textContent='⚠ None found';
+                btn.classList.remove('loading');
+                setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';},2500);
+                return;
             }
-            const tagText = allTags.join(' ');
-            panel.innerHTML = `
-                <div style="font-size:0.7rem;font-weight:700;color:#4a8c6a;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">
-                    Breed-Specific Rescues — Tag in Comments
-                </div>
-                <div style="font-size:0.75rem;color:white;line-height:1.9;word-break:break-all;margin-bottom:8px;">${allTags.join('<br>')}</div>
-                <button id="rescue-copy-btn-card" onclick="event.stopPropagation()" style="background:#4a8c6a;color:white;border:none;border-radius:6px;padding:5px 12px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy All</button>
-                <button onclick="event.stopPropagation();this.closest('.rescue-panel').remove()" style="background:transparent;color:rgba(255,255,255,0.4);border:none;padding:5px 10px;font-size:0.75rem;cursor:pointer;font-family:inherit;">✕ Close</button>`;
-            // Attach click handler directly — avoids data attribute quoting issues
-            panel.querySelector('#rescue-copy-btn-card').addEventListener('click', function() {
-                navigator.clipboard.writeText(tagText).then(() => {
-                    this.textContent = '✓ Copied!';
-                    setTimeout(() => { this.textContent = 'Copy All'; }, 2000);
-                }).catch(() => { prompt('Copy these rescue tags:', tagText); });
-            });
-
-            btn.textContent='✓ List Loaded'; btn.classList.remove('loading'); btn.classList.add('copied');
-            setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('copied');},3000);
-        } catch(e) { btn.textContent='⚠ Error'; btn.classList.remove('loading'); setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';},2000); }
+            await navigator.clipboard.writeText(tags.join(' '));
+            btn.textContent=`✓ ${tags.length} Copied!`;
+            btn.classList.remove('loading'); btn.classList.add('copied');
+            setTimeout(()=>{btn.textContent='🏷 Rescues to Tag'; btn.classList.remove('copied');},2500);
+        } catch(e) {
+            btn.textContent='⚠ Error';
+            btn.classList.remove('loading');
+            setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';},2000);
+        }
     }
 
     
@@ -700,34 +681,19 @@
         try {
             const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
-            const breedSpecific = (data.breed_specific||[]).map(r=>'@'+r.ig_handle);
-            const allTags = [...breedSpecific];
-            if (!allTags.length) { btn.textContent='⚠ No breed-specific rescues found'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2500); return; }
-
-            // Show the full list in the rescue org panel
-            let panel = document.getElementById('rescue-org-panel');
-            if (!panel) {
-                panel = document.createElement('div');
-                panel.id = 'rescue-org-panel';
-                panel.style.cssText = 'margin-top:12px;background:#1a1614;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.1);pointer-events:auto;';
-                btn.closest('.spm-action-row') ? btn.closest('.spm-action-row').insertAdjacentElement('afterend', panel) : btn.parentElement.insertAdjacentElement('afterend', panel);
+            const tags = (data.breed_specific||[]).map(r=>'@'+r.ig_handle);
+            if (!tags.length) {
+                btn.textContent='⚠ No breed-specific rescues found';
+                setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2500);
+                return;
             }
-            const tagText = allTags.join(' ');
-            panel.innerHTML = `
-                <div style="font-size:0.72rem;font-weight:700;color:#4a8c6a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">
-                    Breed-Specific Rescues — Tag in Comments
-                </div>
-                <div style="font-size:0.78rem;color:white;line-height:1.8;word-break:break-all;margin-bottom:10px;">${allTags.join('<br>')}</div>
-                <button id="rescue-copy-btn-modal" style="background:#4a8c6a;color:white;border:none;border-radius:6px;padding:6px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy All</button>`;
-            panel.querySelector('#rescue-copy-btn-modal').addEventListener('click', function() {
-                navigator.clipboard.writeText(tagText).then(() => {
-                    this.textContent = '✓ Copied!';
-                    setTimeout(() => { this.textContent = 'Copy All'; }, 2000);
-                }).catch(() => { prompt('Copy these rescue tags:', tagText); });
-            });
-
-            btn.textContent='✓ List Loaded'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2500);
-        } catch(e) { btn.textContent='⚠ Error'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2000); }
+            await navigator.clipboard.writeText(tags.join(' '));
+            btn.textContent=`✓ ${tags.length} Copied!`;
+            setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2500);
+        } catch(e) {
+            btn.textContent='⚠ Error';
+            setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2000);
+        }
     }
 
     
