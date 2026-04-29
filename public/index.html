@@ -495,7 +495,12 @@
             <div class="dog-content">
                 <div class="dog-badges" style="min-height:2.2rem;">${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only — Must be pulled by a rescue org</span>` : `<span class="badge badge-public">✅ Open to Public — Can adopt or foster directly</span>`}</div>
                 <h3 class="dog-name">${dog.name}</h3>
-                <p class="dog-details">${dog.breed} • ${dog.age} • ${dog.gender}</p>
+                <p class="dog-details">${dog.breed} • ${(() => {
+                  const a=(dog.age||'').toLowerCase(), n=parseFloat(a);
+                  const isPup=a.includes('month')||(!isNaN(n)&&n<1);
+                  const isSen=!isPup&&!isNaN(n)&&n>=7;
+                  return dog.age+(isPup?' (Puppy)':isSen?' (Senior)':'');
+                })()} • ${dog.gender}</p>
                 <p style="font-size:0.72rem;color:#9ca3af;font-family:monospace;margin-top:2px;">${dog.shelter_id||''}</p>
                 <div class="dog-location">📍 ${dog.shelter}</div>
                 ${dog.intake_date ? `<div class="shelter-duration">🏠 <span>At shelter: <strong>${formatShelterDate(dog.intake_date)}</strong>${dog.list_date ? ` · Listed: <strong>${formatShelterDate(dog.list_date)}</strong>` : ''} · <strong>${getShelterDuration(dog.intake_date)}</strong></span></div>` : ''}
@@ -613,16 +618,48 @@
             setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('copied');},3000);
         } catch(e) { btn.textContent='🏷 Rescues to Tag'; btn.classList.remove('loading'); }
     }
-    async function copyDogCaption(btn, dog) {
+    function buildDogCaption(dog) {
         const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
         const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
         const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
-        const caption = window.FUNDING_ENABLED
-            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${isPuppy?'This is only a puppy.\n':isSenior?`${dog.name||dog.shelter_id} is a senior dog.\n`:''}${intakeLine?intakeLine+'\n\n':''}${dog.breed||'Mixed breed'} · ${dog.shelter||'LA County'} · Shelter ID: ${dog.shelter_id||''}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`
-            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${isPuppy?'This is only a puppy.\n':isSenior?`${dog.name||dog.shelter_id} is a senior dog.\n`:''}${intakeLine?intakeLine+'\n\n':''}${dog.breed||'Mixed breed'} · ${dog.shelter||'LA County'} · Shelter ID: ${dog.shelter_id||''}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`;
+
+        // Puppy / Senior detection
+        const ageStr = (dog.age||'').toLowerCase();
+        const ageNum = parseFloat(ageStr);
+        const isPuppy = ageStr.includes('month') || (!isNaN(ageNum) && ageNum < 1);
+        const isSenior = !isPuppy && !isNaN(ageNum) && ageNum >= 7;
+
+        // Alert prefix
+        const alertPrefix = isPuppy ? '🐶 Puppy Alert' : isSenior ? '🐾 Senior Dog Alert' : '🚨';
+        const openingLine = isPuppy || isSenior
+          ? `${alertPrefix} — ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`
+          : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`;
+
+        // Intake duration
+        let intakeLine = '';
+        if (dog.intake_date) {
+          const intake = new Date(dog.intake_date); intake.setHours(0,0,0,0);
+          const today = new Date(); today.setHours(0,0,0,0);
+          const days = Math.floor((today - intake) / 86400000);
+          if (days > 0) intakeLine = `In shelter ${days} day${days!==1?'s':''}`;
+        }
+
+        // Breed hashtag — replace 4th hashtag slot
+        const breedRaw = (dog.breed||'').toLowerCase().replace(/[^a-z]/g,'');
+        const breedTag = breedRaw ? `#${breedRaw}` : '#adoptdontshop';
+        const hashtags = `#ladogdispatch #urgentdogs #laanimals ${breedTag} #adoptdontshop`;
+
+        // ID + intake at top
+        const idLine = `ID: ${dog.shelter_id||''}${intakeLine ? ' · ' + intakeLine : ''}`;
+
+        return `${idLine}\n\n${openingLine}\n\n${dog.breed||'Mixed breed'} · ${dog.shelter||'LA County'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`;
+    }
+
+    async function copyDogCaption(btn, dog) {
+        const caption = buildDogCaption(dog);
         try { await navigator.clipboard.writeText(caption); btn.textContent='✓ Copied!'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2500); }
         catch(e) { prompt('Copy this caption:',caption); }
     }
@@ -638,9 +675,7 @@
         const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
         document.getElementById('spm-dog-name').textContent = dog.name || dog.shelter_id;
         document.getElementById('spm-dog-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${urgency}`;
-        const caption = window.FUNDING_ENABLED
-            ? `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY':'✅ OPEN TO PUBLIC'}\n${notesBlock}${disclaimerBlock}\n\nFund, foster, or share → ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`
-            : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.\n\n${dog.breed||'Mixed breed'} at ${dog.shelter||'LA County'} shelter.\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog.':'✅ OPEN TO PUBLIC — Anyone can adopt or foster directly.'}\n${notesBlock}${disclaimerBlock}\n\n📢 LA Dog Dispatch automatically gives every urgent shelter dog visibility.\n\nFollow → @la_dog_dispatch\nSee all dogs → ladogdispatch.com\n\n#ladogdispatch #urgentdogs #laanimals #rescuedog #dogrescue`;
+        const caption = buildDogCaption(dog);
         document.getElementById('spm-caption-text').value = caption;
         window._spmDog = dog; window._spmCaption = caption;
         const cardWrap = document.getElementById('spm-card-wrap');
@@ -674,15 +709,36 @@
         try {
             const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
-            const allTags = [...(data.breed_specific||[]),...(data.general||[])].map(r=>'@'+r.ig_handle).slice(0,15);
-            if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='Copy Rescue Tags';},2000); return; }
-            await navigator.clipboard.writeText(allTags.join(' ')); btn.textContent=`✓ ${allTags.length} Tags Copied!`; btn.classList.add('copied');
-            setTimeout(()=>{ btn.textContent='Copy Rescue Tags'; btn.classList.remove('copied'); },3000);
-        } catch(e) { btn.textContent='Copy Rescue Tags'; }
+            const breedSpecific = (data.breed_specific||[]).map(r=>'@'+r.ig_handle);
+            const general = (data.general||[]).map(r=>'@'+r.ig_handle);
+            const allTags = [...breedSpecific, ...general];
+            if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2000); return; }
+
+            // Show the full list in the rescue org panel
+            let panel = document.getElementById('rescue-org-panel');
+            if (!panel) {
+                panel = document.createElement('div');
+                panel.id = 'rescue-org-panel';
+                panel.style.cssText = 'margin-top:12px;background:#1a1614;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.1);';
+                btn.parentElement.parentElement.appendChild(panel);
+            }
+            const tagText = allTags.join(' ');
+            panel.innerHTML = `
+                <div style="font-size:0.72rem;font-weight:700;color:#4a8c6a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">
+                    Rescue Orgs — Tag in Comments
+                    ${breedSpecific.length ? '<span style="color:#60a5fa;margin-left:8px;">(' + breedSpecific.length + ' breed-specific)</span>' : ''}
+                </div>
+                <div style="font-size:0.78rem;color:white;line-height:1.8;word-break:break-all;margin-bottom:10px;">${allTags.join('<br>')}</div>
+                <button onclick="navigator.clipboard.writeText('${tagText.replace(/'/g,"\'")}').then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='Copy All',2000)})"
+                    style="background:#4a8c6a;color:white;border:none;border-radius:6px;padding:6px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">
+                    Copy All
+                </button>`;
+
+            btn.textContent='✓ List Loaded'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2500);
+        } catch(e) { btn.textContent='⚠ Error'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2000); }
     }
 
-    let fundDog = null;
-    const STRIPE_LINKS = { 10:'https://buy.stripe.com/9B69ATdxH32M3mB5jD4ow08', 25:'https://buy.stripe.com/7sYcN5ctDbzi8GVfYh4ow09', 50:'https://buy.stripe.com/4gM28rbpzcDm7CR9zT4ow0a', 100:'https://buy.stripe.com/7sY8wPctD7j21et5jD4ow0b', 200:'https://buy.stripe.com/3cI3cv3X7eLug9n4fz4ow0c' };
+    
     function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${(() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
     function closeFundModal(e) { if (e.target===document.getElementById('fund-modal-overlay')) document.getElementById('fund-modal-overlay').classList.remove('open'); }
     function donateDirect(amount) { const link = STRIPE_LINKS[amount]; if (link) { window.open(link,'_blank'); document.getElementById('fund-modal-overlay').classList.remove('open'); } }
@@ -3052,7 +3108,7 @@ function draw333Slide7(ctx, logo) {
   ];
   let y = 230;
   const gap = 34;
-  b7.forEach(b => { y = s333Bullet(ctx, y, b, '#a78bfa', '#ffffff', 40); y += gap; });
+  b7.forEach(b => { y = s333Bullet(ctx, y, b, '#a78bfa', '#ffffff', 36); y += 28; });
   s333Rule(ctx, y + 10, '#a78bfa');
   ctx.fillStyle = '#ffffff'; ctx.font = '900 40px Arial Black'; ctx.textAlign = 'center';
   ctx.fillText("Don't give the dog a chance to fail before they're fully ready.", 540, y + 70, 920);
