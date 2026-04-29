@@ -612,23 +612,22 @@
             const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
             const breedSpecific = (data.breed_specific||[]).map(r=>'@'+r.ig_handle);
-            const general = (data.general||[]).map(r=>'@'+r.ig_handle);
-            const allTags = [...breedSpecific, ...general];
-            if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('loading');},2000); return; }
+            const allTags = [...breedSpecific];
+            if (!allTags.length) { btn.textContent='⚠ No breed-specific rescues found'; setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('loading');},2500); return; }
 
-            // Show full list below the button
+            // Show list below the button — use insertAdjacentElement to avoid disrupting modal
             const card = btn.closest('.dog-card') || btn.parentElement.parentElement;
             let panel = card.querySelector('.rescue-panel');
             if (!panel) {
                 panel = document.createElement('div');
                 panel.className = 'rescue-panel';
                 panel.style.cssText = 'margin-top:10px;background:#1a1614;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.12);text-align:left;';
-                btn.parentElement.after(panel);
+                btn.parentElement.insertAdjacentElement('afterend', panel);
             }
             const tagText = allTags.join(' ');
             panel.innerHTML = `
                 <div style="font-size:0.7rem;font-weight:700;color:#4a8c6a;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">
-                    Tag in Comments${breedSpecific.length ? ' · <span style="color:#60a5fa">' + breedSpecific.length + ' breed-specific</span>' : ''}
+                    Breed-Specific Rescues — Tag in Comments
                 </div>
                 <div style="font-size:0.75rem;color:white;line-height:1.9;word-break:break-all;margin-bottom:8px;">${allTags.join('<br>')}</div>
                 <button id="rescue-copy-btn-card" style="background:#4a8c6a;color:white;border:none;border-radius:6px;padding:5px 12px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy All</button>
@@ -699,23 +698,21 @@
             const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
             const breedSpecific = (data.breed_specific||[]).map(r=>'@'+r.ig_handle);
-            const general = (data.general||[]).map(r=>'@'+r.ig_handle);
-            const allTags = [...breedSpecific, ...general];
-            if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2000); return; }
+            const allTags = [...breedSpecific];
+            if (!allTags.length) { btn.textContent='⚠ No breed-specific rescues found'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2500); return; }
 
             // Show the full list in the rescue org panel
             let panel = document.getElementById('rescue-org-panel');
             if (!panel) {
                 panel = document.createElement('div');
                 panel.id = 'rescue-org-panel';
-                panel.style.cssText = 'margin-top:12px;background:#1a1614;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.1);';
-                btn.parentElement.parentElement.appendChild(panel);
+                panel.style.cssText = 'margin-top:12px;background:#1a1614;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.1);pointer-events:auto;';
+                btn.closest('.spm-action-row') ? btn.closest('.spm-action-row').insertAdjacentElement('afterend', panel) : btn.parentElement.insertAdjacentElement('afterend', panel);
             }
             const tagText = allTags.join(' ');
             panel.innerHTML = `
                 <div style="font-size:0.72rem;font-weight:700;color:#4a8c6a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">
-                    Rescue Orgs — Tag in Comments
-                    ${breedSpecific.length ? '<span style="color:#60a5fa;margin-left:8px;">(' + breedSpecific.length + ' breed-specific)</span>' : ''}
+                    Breed-Specific Rescues — Tag in Comments
                 </div>
                 <div style="font-size:0.78rem;color:white;line-height:1.8;word-break:break-all;margin-bottom:10px;">${allTags.join('<br>')}</div>
                 <button id="rescue-copy-btn-modal" style="background:#4a8c6a;color:white;border:none;border-radius:6px;padding:6px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy All</button>`;
