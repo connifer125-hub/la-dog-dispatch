@@ -611,53 +611,42 @@
         try {
             const res = await fetch(`/api/rescue-directory/match?breed=${encodeURIComponent(dog.breed||'')}`);
             const data = await res.json();
-            const allTags = [...(data.breed_specific||[]), ...(data.general||[])].map(r => '@'+r.ig_handle).slice(0, 15);
+            const breedSpecific = (data.breed_specific||[]).map(r=>'@'+r.ig_handle);
+            const general = (data.general||[]).map(r=>'@'+r.ig_handle);
+            const allTags = [...breedSpecific, ...general];
             if (!allTags.length) { btn.textContent='⚠ None found'; setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('loading');},2000); return; }
-            await navigator.clipboard.writeText(allTags.join(' '));
-            btn.textContent=`✓ ${allTags.length} Copied!`; btn.classList.remove('loading'); btn.classList.add('copied');
+
+            // Show full list below the button
+            const card = btn.closest('.dog-card') || btn.parentElement.parentElement;
+            let panel = card.querySelector('.rescue-panel');
+            if (!panel) {
+                panel = document.createElement('div');
+                panel.className = 'rescue-panel';
+                panel.style.cssText = 'margin-top:10px;background:#1a1614;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.12);text-align:left;';
+                btn.parentElement.after(panel);
+            }
+            const tagText = allTags.join(' ');
+            panel.innerHTML = `
+                <div style="font-size:0.7rem;font-weight:700;color:#4a8c6a;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">
+                    Tag in Comments${breedSpecific.length ? ' · <span style="color:#60a5fa">' + breedSpecific.length + ' breed-specific</span>' : ''}
+                </div>
+                <div style="font-size:0.75rem;color:white;line-height:1.9;word-break:break-all;margin-bottom:8px;">${allTags.join('<br>')}</div>
+                <button id="rescue-copy-btn-card" style="background:#4a8c6a;color:white;border:none;border-radius:6px;padding:5px 12px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy All</button>
+                <button onclick="this.parentElement.remove()" style="background:transparent;color:rgba(255,255,255,0.4);border:none;padding:5px 10px;font-size:0.75rem;cursor:pointer;font-family:inherit;">Close</button>`;
+            // Attach click handler directly — avoids data attribute quoting issues
+            panel.querySelector('#rescue-copy-btn-card').addEventListener('click', function() {
+                navigator.clipboard.writeText(tagText).then(() => {
+                    this.textContent = '✓ Copied!';
+                    setTimeout(() => { this.textContent = 'Copy All'; }, 2000);
+                }).catch(() => { prompt('Copy these rescue tags:', tagText); });
+            });
+
+            btn.textContent='✓ List Loaded'; btn.classList.remove('loading'); btn.classList.add('copied');
             setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';btn.classList.remove('copied');},3000);
-        } catch(e) { btn.textContent='🏷 Rescues to Tag'; btn.classList.remove('loading'); }
-    }
-    function buildDogCaption(dog) {
-        const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
-        const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
-        const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
-        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
-        const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
-        const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
-
-        // Puppy / Senior detection
-        const ageStr = (dog.age||'').toLowerCase();
-        const ageNum = parseFloat(ageStr);
-        const isPuppy = ageStr.includes('month') || (!isNaN(ageNum) && ageNum < 1);
-        const isSenior = !isPuppy && !isNaN(ageNum) && ageNum >= 7;
-
-        // Alert prefix
-        const alertPrefix = isPuppy ? '🐶 Puppy Alert' : isSenior ? '🐾 Senior Dog Alert' : '🚨';
-        const openingLine = isPuppy || isSenior
-          ? `${alertPrefix} — ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`
-          : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`;
-
-        // Intake duration
-        let intakeLine = '';
-        if (dog.intake_date) {
-          const intake = new Date(dog.intake_date); intake.setHours(0,0,0,0);
-          const today = new Date(); today.setHours(0,0,0,0);
-          const days = Math.floor((today - intake) / 86400000);
-          if (days > 0) intakeLine = `In shelter ${days} day${days!==1?'s':''}`;
-        }
-
-        // Breed hashtag — replace 4th hashtag slot
-        const breedRaw = (dog.breed||'').toLowerCase().replace(/[^a-z]/g,'');
-        const breedTag = breedRaw ? `#${breedRaw}` : '#adoptdontshop';
-        const hashtags = `#ladogdispatch #urgentdogs #laanimals ${breedTag} #adoptdontshop`;
-
-        // ID + intake at top
-        const idLine = `ID: ${dog.shelter_id||''}${intakeLine ? ' · ' + intakeLine : ''}`;
-
-        return `${idLine}\n\n${openingLine}\n\n${dog.breed||'Mixed breed'} · ${dog.shelter||'LA County'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`;
+        } catch(e) { btn.textContent='⚠ Error'; btn.classList.remove('loading'); setTimeout(()=>{btn.textContent='🏷 Rescues to Tag';},2000); }
     }
 
+    
     async function copyDogCaption(btn, dog) {
         const caption = buildDogCaption(dog);
         try { await navigator.clipboard.writeText(caption); btn.textContent='✓ Copied!'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2500); }
@@ -729,10 +718,13 @@
                     ${breedSpecific.length ? '<span style="color:#60a5fa;margin-left:8px;">(' + breedSpecific.length + ' breed-specific)</span>' : ''}
                 </div>
                 <div style="font-size:0.78rem;color:white;line-height:1.8;word-break:break-all;margin-bottom:10px;">${allTags.join('<br>')}</div>
-                <button onclick="navigator.clipboard.writeText('${tagText.replace(/'/g,"\'")}').then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='Copy All',2000)})"
-                    style="background:#4a8c6a;color:white;border:none;border-radius:6px;padding:6px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">
-                    Copy All
-                </button>`;
+                <button id="rescue-copy-btn-modal" style="background:#4a8c6a;color:white;border:none;border-radius:6px;padding:6px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy All</button>`;
+            panel.querySelector('#rescue-copy-btn-modal').addEventListener('click', function() {
+                navigator.clipboard.writeText(tagText).then(() => {
+                    this.textContent = '✓ Copied!';
+                    setTimeout(() => { this.textContent = 'Copy All'; }, 2000);
+                }).catch(() => { prompt('Copy these rescue tags:', tagText); });
+            });
 
             btn.textContent='✓ List Loaded'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2500);
         } catch(e) { btn.textContent='⚠ Error'; setTimeout(()=>{btn.textContent='Copy Rescue Tags to Paste';},2000); }
