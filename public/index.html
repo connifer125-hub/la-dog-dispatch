@@ -630,6 +630,35 @@
     }
 
     
+    function buildDogCaption(dog) {
+        const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
+        const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+        const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
+        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
+        const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
+        const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
+        const ageStr = (dog.age||'').toLowerCase();
+        const ageNum = parseFloat(ageStr);
+        const isPuppy = ageStr.includes('month') || (!isNaN(ageNum) && ageNum < 1);
+        const isSenior = !isPuppy && !isNaN(ageNum) && ageNum >= 7;
+        const alertPrefix = isPuppy ? '🐶 Puppy Alert' : isSenior ? '🐾 Senior Dog Alert' : '🚨';
+        const openingLine = (isPuppy || isSenior)
+          ? `${alertPrefix} — ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`
+          : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`;
+        let intakeLine = '';
+        if (dog.intake_date) {
+          const intake = new Date(dog.intake_date); intake.setHours(0,0,0,0);
+          const today = new Date(); today.setHours(0,0,0,0);
+          const days = Math.floor((today - intake) / 86400000);
+          if (days > 0) intakeLine = `In shelter ${days} day${days!==1?'s':''}`;
+        }
+        const breedRaw = (dog.breed||'').toLowerCase().replace(/[^a-z]/g,'');
+        const breedTag = breedRaw ? `#${breedRaw}` : '#adoptdontshop';
+        const hashtags = `#ladogdispatch #urgentdogs #laanimals ${breedTag} #adoptdontshop`;
+        const idLine = `ID: ${dog.shelter_id||''}${intakeLine ? ' · ' + intakeLine : ''}`;
+        return `${idLine}\n\n${openingLine}\n\n${dog.breed||'Mixed breed'} · ${dog.shelter||'LA County'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`;
+    }
+
     async function copyDogCaption(btn, dog) {
         const caption = buildDogCaption(dog);
         try { await navigator.clipboard.writeText(caption); btn.textContent='✓ Copied!'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2500); }
