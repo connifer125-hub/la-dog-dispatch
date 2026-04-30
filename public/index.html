@@ -2928,11 +2928,11 @@ function draw333Slide1(ctx, logo) {
   s333Text(ctx, 'We know your goal is simple:', 540, 618, 880, 44, '400', '#ffffff', 'center');
   s333Text(ctx, 'to love and care for the dog you just rescued', 540, 672, 880, 44, '400', '#ffffff', 'center');
   s333Rule(ctx, 742, 'rgba(255,255,255,0.15)');
-  s333Text(ctx, 'But before they can give love back,', 540, 810, 880, 46, '400', '#7ec8a0', 'center');
-  s333Text(ctx, 'they need a soft landing first.', 540, 866, 880, 46, '400', '#7ec8a0', 'center');
+  s333Text(ctx, 'But before they can give love back,', 540, 800, 880, 44, '400', '#7ec8a0', 'center');
+  s333Text(ctx, 'they need a soft landing first.', 540, 852, 880, 44, '400', '#7ec8a0', 'center');
   const pills = [['3 DAYS','Survival Mode','#c4281c'],['3 WEEKS','Danger Zone','#d97706'],['3 MONTHS','True Bonding','#2563eb']];
   pills.forEach((p, i) => {
-    const px = 60 + i * 328, pw = 300, py = 940;
+    const px = 60 + i * 328, pw = 300, py = 920;
     ctx.fillStyle = p[2]; ctx.beginPath(); ctx.roundRect(px, py, pw, 110, 12); ctx.fill();
     ctx.fillStyle = 'white'; ctx.font = '900 28px Arial Black'; ctx.textAlign = 'center';
     ctx.fillText(p[0], px + pw/2, py + 46);
@@ -3101,8 +3101,9 @@ function draw333Slide8(ctx, logo) {
     ctx.drawImage(logo, (1080 - lw) / 2, 68, lw, lh);
   }
   s333Rule(ctx, 200, '#4a8c6a');
-  s333Text(ctx, "Most problems don't come from bad dogs —", 540, 288, 920, 50, '900', '#ffffff', 'center');
-  s333Text(ctx, 'they come from moving too fast.', 540, 350, 920, 50, '900', '#ffffff', 'center');
+  ctx.fillStyle = '#ffffff'; ctx.font = '900 50px Arial'; ctx.textAlign = 'center';
+  ctx.fillText("Most problems don't come from bad dogs —", 540, 288, 920);
+  ctx.fillText('they come from moving too fast.', 540, 350, 920);
   s333Rule(ctx, 398, 'rgba(74,140,106,0.5)');
   s333Text(ctx, "The goal isn't just to rescue a dog.", 540, 484, 900, 50, '900', '#ffffff', 'center');
   s333Rule(ctx, 542, 'rgba(74,140,106,0.5)');
