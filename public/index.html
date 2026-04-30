@@ -268,7 +268,7 @@
                     <div class="exp-stage active" id="ies1">
                         <div class="exp-s4-wrap">
                             <div class="ph-mock" style="flex-shrink:0;width:55%;">
-                                <div class="ph-header"><span>PetHarbor.com</span><span style="opacity:0.6;font-size:8px;">Los Angeles County Animal Care</span></div>
+                                <div class="ph-header"><span>PetHarbor.com</span><span style="opacity:0.6;font-size:8px;">Los Angeles Animal Care</span></div>
                                 <div class="ph-nav"><span>Home</span><span>Search</span><span>Results</span><span>Help</span></div>
                                 <div class="ph-body">
                                     <img class="ph-photo" id="iphPhoto" src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200" alt="shelter dog">
@@ -656,7 +656,7 @@
         const breedTag = breedRaw ? `#${breedRaw}` : '#adoptdontshop';
         const hashtags = `#ladogdispatch #urgentdogs #laanimals ${breedTag} #adoptdontshop`;
         const idLine = `ID: ${dog.shelter_id||''}${intakeLine ? ' · ' + intakeLine : ''}`;
-        return `${idLine}\n\n${openingLine}\n\n${dog.breed||'Mixed breed'} · ${dog.shelter||'LA County'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`;
+        return `${idLine}\n\n${openingLine}\n\n${dog.breed||'Mixed breed'} · ${dog.shelter||'Los Angeles'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`;
     }
 
     async function copyDogCaption(btn, dog) {
@@ -675,7 +675,7 @@
         const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
         const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
         document.getElementById('spm-dog-name').textContent = dog.name || dog.shelter_id;
-        document.getElementById('spm-dog-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${urgency}`;
+        document.getElementById('spm-dog-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · ${urgency}`;
         const caption = buildDogCaption(dog);
         document.getElementById('spm-caption-text').value = caption;
         window._spmDog = dog; window._spmCaption = caption;
@@ -726,7 +726,7 @@
     }
 
     
-    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'LA County'} · ${(() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
+    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · ${(() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
     function closeFundModal(e) { if (e.target===document.getElementById('fund-modal-overlay')) document.getElementById('fund-modal-overlay').classList.remove('open'); }
     function donateDirect(amount) { const link = STRIPE_LINKS[amount]; if (link) { window.open(link,'_blank'); document.getElementById('fund-modal-overlay').classList.remove('open'); } }
     </script>
@@ -1064,7 +1064,7 @@ Sign up → ladogdispatch.com/social-sharer-signup.html
         </div>
         <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
           <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Caption Copy</div>
-          <div id="admin-copy4" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;"><span id="admin-copy4-count">—</span> dogs in LA County are on the euth list right now. Every single one of them got a post — automatically, in real time, the moment they were listed.
+          <div id="admin-copy4" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;"><span id="admin-copy4-count">—</span> dogs in Los Angeles are on the euth list right now. Every single one of them got a post — automatically, in real time, the moment they were listed.
 
 That's what LA Dog Dispatch does. We are not a rescue. We are the visibility engine that makes sure no dog disappears quietly.
 
@@ -1315,7 +1315,7 @@ function adminDrawCard4(phase, dogIndex) {
     adminDivider(ctx, W, 245);
 
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 52px Georgia, serif'; ctx.textAlign = 'center';
-    ctx.fillText('This Week in LA County', W/2, 340, W - 80);
+    ctx.fillText('This Week in Los Angeles', W/2, 340, W - 80);
 
     const dogCount = adminC4Dogs.length;
     const totalCount = window.adminC4TotalCount || adminC4Dogs.length;
@@ -2302,7 +2302,7 @@ async function spmDownloadWantedPoster() {
 
   // caption_y=622 (top=600, mat_bottom=590, gap=10px ✓)
   ctx.fillStyle='#2a1500'; ctx.font='italic 26px Georgia,serif'; ctx.textAlign='center';
-  ctx.fillText(`${(dog.name||dog.shelter_id).toUpperCase()} · ${dog.breed||'Mixed'} · ${dog.shelter||'LA County'}`,W/2,622);
+  ctx.fillText(`${(dog.name||dog.shelter_id).toUpperCase()} · ${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'}`,W/2,622);
 
   // rule_ac=[642,649]
   ctx.fillStyle='#2a1500'; ctx.fillRect(50,642,W-100,2); ctx.fillRect(50,646,W-100,5);
@@ -2336,7 +2336,7 @@ async function spmDownloadWantedPoster() {
 
   // shelter_y=975
   ctx.fillStyle='#2a1500'; ctx.font='bold 26px Georgia,serif';
-  ctx.fillText(`${dog.shelter||'LA County'}  ·  ID: ${dog.shelter_id||''}`,W/2,975);
+  ctx.fillText(`${dog.shelter||'Los Angeles'}  ·  ID: ${dog.shelter_id||''}`,W/2,975);
 
   // rule4=[991,996]
   ctx.fillStyle='#2a1500'; ctx.fillRect(50,991,W-100,2); ctx.fillRect(50,994,W-100,5);
@@ -2464,7 +2464,7 @@ async function spmDownloadGRWM() {
   // Dog name line
   ctx.fillStyle = '#1a1a1a';
   ctx.font = '900 62px Arial Black,Arial'; ctx.textAlign = 'center';
-  ctx.fillText(`${name}  ·  ${dog.breed||'Mixed'}  ·  ${dog.shelter||'LA County'}`, W/2, footerY+80, W-60);
+  ctx.fillText(`${name}  ·  ${dog.breed||'Mixed'}  ·  ${dog.shelter||'Los Angeles'}`, W/2, footerY+80, W-60);
 
   // Deadline line
   ctx.fillStyle = daysLeft<=0?'#ef4444':'#ec4899';
@@ -2574,7 +2574,7 @@ async function spmDownloadTinder() {
       ctx.fillText(dog.age||'', 40, H-210);
       // Info lines
       ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='38px Arial';
-      ctx.fillText(`📍 ${dog.shelter||'LA County'}`, 40, H-155);
+      ctx.fillText(`📍 ${dog.shelter||'Los Angeles'}`, 40, H-155);
       ctx.fillText(`❤️ Looking for: my forever human`, 40, H-100);
       // Bio
       ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='italic 30px Georgia,serif';
@@ -2626,7 +2626,7 @@ async function spmDownloadTinder() {
       ctx.fillText("because I'm in", W/2, 560);
       ctx.fillText('a shelter. 💔', W/2, 660);
       ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='38px Arial';
-      ctx.fillText(`${dog.shelter||'LA County'}  ·  ${dog.breed||'Mixed Breed'}`, W/2, 760, W-80);
+      ctx.fillText(`${dog.shelter||'Los Angeles'}  ·  ${dog.breed||'Mixed Breed'}`, W/2, 760, W-80);
       ctx.fillStyle=colors.light; ctx.font='bold 40px Arial';
       ctx.fillText(name, W/2, H-60);
       tinderHandle();
@@ -2647,7 +2647,7 @@ async function spmDownloadTinder() {
       ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(80,H-245); ctx.lineTo(W-80,H-245); ctx.stroke();
       ctx.fillStyle='white'; ctx.font='bold 44px Arial';
-      ctx.fillText(`📍 ${dog.shelter||'LA County'}`, W/2, H-190);
+      ctx.fillText(`📍 ${dog.shelter||'Los Angeles'}`, W/2, H-190);
       ctx.fillStyle=daysLeft<=0?'#ff5252':colors.deadline; ctx.font='bold 42px Arial';
       ctx.fillText(`⏰ ${daysLeft<=0?'DEADLINE TODAY':daysLeft+' days left — '+dlStr}`, W/2, H-135, W-80);
       ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='30px monospace';
@@ -2736,7 +2736,7 @@ async function spmDownloadStillWaiting() {
 
   // Shelter
   ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='bold 38px Arial';
-  ctx.fillText(dog.shelter||'LA County', W/2, H-138);
+  ctx.fillText(dog.shelter||'Los Angeles', W/2, H-138);
 
   // ID
   ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='30px monospace';
