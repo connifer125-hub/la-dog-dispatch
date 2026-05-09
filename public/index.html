@@ -526,11 +526,23 @@
             renderDogs();
         } catch (error) { console.error('Error loading dogs:', error); }
     }
+    function sortDogs(dogs) {
+        // South LA first, then other shelters, within each shelter sort by urgency (fewest days first)
+        const today = new Date(); today.setHours(0,0,0,0);
+        const daysLeft = d => { const dl = new Date(d.deadline); dl.setHours(0,0,0,0); return Math.round((dl-today)/86400000); };
+        const isSouthLA = d => (d.shelter||'').replace(/\.|\s/g,'').toUpperCase().includes('SOUTHLA') || (d.shelter||'').toUpperCase().includes('SOUTH L');
+        return [...dogs].sort((a,b) => {
+            const aSouth = isSouthLA(a) ? 0 : 1;
+            const bSouth = isSouthLA(b) ? 0 : 1;
+            if (aSouth !== bSouth) return aSouth - bSouth;
+            return daysLeft(a) - daysLeft(b);
+        });
+    }
     function renderDogs() {
         const grid = document.getElementById('dogs-grid');
         let filteredDogs = currentCategory === 'rescue_only' ? allDogs.filter(d => d.rescue_only) : allDogs;
         if (filteredDogs.length === 0) { grid.innerHTML = '<p style="text-align:center;color:#6b6560;grid-column:1/-1;padding:3rem;">No rescue-only dogs listed right now.</p>'; return; }
-        grid.innerHTML = filteredDogs.map(createDogCard).filter(Boolean).join('');
+        grid.innerHTML = sortDogs(filteredDogs).map(createDogCard).filter(Boolean).join('');
     }
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -634,31 +646,44 @@
         const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
-        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
-        const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
-        const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
+        const notesBlock = dog.notes ? ('\n\n\u26a0\ufe0f Shelter notes: ' + dog.notes + '\n\ud83d\udccb Shelter notes are snapshots written in stressful environments & may not reflect a dog\'s real personality. Training, love & patience needed.') : '';
         const ageStr = (dog.age||'').toLowerCase();
         const ageNum = parseFloat(ageStr);
         const isPuppy = ageStr.includes('month') || (!isNaN(ageNum) && ageNum < 1);
         const isSenior = !isPuppy && !isNaN(ageNum) && ageNum >= 7;
-        const alertPrefix = isPuppy ? '🐶 Puppy Alert' : isSenior ? '🐾 Senior Dog Alert' : '🚨';
-        const openingLine = (isPuppy || isSenior)
-          ? `${alertPrefix} — ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`
-          : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`;
         let intakeLine = '';
         if (dog.intake_date) {
           const intake = new Date(dog.intake_date); intake.setHours(0,0,0,0);
           const today = new Date(); today.setHours(0,0,0,0);
           const days = Math.floor((today - intake) / 86400000);
-          if (days > 0) intakeLine = `In shelter ${days} day${days!==1?'s':''}`;
+          if (days > 0) intakeLine = ' \u00b7 In shelter ' + days + ' day' + (days!==1?'s':'');
         }
         const breedRaw = (dog.breed||'').toLowerCase().replace(/[^a-z]/g,'');
-        const breedTag = breedRaw ? `#${breedRaw}` : '#adoptdontshop';
-        const hashtags = `#ladogdispatch #urgentdogs #laanimals ${breedTag} #adoptdontshop`;
-        const idLine = `ID: ${dog.shelter_id||''}${intakeLine ? ' · ' + intakeLine : ''}`;
-        return `${idLine}\n\n${openingLine}\n\n${dog.breed||'Mixed breed'} · ${dog.shelter||'Los Angeles'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`;
+        const breedTag = breedRaw ? ('#' + breedRaw) : '#rescuedog';
+        const idNum = parseInt((dog.shelter_id||'A0').replace(/[^0-9]/g,'')) || 0;
+        const v = idNum % 4;
+        const urgEmoji = daysLeft <= 0 ? '\ud83c\udd98' : daysLeft === 1 ? '\ud83d\udea8' : daysLeft <= 4 ? '\u23f0' : '\ud83d\udc3e';
+        const urgText = daysLeft <= 0 ? 'TODAY' : (daysLeft + ' day' + (daysLeft!==1?'s':'') + ' left');
+        const alertPrefix = isPuppy ? '\ud83d\udc36 Puppy Alert' : isSenior ? '\ud83d\udc3e Senior Dog Alert' : urgEmoji;
+        const name = dog.name || dog.shelter_id;
+        const openings = [
+          alertPrefix + ' \u2014 ' + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
+          urgEmoji + ' ' + name + ' is on the Los Angeles euthanasia list. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          'Who will save ' + name + '? Rescue deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          urgEmoji + ' ' + name + ' needs a foster, adopter, or rescue by ' + dl + ' \u2014 ' + urgText + '.',
+        ];
+        const hashPools = [
+          '#ladogdispatch ' + breedTag + ' #adoptdontshop',
+          '#ladogdispatch ' + breedTag + ' #rescuedog',
+          '#ladogdispatch ' + breedTag + ' #fosterdog',
+          '#ladogdispatch ' + breedTag + ' #shelterdog',
+        ];
+        const roLine = isRO
+          ? '\ud83d\udd12 RESCUE ORGANIZATIONS ONLY \u2014 a licensed rescue must pull this dog from the shelter.'
+          : '\u2705 OPEN TO PUBLIC \u2014 This dog can be adopted or fostered directly by anyone.';
+        return 'ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + (dog.shelter||'Los Angeles') + '\n\n' + roLine + notesBlock + '\n\nFoster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n' + hashPools[v];
     }
-
+    
     async function copyDogCaption(btn, dog) {
         const caption = buildDogCaption(dog);
         try { await navigator.clipboard.writeText(caption); btn.textContent='✓ Copied!'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2500); }
@@ -747,6 +772,8 @@
                   <button onclick="spmDownloadWantedPoster()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🪧 Wanted Poster</button>
                   <button onclick="spmDownloadCrayonCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🖍 Crayon Drawing</button>
                   <button onclick="spmDownloadGRWM()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">✨ GRWM</button>
+                  <button onclick="spmDownloadWebCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🖼 Web Card</button>
+                  <button onclick="spmDownloadNameCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🏷 Name Card</button>
 
                 </div>
                 <canvas id="phone-wrapper-canvas" style="display:none;" width="1080" height="1920"></canvas>
@@ -896,6 +923,20 @@ function cropRenderPreview(offset) {
 document.getElementById('crop-slider').addEventListener('input', function() {
   cropRenderPreview(parseFloat(this.value));
 });
+// Mobile touch support for crop slider
+document.getElementById('crop-slider').addEventListener('touchstart', function(e) {
+  e.stopPropagation();
+}, {passive:true});
+document.getElementById('crop-slider').addEventListener('touchmove', function(e) {
+  e.stopPropagation();
+  cropRenderPreview(parseFloat(this.value));
+}, {passive:true});
+document.getElementById('crop-slider').addEventListener('touchend', function(e) {
+  e.stopPropagation();
+  cropRenderPreview(parseFloat(this.value));
+});
+// Also fix mobile tap on dog thumbnails in crop editor
+function cropSelectDogMobile(dog) { cropSelectDog(dog); }
 
 document.getElementById('crop-save-btn').addEventListener('click', async function() {
   if (!cropCurrentDog) return;
@@ -1104,6 +1145,34 @@ Sign up → ladogdispatch.com/social-sharer-signup.html
         </div>
       </div>
 
+      <!-- CARD 6: SOUTH LA ONLY -->
+      <div style="background:#1a1614;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+        <div style="padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:0.8rem;font-weight:700;color:#4a8c6a;">Card 6 — South LA Dogs Only</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.2rem;">South LA shelter · Most urgent first</div>
+        </div>
+        <div style="padding:1rem;background:#0d0d0d;display:flex;justify-content:center;">
+          <canvas id="admin-c6" width="1080" height="1080" style="width:100%;max-width:340px;border-radius:4px;"></canvas>
+        </div>
+        <div id="admin-c6-loading" style="display:none;padding:0.5rem 1.2rem;font-size:0.75rem;color:#4a8c6a;text-align:center;">Loading South LA dogs...</div>
+        <div style="padding:0.8rem 1.2rem;display:flex;gap:0.6rem;">
+          <button onclick="adminRecordCard(6)" id="admin-rec-btn-6" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⏺ Record Video</button>
+          <button onclick="adminDownload('admin-c6','ladogdispatch-southla',6)" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">PNG</button>
+          <button onclick="adminRunCard6()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 1rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">↺</button>
+        </div>
+        <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Caption Copy</div>
+          <div id="admin-copy6" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:160px;overflow-y:auto;">These dogs are at the South LA shelter — the highest-volume shelter on the Los Angeles euthanasia list.
+
+Every one of them got a post on @la_dog_dispatch the moment they were listed.
+
+Foster · Adopt · Share → ladogdispatch.com
+
+#ladogdispatch #southla #urgentdogs #laanimals #rescuedog #adoptdontshop</div>
+          <button onclick="adminCopyText('admin-copy6',this)" style="margin-top:0.5rem;background:transparent;color:#4a8c6a;border:1px solid #4a8c6a;border-radius:6px;padding:0.4rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy Caption</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1115,9 +1184,9 @@ window.openAdminCards = function openAdminCards() {
   document.getElementById('admin-cards-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
   if (adminLogoImg.complete && adminLogoImg.naturalWidth > 0) {
-    setTimeout(() => { adminRunCard1(); adminRunCard2(); adminRunCard3(); }, 100);
+    setTimeout(() => { adminRunCard1(); adminRunCard2(); adminRunCard3(); adminRunCard6(); }, 100);
   } else {
-    adminLogoImg.onload = () => { adminRunCard1(); adminRunCard2(); adminRunCard3(); };
+    adminLogoImg.onload = () => { adminRunCard1(); adminRunCard2(); adminRunCard3(); adminRunCard6(); };
   }
 }
 
@@ -1283,9 +1352,14 @@ async function adminLoadWeeklyDogs() {
     const today = new Date(); today.setHours(0,0,0,0);
     const c4Dogs = data.dogs || data || [];
     // Get all dogs sorted by furthest deadline
+    const isSouthLA4 = d => (d.shelter||'').toUpperCase().replace(/[^A-Z]/g,'').includes('SOUTHLA');
     const c4Filtered = c4Dogs
       .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
-      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
+      .sort((a, b) => {
+        const as = isSouthLA4(a)?0:1, bs = isSouthLA4(b)?0:1;
+        if (as !== bs) return as - bs;
+        return new Date(a.deadline) - new Date(b.deadline);
+      });
     window.adminC4TotalCount = c4Filtered.length;
     adminC4Dogs = c4Filtered;
     // Update caption with real dog count
@@ -1465,6 +1539,7 @@ function adminDownload(canvasId, filename, cardNum) {
   if (cardNum === 2) adminDrawCard2(6);
   if (cardNum === 3) adminDrawCard3('message', 0);
   if (cardNum === 4) adminDrawCard4('cta', 0);
+  if (cardNum === 6) adminDrawCard6('cta', 0);
   setTimeout(() => {
     const a = document.createElement('a');
     a.download = filename + '.png';
@@ -1485,12 +1560,17 @@ async function adminLoadDogs() {
     const data = await res.json();
     const c3Dogs = data.dogs || data || [];
     const today = new Date(); today.setHours(0,0,0,0);
+    const isSouthLA3 = d => (d.shelter||'').toUpperCase().replace(/[^A-Z]/g,'').includes('SOUTHLA');
     adminC3Dogs = c3Dogs
       .filter(dog => {
         const d = new Date(dog.deadline); d.setHours(0,0,0,0);
-        return Math.round((d - today) / 86400000) >= 3;
+        return Math.round((d - today) / 86400000) >= 0;
       })
-      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
+      .sort((a, b) => {
+        const as = isSouthLA3(a)?0:1, bs = isSouthLA3(b)?0:1;
+        if (as !== bs) return as - bs;
+        return new Date(a.deadline) - new Date(b.deadline);
+      })
 
     // Preload images
     adminC3Images = await Promise.all(adminC3Dogs.map(dog => new Promise(resolve => {
@@ -1620,6 +1700,209 @@ function adminRunCard3() {
 
 function spmComingSoon(name) {
   alert(name + ' cards coming soon!');
+}
+
+// ── WEB CARD — recreates the dog card UI on canvas ──
+async function spmDownloadWebCard() {
+  const dog = window._spmCurrentDog;
+  if (!dog) return;
+  const canvas = document.getElementById('phone-wrapper-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1350;
+  canvas.width = W; canvas.height = H;
+  const colors = getShelterColors(dog.shelter);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const deadline = new Date(dog.deadline); deadline.setHours(0,0,0,0);
+  const daysLeft = Math.round((deadline-today)/86400000);
+  const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'});
+  const daysText = daysLeft===1?'1 day':`${daysLeft} days`;
+  const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
+
+  // Background
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
+  // Green border
+  ctx.strokeStyle = colors.primary; ctx.lineWidth = 12;
+  ctx.beginPath(); ctx.roundRect(6,6,W-12,H-12,24); ctx.stroke();
+
+  // Dog photo top
+  const photoH = 520;
+  if (dog.photo_url) {
+    await new Promise(resolve => {
+      const img = new Image(); img.crossOrigin='anonymous';
+      img.onload = () => {
+        const cropOffset = parseFloat(dog.photo_crop_offset||0);
+        ctx.save();
+        ctx.beginPath(); ctx.roundRect(6,6,W-12,photoH,18); ctx.clip();
+        const scale = Math.max(W/img.width, photoH/img.height);
+        const dw=img.width*scale, dh=img.height*scale;
+        const defY=(photoH-dh)/2;
+        const adj=defY-(cropOffset*Math.abs(defY));
+        ctx.drawImage(img,(W-dw)/2,adj+6,dw,dh);
+        ctx.restore();
+        resolve();
+      };
+      img.onerror=()=>resolve();
+      img.src=dog.photo_url;
+    });
+  } else {
+    ctx.fillStyle=colors.light; ctx.fillRect(6,6,W-12,photoH);
+  }
+
+  // Content area
+  let cy = photoH + 40;
+
+  // Badge
+  const badgeBg = isRO ? '#fef3c7' : '#dcfce7';
+  const badgeText = isRO ? '#92400e' : '#166534';
+  const badgeLabel = isRO ? '🔒 RESCUE ONLY — MUST BE PULLED BY A RESCUE ORG' : '✅ OPEN TO PUBLIC — CAN ADOPT OR FOSTER DIRECTLY';
+  ctx.fillStyle=badgeBg;
+  ctx.beginPath(); ctx.roundRect(40,cy,W-80,60,30); ctx.fill();
+  ctx.fillStyle=badgeText; ctx.font='bold 26px Arial'; ctx.textAlign='center';
+  ctx.fillText(badgeLabel, W/2, cy+40, W-100);
+  cy += 90;
+
+  // Dog name
+  ctx.fillStyle='#1a1614'; ctx.font='900 96px Georgia,serif'; ctx.textAlign='left';
+  ctx.fillText((dog.name||dog.shelter_id).toUpperCase(), 50, cy+80, W-100);
+  cy += 110;
+
+  // Breed / age / gender
+  const ageStr=(dog.age||'').toLowerCase(), ageNum=parseFloat(ageStr);
+  const isPup=ageStr.includes('month')||(!isNaN(ageNum)&&ageNum<1);
+  const isSen=!isPup&&!isNaN(ageNum)&&ageNum>=7;
+  const ageLabel=dog.age+(isPup?' (Puppy)':isSen?' (Senior)':'');
+  ctx.fillStyle='#6b6560'; ctx.font='40px Arial';
+  ctx.fillText(`${dog.breed||'Mixed'} • ${ageLabel} • ${dog.gender||''}`, 50, cy, W-100);
+  cy += 44;
+
+  // Shelter ID
+  ctx.fillStyle='#9ca3af'; ctx.font='32px monospace';
+  ctx.fillText(dog.shelter_id||'', 50, cy); cy += 44;
+
+  // Location
+  ctx.fillStyle='#6b6560'; ctx.font='36px Arial';
+  ctx.fillText('📍 ' + (dog.shelter||''), 50, cy); cy += 44;
+
+  // Intake
+  if (dog.intake_date) {
+    const intake=new Date(dog.intake_date); intake.setHours(0,0,0,0);
+    const days=Math.floor((today-intake)/86400000);
+    const dur=days<7?`${days} days`:days<30?`${Math.floor(days/7)} weeks`:`${Math.floor(days/30)} months`;
+    const fmt=d=>`${d.getMonth()+1}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+    ctx.fillText(`🏠 At shelter: ${fmt(intake)}${dog.list_date?' · Listed: '+fmt(new Date(dog.list_date)):''} · ${dur}`, 50, cy, W-100); cy += 44;
+  }
+
+  // Deadline
+  ctx.fillStyle='#c4281c'; ctx.font='bold 40px Arial';
+  ctx.fillText(`⏰ ${dlStr} (${daysText})`, 50, cy); cy += 60;
+
+  // Notes box
+  if (dog.notes) {
+    ctx.fillStyle='#fffbeb'; ctx.strokeStyle='#fcd34d'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(40,cy,W-80,180,12); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#92400e'; ctx.font='bold 26px Arial'; ctx.textAlign='left';
+    ctx.fillText('⚠️ SHELTER NOTES', 60, cy+40);
+    ctx.fillStyle='#78350f'; ctx.font='30px Arial';
+    const notesShort = (dog.notes||'').substring(0,120)+(dog.notes&&dog.notes.length>120?'…':'');
+    ctx.fillText(notesShort, 60, cy+80, W-120);
+    ctx.fillStyle='#a16207'; ctx.font='italic 24px Arial';
+    ctx.fillText('Shelter notes are snapshots & may not reflect real personality.', 60, cy+138, W-120);
+    cy += 200;
+  }
+
+  // Callout box
+  const callBg = isRO?'#f0f7f4':'#f8f9fa';
+  const callBorder = isRO?'#4a8c6a':'#d4cfc7';
+  ctx.fillStyle=callBg; ctx.strokeStyle=callBorder; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.roundRect(40,cy,W-80,140,12); ctx.fill(); ctx.stroke();
+  ctx.fillStyle=isRO?'#1b4332':'#3a3632'; ctx.font='bold 28px Arial'; ctx.textAlign='left';
+  ctx.fillText(isRO?'THIS DOG NEEDS:':'GOOD TO KNOW FOR ADOPTERS:', 60, cy+44);
+  ctx.fillStyle=isRO?'#2d6a4f':'#6b6560'; ctx.font='28px Arial';
+  ctx.fillText(isRO?'🔒 A licensed rescue to pull from the shelter · 📢 Your share':'May benefit from patient home · 📢 Share to find them the right home', 60, cy+90, W-120);
+  cy += 160;
+
+  // Bottom branding
+  ctx.fillStyle=colors.primary; ctx.font='bold 32px Arial'; ctx.textAlign='center';
+  ctx.fillText('ladogdispatch.com · @la_dog_dispatch', W/2, cy+40);
+
+  setTimeout(()=>{
+    const a=document.createElement('a');
+    a.download=`${dog.name||dog.shelter_id}-web-card.png`;
+    a.href=canvas.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  },100);
+}
+
+// ── NAME CARD — big ID + name, shelter color background ──
+async function spmDownloadNameCard() {
+  const dog = window._spmCurrentDog;
+  if (!dog) return;
+  const canvas = document.getElementById('phone-wrapper-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+  const colors = getShelterColors(dog.shelter);
+
+  // Background — shelter color gradient
+  const bg = ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0, colors.dark); bg.addColorStop(1, colors.primary);
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // Subtle grid pattern
+  ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+  for (let i=0;i<W;i+=60) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
+  for (let i=0;i<H;i+=60) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(W,i); ctx.stroke(); }
+
+  // Border
+  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.roundRect(16,16,W-32,H-32,20); ctx.stroke();
+
+  // Shelter ID — top, monospace
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 52px monospace'; ctx.textAlign='center';
+  ctx.fillText(dog.shelter_id||'', W/2, 160);
+
+  // Shelter name
+  ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='bold 40px Arial'; ctx.textAlign='center';
+  ctx.fillText((dog.shelter||'').toUpperCase(), W/2, 220);
+
+  // Divider
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(120,260); ctx.lineTo(W-120,260); ctx.stroke();
+
+  // Dog name — BIG
+  ctx.fillStyle='#ffffff'; ctx.textAlign='center';
+  let nameSize=200;
+  ctx.font=`900 ${nameSize}px Arial Black,Arial`;
+  const name=(dog.name||dog.shelter_id).toUpperCase();
+  while(ctx.measureText(name).width>W-80&&nameSize>80){nameSize-=8;ctx.font=`900 ${nameSize}px Arial Black,Arial`;}
+  ctx.fillText(name, W/2, 580, W-60);
+
+  // Divider
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(120,640); ctx.lineTo(W-120,640); ctx.stroke();
+
+  // Breed + age + gender
+  ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='bold 44px Arial'; ctx.textAlign='center';
+  ctx.fillText([dog.breed,dog.age,dog.gender].filter(Boolean).join(' · '), W/2, 720, W-80);
+
+  // Urgency
+  const today=new Date(); today.setHours(0,0,0,0);
+  const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
+  const daysLeft=Math.round((dl-today)/86400000);
+  const dlStr=new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  ctx.fillStyle=daysLeft<=1?'#ff5252':colors.light; ctx.font='bold 48px Arial';
+  ctx.fillText(`${daysLeft<=0?'🆘 TODAY':daysLeft===1?'🚨 1 DAY LEFT':'⏰ '+daysLeft+' DAYS'} — ${dlStr}`, W/2, 820, W-80);
+
+  // Bottom
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 32px Arial';
+  ctx.fillText('ladogdispatch.com · @la_dog_dispatch', W/2, 960);
+
+  setTimeout(()=>{
+    const a=document.createElement('a');
+    a.download=`${dog.name||dog.shelter_id}-name-card.png`;
+    a.href=canvas.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  },100);
 }
 
 async function spmDownloadPhoneWrapper() {
@@ -2754,6 +3037,138 @@ async function spmDownloadStillWaiting() {
   },100);
 }
 
+// ── CARD 6: SOUTH LA ONLY ──
+let adminC6Timers = [];
+let adminC6Dogs = [];
+let adminC6Images = [];
+
+async function adminLoadSouthLADogs() {
+  document.getElementById('admin-c6-loading').style.display = 'block';
+  try {
+    const res = await fetch('/api/dogs');
+    const data = await res.json();
+    const today = new Date(); today.setHours(0,0,0,0);
+    const all = data.dogs || data || [];
+    const isSLA = d => (d.shelter||'').toUpperCase().replace(/[^A-Z]/g,'').includes('SOUTHLA');
+    adminC6Dogs = all
+      .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today && isSLA(dog); })
+      .sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+    adminC6Images = await Promise.all(adminC6Dogs.map(dog => new Promise(resolve => {
+      if (!dog.photo_url) return resolve(null);
+      const img = new Image(); img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img); img.onerror = () => resolve(null);
+      img.src = dog.photo_url;
+    })));
+  } catch(e) { adminC6Dogs = []; adminC6Images = []; }
+  document.getElementById('admin-c6-loading').style.display = 'none';
+}
+
+function adminDrawCard6(phase, dogIndex) {
+  const canvas = document.getElementById('admin-c6');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+  adminDrawBase(ctx, W, H);
+
+  if (phase === 'intro') {
+    adminDrawLogo(ctx, W, 20, 180);
+    adminDivider(ctx, W, 220);
+    ctx.fillStyle = '#4a8c6a'; ctx.font = '900 80px Arial Black,Arial'; ctx.textAlign = 'center';
+    ctx.fillText('SOUTH LA', W/2, 340);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 48px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('Shelter Dogs', W/2, 410);
+    adminDivider(ctx, W, 450);
+    ctx.fillStyle = '#7ec8a0'; ctx.font = `900 ${adminC6Dogs.length > 9 ? 160 : 200}px Arial Black,Arial`; ctx.textAlign = 'center';
+    ctx.fillText(String(adminC6Dogs.length || '?'), W/2, 660);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 44px Arial';
+    ctx.fillText('dogs on the euth list right now', W/2, 730, W-80);
+    adminFooterPill(ctx, W, H);
+
+  } else if (phase === 'dog' && adminC6Dogs[dogIndex]) {
+    const dog = adminC6Dogs[dogIndex];
+    const img = adminC6Images[dogIndex];
+    const d = new Date(dog.deadline); const t = new Date();
+    d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const daysLeft = Math.round((d-t)/86400000);
+
+    if (img) {
+      const scale = Math.max(W/img.width, H/img.height);
+      const dw = img.width*scale, dh = img.height*scale;
+      const cropOffset = parseFloat(dog.photo_crop_offset||0);
+      const defaultY = (H-dh)/2;
+      const maxShift = Math.abs(defaultY);
+      ctx.drawImage(img, (W-dw)/2, defaultY-(cropOffset*maxShift), dw, dh);
+    }
+    const grad = ctx.createLinearGradient(0, H*0.35, 0, H);
+    grad.addColorStop(0,'rgba(0,0,0,0)'); grad.addColorStop(1,'rgba(0,0,0,0.9)');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#4a8c6a'; ctx.fillRect(0,0,W,12);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('SOUTH LA · URGENT DOGS', W/2, 50);
+    ctx.fillStyle = 'rgba(74,140,106,0.6)';
+    ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
+    ctx.fillStyle = 'white'; ctx.font = 'bold 20px Arial';
+    ctx.fillText(`${dogIndex+1} of ${adminC6Dogs.length}`, W/2, 88);
+
+    const isCrit = daysLeft <= 1;
+    ctx.fillStyle = isCrit ? '#c4281c' : '#d97706';
+    ctx.beginPath(); ctx.roundRect(40, H-300, isCrit?200:160, 52, 26); ctx.fill();
+    ctx.fillStyle = 'white'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(isCrit?'🚨 CRITICAL':'⚠️ URGENT', 40+(isCrit?100:80), H-268);
+
+    let nameSize = 130; ctx.font = `900 ${nameSize}px Arial Black,Arial`;
+    const name = (dog.name||dog.shelter_id||'UNKNOWN').toUpperCase();
+    while (ctx.measureText(name).width > W-80 && nameSize > 60) { nameSize-=8; ctx.font=`900 ${nameSize}px Arial Black,Arial`; }
+    ctx.fillStyle='#ffffff'; ctx.textAlign='center';
+    ctx.fillText(name, W/2, H-195, W-80);
+
+    ctx.fillStyle='rgba(255,255,255,0.75)'; ctx.font='italic 32px Georgia,serif';
+    ctx.fillText([dog.breed,dog.shelter].filter(Boolean).join(' · '), W/2, H-145, W-80);
+
+    const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+    ctx.fillStyle = daysLeft<=0?'#ff5252':'#fcd34d'; ctx.font='bold 36px Arial';
+    ctx.fillText(`Deadline: ${dlStr} · ${daysLeft<=0?'TODAY':daysLeft===1?'1 DAY LEFT':daysLeft+' DAYS LEFT'}`, W/2, H-90, W-80);
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='28px monospace'; ctx.textAlign='left';
+    ctx.fillText(dog.shelter_id||'', 40, H-22);
+    ctx.fillStyle='#4a8c6a'; ctx.fillRect(0,H-12,W,12);
+
+  } else if (phase === 'cta') {
+    adminDrawLogo(ctx, W, 20, 180);
+    adminDivider(ctx, W, 220);
+    ctx.fillStyle='#ffffff'; ctx.font='bold 58px Georgia,serif'; ctx.textAlign='center';
+    ctx.fillText('These dogs are at', W/2, 320, W-80);
+    ctx.fillStyle='#7ec8a0'; ctx.font='bold 72px Georgia,serif';
+    ctx.fillText('South LA Shelter.', W/2, 410, W-80);
+    adminDivider(ctx, W, 455);
+    ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='36px Arial';
+    ctx.fillText('Every one got a post on @la_dog_dispatch.', W/2, 530, W-80);
+    ctx.fillStyle='rgba(74,140,106,0.2)'; ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(80,580,W-160,280,16); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#7ec8a0'; ctx.font='bold 30px Arial'; ctx.textAlign='center';
+    ctx.fillText('Share · Foster · Rescue', W/2, 640);
+    ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='28px Arial';
+    ctx.fillText('ladogdispatch.com', W/2, 686, W-140);
+    ctx.fillStyle='white'; ctx.font='bold 36px Arial';
+    ctx.fillText('@la_dog_dispatch', W/2, 740);
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='22px Arial';
+    ctx.fillText('#ladogdispatch #southla #urgentdogs', W/2, 780, W-140);
+    adminFooterPill(ctx, W, H);
+  }
+}
+
+function adminRunCard6() {
+  adminC6Timers.forEach(t => clearTimeout(t)); adminC6Timers = [];
+  if (adminC6Dogs.length === 0) { adminLoadSouthLADogs().then(() => adminRunCard6()); return; }
+  let t = 0;
+  adminC6Timers.push(setTimeout(() => adminDrawCard6('intro',0), t)); t += 2500;
+  for (let i = 0; i < adminC6Dogs.length; i++) {
+    const idx = i;
+    adminC6Timers.push(setTimeout(() => adminDrawCard6('dog',idx), t)); t += 1200;
+  }
+  adminC6Timers.push(setTimeout(() => adminDrawCard6('cta',0), t+300));
+}
+
 function adminCopyText(id, btn) {
   navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
     const orig = btn.textContent;
@@ -2766,8 +3181,8 @@ function adminCopyText(id, btn) {
 
 <script>
 function adminRecordCard(cardNum) {
-  var canvasId = cardNum === 1 ? 'admin-c1' : cardNum === 2 ? 'admin-c2' : cardNum === 3 ? 'admin-c3' : 'admin-c4';
-  var filename = cardNum === 1 ? 'ladogdispatch-how-it-works' : cardNum === 2 ? 'ladogdispatch-mission' : cardNum === 3 ? 'ladogdispatch-how-to-help' : 'ladogdispatch-weekly';
+  var canvasId = cardNum === 1 ? 'admin-c1' : cardNum === 2 ? 'admin-c2' : cardNum === 3 ? 'admin-c3' : cardNum === 6 ? 'admin-c6' : 'admin-c4';
+  var filename = cardNum === 1 ? 'ladogdispatch-how-it-works' : cardNum === 2 ? 'ladogdispatch-mission' : cardNum === 3 ? 'ladogdispatch-how-to-help' : cardNum === 6 ? 'ladogdispatch-southla' : 'ladogdispatch-weekly';
   var btn = document.getElementById('admin-rec-btn-' + cardNum);
   var canvas = document.getElementById(canvasId);
 
@@ -2816,13 +3231,18 @@ function adminRecordCard(cardNum) {
       setTimeout(function() { recorder.stop(); }, (adminC3Dogs.length * 1200) + 2000);
     };
     adminC3Dogs.length === 0 ? adminLoadDogs().then(go3) : go3();
+  } else if (cardNum === 6) {
+    var go6 = function() {
+      adminRunCard6();
+      setTimeout(function() { recorder.stop(); }, 2500 + (adminC6Dogs.length * 1200) + 3000);
+    };
+    adminC6Dogs.length === 0 ? adminLoadSouthLADogs().then(go6) : go6();
   } else {
     var go4 = function() {
       adminRunCard4();
       setTimeout(function() { recorder.stop(); }, 2500 + (adminC4Dogs.length * 1200) + 4000);
     };
     adminC4Dogs.length === 0 ? adminLoadWeeklyDogs().then(go4) : go4();
-
   }
 }
 </script>
