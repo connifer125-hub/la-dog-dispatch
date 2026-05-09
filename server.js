@@ -51,7 +51,8 @@ const runMigrations = async () => {
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT",
       "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)",
-      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS photo_crop_offset FLOAT DEFAULT 0"
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS photo_crop_offset FLOAT DEFAULT 0",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS photo_crop_zoom FLOAT DEFAULT 1.0"
     ];
     for (const migration of migrations) {
       try {
