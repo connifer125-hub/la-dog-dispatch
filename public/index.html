@@ -661,27 +661,40 @@
         const breedRaw = (dog.breed||'').toLowerCase().replace(/[^a-z]/g,'');
         const breedTag = breedRaw ? ('#' + breedRaw) : '#rescuedog';
         const idNum = parseInt((dog.shelter_id||'A0').replace(/[^0-9]/g,'')) || 0;
-        const v = idNum % 4;
+        const v = idNum % 8;
         const urgEmoji = daysLeft <= 0 ? '\ud83c\udd98' : daysLeft === 1 ? '\ud83d\udea8' : daysLeft <= 4 ? '\u23f0' : '\ud83d\udc3e';
         const urgText = daysLeft <= 0 ? 'TODAY' : (daysLeft + ' day' + (daysLeft!==1?'s':'') + ' left');
-        const alertPrefix = isPuppy ? '\ud83d\udc36 Puppy Alert' : isSenior ? '\ud83d\udc3e Senior Dog Alert' : urgEmoji;
         const name = dog.name || dog.shelter_id;
+        const shelter = dog.shelter || 'Los Angeles';
+        const alertPrefix = isPuppy ? '\ud83d\udc36 Puppy Alert \u2014' : isSenior ? '\ud83d\udc3e Senior Dog Alert \u2014' : '';
+
         const openings = [
-          alertPrefix + ' \u2014 ' + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
-          urgEmoji + ' ' + name + ' is on the Los Angeles euthanasia list. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
-          'Who will save ' + name + '? Rescue deadline: ' + dl + ' \u2014 ' + urgText + '.',
-          urgEmoji + ' ' + name + ' needs a foster, adopter, or rescue by ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' is on the ' + shelter + ' euthanasia list. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' Who will save ' : 'Who will save ') + name + '? Rescue deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs a foster, adopter, or rescue by ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + name + ' has been waiting at the shelter' + (intakeLine ? intakeLine.replace(' \u00b7 ','') : '') + '. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + 'This is ' + name + '. Still waiting. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + 'Every dog on the euth list deserves to be seen. ' + name + '\u2019s deadline is ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' If not now, when? ' : 'If not now, when? ') + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
         ];
+
         const hashPools = [
           '#ladogdispatch ' + breedTag + ' #adoptdontshop',
           '#ladogdispatch ' + breedTag + ' #rescuedog',
           '#ladogdispatch ' + breedTag + ' #fosterdog',
           '#ladogdispatch ' + breedTag + ' #shelterdog',
+          '#ladogdispatch ' + breedTag + ' #urgentdog',
+          '#ladogdispatch ' + breedTag + ' #laanimals',
+          '#ladogdispatch ' + breedTag + ' #dogrescue',
+          '#ladogdispatch ' + breedTag + ' #adoptme',
         ];
+
         const roLine = isRO
           ? '\ud83d\udd12 RESCUE ORGANIZATIONS ONLY \u2014 a licensed rescue must pull this dog from the shelter.'
           : '\u2705 OPEN TO PUBLIC \u2014 This dog can be adopted or fostered directly by anyone.';
-        return 'ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + (dog.shelter||'Los Angeles') + '\n\n' + roLine + notesBlock + '\n\nFoster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n' + hashPools[v];
+
+        return 'ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + '\n\n' + roLine + notesBlock + '\n\nFoster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n' + hashPools[v];
     }
     
     async function copyDogCaption(btn, dog) {
