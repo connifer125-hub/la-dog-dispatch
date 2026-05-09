@@ -11,6 +11,7 @@ router.get('/', async (req, res) => {
         deadline, photo_url, petharbor_url, description,
         source, category, goal_amount, raised_amount,
         photo_crop_offset,
+        photo_crop_zoom,
         rescue_only, intake_date, list_date,
         notes, notes_short,
         created_at
@@ -41,7 +42,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT *, rescue_only, intake_date, list_date, photo_crop_offset FROM dogs WHERE id = $1`,
+      `SELECT *, rescue_only, intake_date, list_date, photo_crop_offset, photo_crop_zoom FROM dogs WHERE id = $1`,
       [req.params.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Dog not found' });
