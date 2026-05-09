@@ -114,7 +114,9 @@ app.get('/api/run-migrations', async (req, res) => {
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS list_date DATE");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes TEXT");
     await db.query("ALTER TABLE dogs ADD COLUMN IF NOT EXISTS notes_short VARCHAR(300)",
-      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS photo_crop_offset FLOAT DEFAULT 0");
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS photo_crop_offset FLOAT DEFAULT 0",
+      "ALTER TABLE dogs ADD COLUMN IF NOT EXISTS photo_crop_zoom FLOAT DEFAULT 1.0"
+    );
     res.json({ message: 'Migrations complete - columns added' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -272,14 +274,15 @@ app.get('/api/test-sms', async (req, res) => {
   }
 });
 
-// ── PATCH /api/dogs/:id/crop — save photo crop offset ──
+// ── PATCH /api/dogs/:id/crop — save photo crop offset + zoom ──
 app.patch('/api/dogs/:id/crop', async (req, res) => {
   try {
-    const { photo_crop_offset } = req.body;
+    const { photo_crop_offset, photo_crop_zoom } = req.body;
     const offset = Math.max(-1, Math.min(1, parseFloat(photo_crop_offset) || 0));
+    const zoom = Math.max(0.5, Math.min(1.5, parseFloat(photo_crop_zoom) || 1.0));
     await db.query(
-      'UPDATE dogs SET photo_crop_offset = $1 WHERE id = $2',
-      [offset, req.params.id]
+      'UPDATE dogs SET photo_crop_offset = $1, photo_crop_zoom = $3 WHERE id = $2',
+      [offset, req.params.id, zoom]
     );
     console.log(`✏️ Crop offset updated for dog ${req.params.id}: ${offset}`);
     res.json({ success: true, photo_crop_offset: offset });
