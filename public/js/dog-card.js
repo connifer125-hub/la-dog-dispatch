@@ -181,9 +181,13 @@ async function generateCard(dog) {
                 const dw=img.width*scale, dh=img.height*scale;
                 const defaultImgY = photoY+(photoSize-dh)/2;
                 const cropOffset = parseFloat(dog.photo_crop_offset || 0);
-                const maxShift = Math.abs(defaultImgY - photoY);
-                const adjustedImgY = defaultImgY - (cropOffset * maxShift);
-                ctx.drawImage(img,photoX+(photoSize-dw)/2,adjustedImgY,dw,dh);
+                const cropZoom = parseFloat(dog.photo_crop_zoom || 1.0);
+                const zScale = Math.max(photoSize/img.width, photoSize/img.height) * cropZoom;
+                const zdw = img.width*zScale, zdh = img.height*zScale;
+                const zDefaultY = photoY+(photoSize-zdh)/2;
+                const maxShift = Math.abs(zDefaultY - photoY);
+                const adjustedImgY = zDefaultY - (cropOffset * maxShift);
+                ctx.drawImage(img,photoX+(photoSize-zdw)/2,adjustedImgY,zdw,zdh);
                 ctx.restore();
                 rr(photoX,photoY,photoSize,photoSize,20);
                 ctx.strokeStyle=colors.primary; ctx.lineWidth=4; ctx.stroke(); resolve();
