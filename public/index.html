@@ -1968,7 +1968,9 @@ async function spmDownloadTagCard() {
 
   // "is a"
   ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.font='400 52px Arial'; ctx.textAlign='center';
-  ctx.fillText('is a', W/2, 350);
+  const vowels = ['A','E','I','O','U'];
+  const article = vowels.includes(breed.toUpperCase()[0]) ? 'is an' : 'is a';
+  ctx.fillText(article, W/2, 350);
 
   // Breed — BIG, shelter color
   ctx.fillStyle=colors.light;
