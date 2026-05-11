@@ -511,7 +511,7 @@
                     <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📱 IG Story</button>
                     <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">⬇ Save</button>
                     <button class="btn-caption" onclick="event.stopPropagation(); copyDogCaption(this, ${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">Copy Caption</button>
-                    <button class="btn-tag" onclick="event.stopPropagation(); copyRescueTags(this, ${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">🏷 Rescues to Tag</button>
+
                 </div>
             </div>
         </div>`;
@@ -775,7 +775,7 @@
             <div class="spm-header"><div><h3 id="spm-dog-name">—</h3><p id="spm-dog-meta">—</p></div><button class="spm-close" onclick="closeShareModal()">✕</button></div>
             <div class="spm-body">
                 <div class="spm-panel"><div class="spm-panel-label">Card Preview</div><div class="spm-card-preview" id="spm-card-wrap"><div class="spm-loading">Generating...</div></div><button class="spm-btn-primary" onclick="spmShareIG()">📱 Share to IG Story — 1 tap</button><button class="spm-btn-secondary" onclick="spmSaveCard()">⬇ Save Card to Camera Roll</button></div>
-                <div class="spm-panel"><div class="spm-panel-label">Caption Preview — Edit if you'd like</div><textarea class="spm-caption-box" id="spm-caption-text"></textarea><button class="spm-btn-secondary" id="spm-copy-caption-btn" onclick="spmCopyCaption(this)">Copy Caption for Feed or Story</button><button class="spm-btn-secondary" id="spm-copy-tags-btn" onclick="spmCopyTags(this)" style="margin-top:0.5rem;">Copy Rescue Tags to Paste</button></div>
+                <div class="spm-panel"><div class="spm-panel-label">Caption Preview — Edit if you'd like</div><textarea class="spm-caption-box" id="spm-caption-text"></textarea><button class="spm-btn-secondary" id="spm-copy-caption-btn" onclick="spmCopyCaption(this)">Copy Caption for Feed or Story</button></div>
             </div>
             <div style="padding:1rem 1.5rem;border-top:1px solid var(--color-border);background:#f8f6f3;">
                 <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6b6560;margin-bottom:0.8rem;">📱 Creative Carousel & Reel Cards</div>
