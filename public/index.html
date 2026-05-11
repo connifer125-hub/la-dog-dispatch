@@ -787,6 +787,7 @@
                   <button onclick="spmDownloadGRWM()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">✨ GRWM</button>
                   <button onclick="spmDownloadWebCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🖼 Web Card</button>
                   <button onclick="spmDownloadNameCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🏷 Name Card</button>
+                  <button onclick="spmDownloadTagCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🏥 Tag Rescues</button>
 
                 </div>
                 <canvas id="phone-wrapper-canvas" style="display:none;" width="1080" height="1920"></canvas>
@@ -1742,16 +1743,16 @@ async function spmDownloadWebCard() {
   const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'});
   const daysText = daysLeft===1?'1 day':`${daysLeft} days`;
   const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
+  const mx = 48, gap = 14;
 
-  // White background + green border
   ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
   ctx.strokeStyle = colors.primary; ctx.lineWidth = 10;
   ctx.beginPath(); ctx.roundRect(5,5,W-10,H-10,20); ctx.stroke();
 
   // ── PHOTO ──
-  const photoH = 360, photoR = 16;
+  const photoH = 340;
   ctx.save();
-  ctx.beginPath(); ctx.roundRect(5,5,W-10,photoH,{upperLeft:16,upperRight:16,lowerLeft:0,lowerRight:0}); ctx.clip();
+  ctx.beginPath(); ctx.roundRect(5,5,W-10,photoH,16); ctx.clip();
   if (dog.photo_url) {
     await new Promise(resolve => {
       const img = new Image(); img.crossOrigin='anonymous';
@@ -1771,45 +1772,42 @@ async function spmDownloadWebCard() {
   } else { ctx.fillStyle=colors.light; ctx.fillRect(0,0,W,photoH); }
   ctx.restore();
 
-  // Layout vars
-  const mx = 48; // margin x
-  const gap = 16;
-  let cy = photoH + 28;
+  let cy = photoH + 24;
 
   // ── BADGE ──
   const badgeBg = isRO?'#fef3c7':'#dcfce7';
   const badgeColor = isRO?'#92400e':'#166534';
-  const badgeLabel = isRO?'🔒 RESCUE ONLY — MUST BE PULLED BY A RESCUE ORG':'✅ OPEN TO PUBLIC — CAN ADOPT OR FOSTER DIRECTLY';
+  const badgeLabel = isRO?'\ud83d\udd12 RESCUE ONLY \u2014 MUST BE PULLED BY A RESCUE ORG':'\u2705 OPEN TO PUBLIC \u2014 CAN ADOPT OR FOSTER DIRECTLY';
   ctx.fillStyle=badgeBg;
-  ctx.beginPath(); ctx.roundRect(mx,cy,W-mx*2,56,28); ctx.fill();
-  ctx.fillStyle=badgeColor; ctx.font='bold 28px Arial'; ctx.textAlign='center';
-  ctx.fillText(badgeLabel, W/2, cy+37, W-mx*2-20);
-  cy += 56 + 22;
+  ctx.beginPath(); ctx.roundRect(mx,cy,W-mx*2,52,26); ctx.fill();
+  ctx.fillStyle=badgeColor; ctx.font='bold 24px Arial'; ctx.textAlign='center';
+  ctx.fillText(badgeLabel, W/2, cy+34, W-mx*2-16);
+  cy += 52 + gap;
 
   // ── NAME ──
   ctx.fillStyle='#1a1614'; ctx.textAlign='left';
-  let ns=90; ctx.font=`900 ${ns}px Georgia,serif`;
+  let ns=82; ctx.font=`900 ${ns}px Georgia,serif`;
   const nm=(dog.name||dog.shelter_id).toUpperCase();
-  while(ctx.measureText(nm).width>W-mx*2&&ns>50){ns-=4;ctx.font=`900 ${ns}px Georgia,serif`;}
-  ctx.fillText(nm, mx, cy+ns*0.8, W-mx*2);
-  cy += ns + 14;
+  while(ctx.measureText(nm).width>W-mx*2&&ns>44){ns-=4;ctx.font=`900 ${ns}px Georgia,serif`;}
+  ctx.fillText(nm, mx, cy+ns*0.78, W-mx*2);
+  cy += ns + gap;
 
   // ── BREED / AGE / GENDER ──
   const ageStr=(dog.age||'').toLowerCase(), ageNum=parseFloat(ageStr);
   const isPup=ageStr.includes('month')||(!isNaN(ageNum)&&ageNum<1);
   const isSen=!isPup&&!isNaN(ageNum)&&ageNum>=7;
   const ageLabel=dog.age+(isPup?' (Puppy)':isSen?' (Senior)':'');
-  ctx.fillStyle='#6b6560'; ctx.font='38px Arial'; ctx.textAlign='left';
-  ctx.fillText(`${dog.breed||'Mixed'} • ${ageLabel} • ${dog.gender||''}`, mx, cy, W-mx*2);
-  cy += 42 + gap;
+  ctx.fillStyle='#6b6560'; ctx.font='34px Arial'; ctx.textAlign='left';
+  ctx.fillText(`${dog.breed||'Mixed'} \u2022 ${ageLabel} \u2022 ${dog.gender||''}`, mx, cy, W-mx*2);
+  cy += 38 + gap;
 
   // ── SHELTER ID ──
-  ctx.fillStyle='#9ca3af'; ctx.font='32px monospace';
-  ctx.fillText(dog.shelter_id||'', mx, cy); cy += 36 + gap;
+  ctx.fillStyle='#9ca3af'; ctx.font='28px monospace';
+  ctx.fillText(dog.shelter_id||'', mx, cy); cy += 32 + gap;
 
   // ── LOCATION ──
-  ctx.fillStyle='#6b6560'; ctx.font='38px Arial';
-  ctx.fillText('📍 ' + (dog.shelter||''), mx, cy); cy += 42 + gap;
+  ctx.fillStyle='#6b6560'; ctx.font='34px Arial';
+  ctx.fillText('\ud83d\udccd ' + (dog.shelter||''), mx, cy); cy += 38 + gap;
 
   // ── INTAKE ──
   if (dog.intake_date) {
@@ -1817,44 +1815,44 @@ async function spmDownloadWebCard() {
     const days=Math.floor((today-intake)/86400000);
     const dur=days<7?`${days} days`:days<30?`${Math.floor(days/7)} weeks`:`${Math.floor(days/30)} months`;
     const fmt=d=>`${d.getMonth()+1}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
-    ctx.fillText(`🏠 At shelter: ${fmt(intake)}${dog.list_date?' · Listed: '+fmt(new Date(dog.list_date)):''} · ${dur}`, mx, cy, W-mx*2);
-    cy += 42 + gap;
+    ctx.font='34px Arial';
+    ctx.fillText(`\ud83c\udfe0 At shelter: ${fmt(intake)}${dog.list_date?' \u00b7 Listed: '+fmt(new Date(dog.list_date)):''} \u00b7 ${dur}`, mx, cy, W-mx*2);
+    cy += 38 + gap;
   }
 
   // ── DEADLINE ──
-  ctx.fillStyle='#c4281c'; ctx.font='bold 42px Arial';
-  ctx.fillText(`⏰ ${dlStr} (${daysText})`, mx, cy); cy += 50 + 20;
+  ctx.fillStyle='#c4281c'; ctx.font='bold 38px Arial';
+  ctx.fillText(`\u23f0 ${dlStr} (${daysText})`, mx, cy); cy += 44 + 18;
 
   // ── NOTES BOX ──
   if (dog.notes) {
-    const notesH = 170;
+    const notesH = 158;
     ctx.fillStyle='#fffbeb'; ctx.strokeStyle='#fcd34d'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.roundRect(mx,cy,W-mx*2,notesH,12); ctx.fill(); ctx.stroke();
-    ctx.fillStyle='#92400e'; ctx.font='bold 28px Arial'; ctx.textAlign='left';
-    ctx.fillText('⚠️ SHELTER NOTES', mx+18, cy+36);
-    ctx.fillStyle='#78350f'; ctx.font='28px Arial';
-    const note=(dog.notes||'').substring(0,110)+(dog.notes.length>110?'…':'');
-    ctx.fillText(note, mx+18, cy+76, W-mx*2-36);
-    ctx.fillStyle='#a16207'; ctx.font='italic 24px Arial';
-    ctx.fillText('Shelter notes are snapshots & may not reflect real personality.', mx+18, cy+126, W-mx*2-36);
-    cy += notesH + 18;
+    ctx.beginPath(); ctx.roundRect(mx,cy,W-mx*2,notesH,10); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#92400e'; ctx.font='bold 24px Arial'; ctx.textAlign='left';
+    ctx.fillText('\u26a0\ufe0f SHELTER NOTES', mx+16, cy+30);
+    ctx.fillStyle='#78350f'; ctx.font='24px Arial';
+    const note=(dog.notes||'').substring(0,120)+(dog.notes.length>120?'\u2026':'');
+    ctx.fillText(note, mx+16, cy+62, W-mx*2-32);
+    ctx.fillStyle='#a16207'; ctx.font='italic 20px Arial';
+    ctx.fillText('Shelter notes are snapshots & may not reflect real personality.', mx+16, cy+106, W-mx*2-32);
+    cy += notesH + gap;
   }
 
   // ── CALLOUT BOX ──
-  const callH = 130;
-  const callBg = isRO?'#f0f7f4':'#f8f9fa';
-  const callBorder = isRO?'#4a8c6a':'#d4cfc7';
-  ctx.fillStyle=callBg; ctx.strokeStyle=callBorder; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.roundRect(mx,cy,W-mx*2,callH,12); ctx.fill(); ctx.stroke();
-  ctx.fillStyle=isRO?'#1b4332':'#3a3632'; ctx.font='bold 30px Arial'; ctx.textAlign='left';
-  ctx.fillText(isRO?'THIS DOG NEEDS:':'GOOD TO KNOW FOR ADOPTERS:', mx+18, cy+40);
-  ctx.fillStyle=isRO?'#2d6a4f':'#6b6560'; ctx.font='28px Arial';
-  ctx.fillText(isRO?'🔒 A licensed rescue to pull from the shelter · 📢 Your share':'May benefit from patient home · 📢 Share to find them the right home', mx+18, cy+82, W-mx*2-36);
-  cy += callH + 20;
+  const callH = 118;
+  ctx.fillStyle=isRO?'#f0f7f4':'#f8f9fa';
+  ctx.strokeStyle=isRO?'#4a8c6a':'#d4cfc7'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.roundRect(mx,cy,W-mx*2,callH,10); ctx.fill(); ctx.stroke();
+  ctx.fillStyle=isRO?'#1b4332':'#3a3632'; ctx.font='bold 26px Arial'; ctx.textAlign='left';
+  ctx.fillText(isRO?'THIS DOG NEEDS:':'GOOD TO KNOW FOR ADOPTERS:', mx+16, cy+34);
+  ctx.fillStyle=isRO?'#2d6a4f':'#6b6560'; ctx.font='24px Arial';
+  ctx.fillText(isRO?'\ud83d\udd12 A licensed rescue to pull from the shelter \u00b7 \ud83d\udce2 Your share':'May benefit from patient home \u00b7 \ud83d\udce2 Share to find them the right home', mx+16, cy+70, W-mx*2-32);
+  cy += callH + 16;
 
   // ── BRANDING ──
-  ctx.fillStyle=colors.primary; ctx.font='bold 30px Arial'; ctx.textAlign='center';
-  ctx.fillText('ladogdispatch.com · @la_dog_dispatch', W/2, cy+36);
+  ctx.fillStyle=colors.primary; ctx.font='bold 26px Arial'; ctx.textAlign='center';
+  ctx.fillText('ladogdispatch.com \u00b7 @la_dog_dispatch', W/2, cy+32);
 
   setTimeout(()=>{
     const a=document.createElement('a');
@@ -1931,6 +1929,71 @@ async function spmDownloadNameCard() {
   setTimeout(()=>{
     const a=document.createElement('a');
     a.download=`${dog.name||dog.shelter_id}-name-card.png`;
+    a.href=canvas.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  },100);
+}
+
+// ── TAG RESCUES CARD ──
+async function spmDownloadTagCard() {
+  const dog = window._spmCurrentDog;
+  if (!dog) return;
+  const canvas = document.getElementById('phone-wrapper-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+  const colors = getShelterColors(dog.shelter);
+  const breed = (dog.breed||'Mixed Breed').replace(/\/MIX$/i,'').replace(/mix$/i,'').trim();
+  const name = (dog.name||dog.shelter_id).toUpperCase();
+
+  // Background
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0, '#0d0d0d');
+  bg.addColorStop(1, colors.dark);
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // Top + bottom bars
+  ctx.fillStyle=colors.primary; ctx.fillRect(0,0,W,12);
+  ctx.fillStyle=colors.primary; ctx.fillRect(0,H-12,W,12);
+
+  // Border
+  ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.roundRect(10,10,W-20,H-20,18); ctx.stroke();
+
+  // Dog name
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.textAlign='center';
+  let ns=90; ctx.font=`900 ${ns}px Arial Black,Arial`;
+  while(ctx.measureText(name).width>W-80&&ns>50){ns-=4;ctx.font=`900 ${ns}px Arial Black,Arial`;}
+  ctx.fillText(name, W/2, 260, W-60);
+
+  // "is a"
+  ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.font='400 52px Arial'; ctx.textAlign='center';
+  ctx.fillText('is a', W/2, 350);
+
+  // Breed — BIG, shelter color
+  ctx.fillStyle=colors.light;
+  let bs=150; ctx.font=`900 ${bs}px Arial Black,Arial`;
+  while(ctx.measureText(breed.toUpperCase()).width>W-60&&bs>60){bs-=6;ctx.font=`900 ${bs}px Arial Black,Arial`;}
+  ctx.fillText(breed.toUpperCase(), W/2, 520, W-40);
+
+  // Divider
+  ctx.strokeStyle=colors.primary; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(100,580); ctx.lineTo(W-100,580); ctx.stroke();
+
+  // CTA line
+  ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='bold 42px Arial'; ctx.textAlign='center';
+  ctx.fillText('Tag breed-specific rescues in the comments', W/2, 668, W-80);
+  ctx.fillText('or share to your network.', W/2, 726, W-80);
+
+  // Handle + ID
+  ctx.fillStyle=colors.light; ctx.font='bold 32px Arial'; ctx.textAlign='center';
+  ctx.fillText('@la_dog_dispatch', W/2, 840);
+  ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='26px monospace';
+  ctx.fillText(dog.shelter_id||'', W/2, 890);
+
+  setTimeout(()=>{
+    const a=document.createElement('a');
+    a.download=`${dog.name||dog.shelter_id}-tag-rescues.png`;
     a.href=canvas.toDataURL('image/png');
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   },100);
