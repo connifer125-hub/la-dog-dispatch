@@ -3749,13 +3749,15 @@ function adminRecordCard(cardNum) {
   } else if (cardNum === 3) {
     var go3 = function() {
       adminRunCard3();
-      setTimeout(function() { recorder.stop(); }, (adminC3Dogs.length * 1200) + 2000);
+      var totalTime3 = 2500 + (adminC3Dogs.length * 1200) + 300 + 4000;
+      setTimeout(function() { recorder.stop(); }, totalTime3);
     };
     adminC3Dogs.length === 0 ? adminLoadDogs().then(go3) : go3();
   } else if (cardNum === 6) {
     var go6 = function() {
       adminRunCard6();
-      setTimeout(function() { recorder.stop(); }, 2500 + (adminC6Dogs.length * 1200) + 3000);
+      var totalTime = 2500 + (adminC6Dogs.length * 1200) + 300 + 4000;
+      setTimeout(function() { recorder.stop(); }, totalTime);
     };
     adminC6Dogs.length === 0 ? adminLoadSouthLADogs().then(go6) : go6();
   } else if(cardNum>=7&&cardNum<=11){
@@ -3765,13 +3767,15 @@ function adminRecordCard(cardNum) {
     var si=cardNum-7;
     var goS=function(){
       sRunFns[si]();
-      setTimeout(function(){recorder.stop();},2500+(sDogs[si].length*1200)+3000);
+      var totalTime = 2500 + (sDogs[si].length * 1200) + 300 + 4000;
+      setTimeout(function(){recorder.stop();}, totalTime);
     };
     sDogs[si].length===0?sLoadFns[si]().then(goS):goS();
   } else {
     var go4 = function() {
       adminRunCard4();
-      setTimeout(function() { recorder.stop(); }, 2500 + (adminC4Dogs.length * 1200) + 4000);
+      var totalTime = 2500 + (adminC4Dogs.length * 1200) + 300 + 5000;
+      setTimeout(function() { recorder.stop(); }, totalTime);
     };
     adminC4Dogs.length === 0 ? adminLoadWeeklyDogs().then(go4) : go4();
   }
