@@ -1101,7 +1101,30 @@ Sign up → ladogdispatch.com/social-sharer-signup.html
         </div>
         <div style="padding:0.8rem 1.2rem;">
           <button onclick="adminDownload333()" style="width:100%;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⬇ Download All 8 Slides</button>
-        
+        </div>
+      
+      <!-- CARD 6: SOUTH LA -->
+      <div style="background:#1a1614;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+        <div style="padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:0.8rem;font-weight:700;color:#4a8c6a;">Card 6 — South LA Wrap-Up</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.2rem;">South LA shelter · Most urgent first</div>
+        </div>
+        <div style="padding:1rem;background:#0d0d0d;display:flex;justify-content:center;">
+          <canvas id="admin-c6" width="1080" height="1080" style="width:100%;max-width:340px;border-radius:4px;"></canvas>
+        </div>
+        <div id="admin-c6-loading" style="display:none;padding:0.5rem 1.2rem;font-size:0.75rem;color:#4a8c6a;text-align:center;">Loading South LA dogs...</div>
+        <div style="padding:0.8rem 1.2rem;display:flex;gap:0.6rem;">
+          <button onclick="adminRecordCard(6)" id="admin-rec-btn-6" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⏺ Record Video</button>
+          <button onclick="adminDownload('admin-c6','ladogdispatch-southla',6)" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">PNG</button>
+          <button onclick="adminRunCard6()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 1rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">↺</button>
+        </div>
+        <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Caption Copy</div>
+          <div id="admin-copy6" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;"></div>
+          <button onclick="adminCopyText('admin-copy6',this)" style="margin-top:0.5rem;background:transparent;color:#4a8c6a;border:1px solid #4a8c6a;border-radius:6px;padding:0.4rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy Caption</button>
+        </div>
+      </div>
+
       <!-- CARD 7: WEST LA -->
       <div style="background:#1a1614;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
         <div style="padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);">
@@ -2870,6 +2893,132 @@ async function spmDownloadStillWaiting() {
   },100);
 }
 
+// ── CARD 6: SOUTH LA ONLY ──
+let adminC6Timers = [];
+let adminC6Dogs = [];
+let adminC6Images = [];
+
+async function adminLoadSouthLADogs() {
+  document.getElementById('admin-c6-loading').style.display = 'block';
+  try {
+    const res = await fetch('/api/dogs');
+    const data = await res.json();
+    const today = new Date(); today.setHours(0,0,0,0);
+    const all = data.dogs || data || [];
+    const isSLA = d => (d.shelter||'').toUpperCase().replace(/[^A-Z]/g,'').includes('SOUTHLA');
+    adminC6Dogs = all
+      .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today && isSLA(dog); })
+      .sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+    adminC6Images = await Promise.all(adminC6Dogs.map(dog => new Promise(resolve => {
+      if (!dog.photo_url) return resolve(null);
+      const img = new Image(); img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img); img.onerror = () => resolve(null);
+      img.src = dog.photo_url;
+    })));
+  } catch(e) { adminC6Dogs = []; adminC6Images = []; }
+  document.getElementById('admin-c6-loading').style.display = 'none';
+}
+
+function adminDrawCard6(phase, dogIndex) {
+  const canvas = document.getElementById('admin-c6');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+  adminDrawBase(ctx, W, H);
+
+  if (phase === 'intro') {
+    adminDrawLogo(ctx, W, 20, 180);
+    adminDivider(ctx, W, 220);
+    adminDrawLogo(ctx, W, 20, 180);
+    ctx.fillStyle='#4a8c6a'; ctx.font='900 54px Arial Black,Arial'; ctx.textAlign='center';
+    ctx.fillText('SOUTH LA / CHESTERFIELD SQUARE', W/2, 310, W-80);
+    adminDivider(ctx,W,345);
+    ctx.fillStyle='#ffffff'; ctx.font='bold 38px Georgia,serif'; ctx.textAlign='center';
+    ctx.fillText('These are the faces of the', W/2, 420, W-80);
+    ctx.fillStyle='#7ec8a0'; ctx.font='900 '+(adminC6Dogs.length>9?'130':'160')+'px Arial Black,Arial';
+    ctx.fillText(String(adminC6Dogs.length||'?'), W/2, 580);
+    ctx.fillStyle='#ffffff'; ctx.font='bold 38px Georgia,serif';
+    ctx.fillText('dogs on the euthanasia list.', W/2, 650, W-80);
+    ctx.fillStyle='#ff5252'; ctx.font='bold 40px Arial';
+    ctx.fillText('Share to your networks NOW', W/2, 720, W-80);
+    adminFooterPill(ctx, W, H);
+
+  } else if (phase === 'dog' && adminC6Dogs[dogIndex]) {
+    const dog = adminC6Dogs[dogIndex];
+    const img = adminC6Images[dogIndex];
+    const d = new Date(dog.deadline); const t = new Date();
+    d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const daysLeft = Math.round((d-t)/86400000);
+    if (img) {
+      const cropOffset = parseFloat(dog.photo_crop_offset||0);
+      const cropZoom = parseFloat(dog.photo_crop_zoom||1.0);
+      const scale = Math.max(W/img.width, H/img.height) * cropZoom;
+      const dw = img.width*scale, dh = img.height*scale;
+      const defaultY = (H-dh)/2;
+      ctx.drawImage(img, (W-dw)/2, defaultY-(cropOffset*Math.abs(defaultY)), dw, dh);
+    }
+    const grad = ctx.createLinearGradient(0, H*0.35, 0, H);
+    grad.addColorStop(0,'rgba(0,0,0,0)'); grad.addColorStop(1,'rgba(0,0,0,0.9)');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#4a8c6a'; ctx.fillRect(0,0,W,12);
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 26px Arial'; ctx.textAlign='center';
+    ctx.fillText('SOUTH LA · URGENT', W/2, 50);
+    ctx.fillStyle='rgba(74,140,106,0.6)';
+    ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
+    ctx.fillStyle='white'; ctx.font='bold 20px Arial';
+    ctx.fillText((dogIndex+1)+' of '+adminC6Dogs.length, W/2, 88);
+    const isCrit = daysLeft<=1;
+    ctx.fillStyle=isCrit?'#c4281c':'#d97706';
+    ctx.beginPath(); ctx.roundRect(40,H-300,isCrit?200:160,52,26); ctx.fill();
+    ctx.fillStyle='white'; ctx.font='bold 24px Arial'; ctx.textAlign='center';
+    ctx.fillText(isCrit?'CRITICAL':'URGENT', 40+(isCrit?100:80), H-268);
+    let nameSize=130; ctx.font='900 '+nameSize+'px Arial Black,Arial';
+    const name=(dog.name||dog.shelter_id||'').toUpperCase();
+    while(ctx.measureText(name).width>W-80&&nameSize>60){nameSize-=8;ctx.font='900 '+nameSize+'px Arial Black,Arial';}
+    ctx.fillStyle='#ffffff'; ctx.textAlign='center';
+    ctx.fillText(name, W/2, H-195, W-80);
+    ctx.fillStyle='rgba(255,255,255,0.75)'; ctx.font='italic 32px Georgia,serif';
+    ctx.fillText(dog.breed||'Mixed', W/2, H-148, W-80);
+    const dlStr=new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+    ctx.fillStyle=daysLeft<=0?'#ff5252':'#fcd34d'; ctx.font='bold 36px Arial';
+    ctx.fillText('Deadline: '+dlStr+' · '+(daysLeft<=0?'TODAY':daysLeft===1?'1 DAY LEFT':daysLeft+' DAYS LEFT'), W/2, H-90, W-80);
+    ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.font='bold 30px Arial'; ctx.textAlign='left';
+    ctx.fillText(dog.shelter_id||'', 40, H-22);
+    ctx.fillStyle='#4a8c6a'; ctx.fillRect(0,H-12,W,12);
+
+  } else if (phase === 'cta') {
+    adminDrawLogo(ctx,W,20,180); adminDivider(ctx,W,220);
+    ctx.fillStyle='#ffffff'; ctx.font='bold 46px Georgia,serif'; ctx.textAlign='center';
+    ctx.fillText('These dogs are scheduled to be',W/2,305,W-80);
+    ctx.fillStyle='#ff5252'; ctx.font='bold 50px Georgia,serif';
+    ctx.fillText('euthanized at South LA.',W/2,374,W-80);
+    adminDivider(ctx,W,418);
+    ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='32px Arial'; ctx.textAlign='center';
+    ctx.fillText('Share to your network and/or tag rescues.',W/2,488,W-80);
+    ctx.fillStyle='rgba(74,140,106,0.2)'; ctx.strokeStyle='#4a8c6a'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(60,520,W-120,170,16); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#7ec8a0'; ctx.font='bold 28px Arial'; ctx.textAlign='center';
+    ctx.fillText('Foster · Adopt · Share',W/2,578);
+    ctx.fillStyle='white'; ctx.font='bold 32px Arial';
+    ctx.fillText('ladogdispatch.com',W/2,623);
+    ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.font='22px Arial';
+    ctx.fillText('1850 W 60th St, Los Angeles, CA 90047',W/2,665,W-100);
+    adminFooterPill(ctx,W,H);
+  }
+}
+
+function adminRunCard6() {
+  adminC6Timers.forEach(t => clearTimeout(t)); adminC6Timers = [];
+  if (!adminC6Dogs.length) { adminLoadSouthLADogs().then(() => adminRunCard6()); return; }
+  let t = 0;
+  adminC6Timers.push(setTimeout(() => adminDrawCard6('intro',0), t)); t += 2500;
+  for (let i=0; i<adminC6Dogs.length; i++) {
+    const idx=i;
+    adminC6Timers.push(setTimeout(() => adminDrawCard6('dog',idx), t)); t += 1200;
+  }
+  adminC6Timers.push(setTimeout(() => adminDrawCard6('cta',0), t+300));
+}
+
 
 // CARD 7: WEST LA
 let adminC7Timers=[], adminC7Dogs=[], adminC7Images=[];
@@ -2884,22 +3033,22 @@ async function adminLoadShelter7Dogs(){
       const d=new Date(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase().includes("WEST");
     }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-    adminC7Images=await Promise.all(adminC7Dogs.map(dog=>new Promise(res=>{
-      if(!dog.photo_url)return res(null);
-      const i=new Image(); i.crossOrigin="anonymous";
-      i.onload=()=>res(i); i.onerror=()=>res(null); i.src=dog.photo_url;
+    adminC7Images=await Promise.all(adminC7Dogs.map(dog=>new Promise(resolve=>{
+      if(!dog.photo_url)return resolve(null);
+      const img=new Image(); img.crossOrigin="anonymous";
+      img.onload=()=>resolve(img); img.onerror=()=>resolve(null); img.src=dog.photo_url;
     })));
     const cap=document.getElementById("admin-copy7");
     if(cap){
       if(!adminC7Dogs.length){
         cap.textContent="No dogs listed this week at West Los Angeles.";
       } else {
-        const ue=d=>d<=0?"SOS":d===1?"CRIT":d<=4?"URG":"OK";
+        const ue=d=>d<=0?"[SOS]":d===1?"[CRIT]":d<=4?"[URG]":"[OK]";
         const list=adminC7Dogs.map(dog=>{
           const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\s*months?\s*/i," mo"):parseFloat(a)+" yrs";
+          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           return ue(days)+" "+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
         cap.textContent="These are the faces of the "+adminC7Dogs.length+" dogs at the West Los Angeles shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nWest Los Angeles\n11361 W Pico Blvd, Los Angeles, CA 90064\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#westla #urgentdogs #ladogdispatch";
@@ -3004,7 +3153,6 @@ function adminRunCard7(){
   adminC7Timers.push(setTimeout(()=>adminDrawCard7("cta",0),t+300));
 }
 
-
 // CARD 8: NORTH CENTRAL
 let adminC8Timers=[], adminC8Dogs=[], adminC8Images=[];
 
@@ -3018,22 +3166,22 @@ async function adminLoadShelter8Dogs(){
       const d=new Date(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase().includes("NORTH");
     }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-    adminC8Images=await Promise.all(adminC8Dogs.map(dog=>new Promise(res=>{
-      if(!dog.photo_url)return res(null);
-      const i=new Image(); i.crossOrigin="anonymous";
-      i.onload=()=>res(i); i.onerror=()=>res(null); i.src=dog.photo_url;
+    adminC8Images=await Promise.all(adminC8Dogs.map(dog=>new Promise(resolve=>{
+      if(!dog.photo_url)return resolve(null);
+      const img=new Image(); img.crossOrigin="anonymous";
+      img.onload=()=>resolve(img); img.onerror=()=>resolve(null); img.src=dog.photo_url;
     })));
     const cap=document.getElementById("admin-copy8");
     if(cap){
       if(!adminC8Dogs.length){
         cap.textContent="No dogs listed this week at North Central.";
       } else {
-        const ue=d=>d<=0?"SOS":d===1?"CRIT":d<=4?"URG":"OK";
+        const ue=d=>d<=0?"[SOS]":d===1?"[CRIT]":d<=4?"[URG]":"[OK]";
         const list=adminC8Dogs.map(dog=>{
           const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\s*months?\s*/i," mo"):parseFloat(a)+" yrs";
+          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           return ue(days)+" "+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
         cap.textContent="These are the faces of the "+adminC8Dogs.length+" dogs at the North Central shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nNorth Central\n3201 Lacy St, Los Angeles, CA 90031\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#northcentral #urgentdogs #ladogdispatch";
@@ -3138,7 +3286,6 @@ function adminRunCard8(){
   adminC8Timers.push(setTimeout(()=>adminDrawCard8("cta",0),t+300));
 }
 
-
 // CARD 9: EAST VALLEY
 let adminC9Timers=[], adminC9Dogs=[], adminC9Images=[];
 
@@ -3152,22 +3299,22 @@ async function adminLoadShelter9Dogs(){
       const d=new Date(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase().includes("EAST");
     }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-    adminC9Images=await Promise.all(adminC9Dogs.map(dog=>new Promise(res=>{
-      if(!dog.photo_url)return res(null);
-      const i=new Image(); i.crossOrigin="anonymous";
-      i.onload=()=>res(i); i.onerror=()=>res(null); i.src=dog.photo_url;
+    adminC9Images=await Promise.all(adminC9Dogs.map(dog=>new Promise(resolve=>{
+      if(!dog.photo_url)return resolve(null);
+      const img=new Image(); img.crossOrigin="anonymous";
+      img.onload=()=>resolve(img); img.onerror=()=>resolve(null); img.src=dog.photo_url;
     })));
     const cap=document.getElementById("admin-copy9");
     if(cap){
       if(!adminC9Dogs.length){
         cap.textContent="No dogs listed this week at East Valley.";
       } else {
-        const ue=d=>d<=0?"SOS":d===1?"CRIT":d<=4?"URG":"OK";
+        const ue=d=>d<=0?"[SOS]":d===1?"[CRIT]":d<=4?"[URG]":"[OK]";
         const list=adminC9Dogs.map(dog=>{
           const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\s*months?\s*/i," mo"):parseFloat(a)+" yrs";
+          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           return ue(days)+" "+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
         cap.textContent="These are the faces of the "+adminC9Dogs.length+" dogs at the East Valley shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nEast Valley\n14409 Vanowen St, Van Nuys, CA 91405\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#eastvalley #urgentdogs #ladogdispatch";
@@ -3272,7 +3419,6 @@ function adminRunCard9(){
   adminC9Timers.push(setTimeout(()=>adminDrawCard9("cta",0),t+300));
 }
 
-
 // CARD 10: WEST VALLEY
 let adminC10Timers=[], adminC10Dogs=[], adminC10Images=[];
 
@@ -3286,22 +3432,22 @@ async function adminLoadShelter10Dogs(){
       const d=new Date(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase().includes("WEST");
     }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-    adminC10Images=await Promise.all(adminC10Dogs.map(dog=>new Promise(res=>{
-      if(!dog.photo_url)return res(null);
-      const i=new Image(); i.crossOrigin="anonymous";
-      i.onload=()=>res(i); i.onerror=()=>res(null); i.src=dog.photo_url;
+    adminC10Images=await Promise.all(adminC10Dogs.map(dog=>new Promise(resolve=>{
+      if(!dog.photo_url)return resolve(null);
+      const img=new Image(); img.crossOrigin="anonymous";
+      img.onload=()=>resolve(img); img.onerror=()=>resolve(null); img.src=dog.photo_url;
     })));
     const cap=document.getElementById("admin-copy10");
     if(cap){
       if(!adminC10Dogs.length){
         cap.textContent="No dogs listed this week at West Valley.";
       } else {
-        const ue=d=>d<=0?"SOS":d===1?"CRIT":d<=4?"URG":"OK";
+        const ue=d=>d<=0?"[SOS]":d===1?"[CRIT]":d<=4?"[URG]":"[OK]";
         const list=adminC10Dogs.map(dog=>{
           const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\s*months?\s*/i," mo"):parseFloat(a)+" yrs";
+          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           return ue(days)+" "+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
         cap.textContent="These are the faces of the "+adminC10Dogs.length+" dogs at the West Valley shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nWest Valley\n20655 Plummer St, Chatsworth, CA 91311\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#westvalley #urgentdogs #ladogdispatch";
@@ -3406,7 +3552,6 @@ function adminRunCard10(){
   adminC10Timers.push(setTimeout(()=>adminDrawCard10("cta",0),t+300));
 }
 
-
 // CARD 11: HARBOR
 let adminC11Timers=[], adminC11Dogs=[], adminC11Images=[];
 
@@ -3420,22 +3565,22 @@ async function adminLoadShelter11Dogs(){
       const d=new Date(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase().includes("HARBOR");
     }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-    adminC11Images=await Promise.all(adminC11Dogs.map(dog=>new Promise(res=>{
-      if(!dog.photo_url)return res(null);
-      const i=new Image(); i.crossOrigin="anonymous";
-      i.onload=()=>res(i); i.onerror=()=>res(null); i.src=dog.photo_url;
+    adminC11Images=await Promise.all(adminC11Dogs.map(dog=>new Promise(resolve=>{
+      if(!dog.photo_url)return resolve(null);
+      const img=new Image(); img.crossOrigin="anonymous";
+      img.onload=()=>resolve(img); img.onerror=()=>resolve(null); img.src=dog.photo_url;
     })));
     const cap=document.getElementById("admin-copy11");
     if(cap){
       if(!adminC11Dogs.length){
         cap.textContent="No dogs listed this week at Harbor.";
       } else {
-        const ue=d=>d<=0?"SOS":d===1?"CRIT":d<=4?"URG":"OK";
+        const ue=d=>d<=0?"[SOS]":d===1?"[CRIT]":d<=4?"[URG]":"[OK]";
         const list=adminC11Dogs.map(dog=>{
           const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\s*months?\s*/i," mo"):parseFloat(a)+" yrs";
+          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           return ue(days)+" "+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
         cap.textContent="These are the faces of the "+adminC11Dogs.length+" dogs at the Harbor shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nHarbor\n957 N Gaffey St, San Pedro, CA 90731\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#harbor #urgentdogs #ladogdispatch";
@@ -3552,8 +3697,13 @@ function adminCopyText(id, btn) {
 
 <script>
 function adminRecordCard(cardNum) {
-  var canvasId = cardNum === 1 ? 'admin-c1' : cardNum === 2 ? 'admin-c2' : cardNum === 3 ? 'admin-c3' : 'admin-c4';
-  var filename = cardNum === 1 ? 'ladogdispatch-how-it-works' : cardNum === 2 ? 'ladogdispatch-mission' : cardNum === 3 ? 'ladogdispatch-how-to-help' : 'ladogdispatch-weekly';
+  var now = new Date();
+  var month = now.toLocaleDateString('en-US',{month:'long'});
+  var day = now.getDate();
+  var weekOf = 'WeekOf_' + month + day;
+  var shelterNames = {4:'AllShelters',6:'SouthLA',7:'WestLA',8:'NorthCentral',9:'EastValley',10:'WestValley',11:'Harbor'};
+  var canvasId = cardNum===1?'admin-c1':cardNum===2?'admin-c2':cardNum===3?'admin-c3':cardNum===6?'admin-c6':cardNum===7?'admin-c7':cardNum===8?'admin-c8':cardNum===9?'admin-c9':cardNum===10?'admin-c10':cardNum===11?'admin-c11':'admin-c4';
+  var filename = cardNum===1?'ladogdispatch-how-it-works':cardNum===2?'ladogdispatch-mission':cardNum===3?'ladogdispatch-how-to-help':(shelterNames[cardNum]||'AllShelters')+'_'+weekOf;
   var btn = document.getElementById('admin-rec-btn-' + cardNum);
   var canvas = document.getElementById(canvasId);
 
@@ -3602,16 +3752,22 @@ function adminRecordCard(cardNum) {
       setTimeout(function() { recorder.stop(); }, (adminC3Dogs.length * 1200) + 2000);
     };
     adminC3Dogs.length === 0 ? adminLoadDogs().then(go3) : go3();
-  } else if(cardNum>=7&&cardNum<=11){
-    var shelterRunFns=[adminRunCard7,adminRunCard8,adminRunCard9,adminRunCard10,adminRunCard11];
-    var shelterLoadFns=[adminLoadShelter7Dogs,adminLoadShelter8Dogs,adminLoadShelter9Dogs,adminLoadShelter10Dogs,adminLoadShelter11Dogs];
-    var shelterDogs=[adminC7Dogs,adminC8Dogs,adminC9Dogs,adminC10Dogs,adminC11Dogs];
-    var sIdx=cardNum-7;
-    var goS=function(){
-      shelterRunFns[sIdx]();
-      setTimeout(function(){recorder.stop();},2500+(shelterDogs[sIdx].length*1200)+3000);
+  } else if (cardNum === 6) {
+    var go6 = function() {
+      adminRunCard6();
+      setTimeout(function() { recorder.stop(); }, 2500 + (adminC6Dogs.length * 1200) + 3000);
     };
-    shelterDogs[sIdx].length===0?shelterLoadFns[sIdx]().then(goS):goS();
+    adminC6Dogs.length === 0 ? adminLoadSouthLADogs().then(go6) : go6();
+  } else if(cardNum>=7&&cardNum<=11){
+    var sRunFns=[adminRunCard7,adminRunCard8,adminRunCard9,adminRunCard10,adminRunCard11];
+    var sLoadFns=[adminLoadShelter7Dogs,adminLoadShelter8Dogs,adminLoadShelter9Dogs,adminLoadShelter10Dogs,adminLoadShelter11Dogs];
+    var sDogs=[adminC7Dogs,adminC8Dogs,adminC9Dogs,adminC10Dogs,adminC11Dogs];
+    var si=cardNum-7;
+    var goS=function(){
+      sRunFns[si]();
+      setTimeout(function(){recorder.stop();},2500+(sDogs[si].length*1200)+3000);
+    };
+    sDogs[si].length===0?sLoadFns[si]().then(goS):goS();
   } else {
     var go4 = function() {
       adminRunCard4();
