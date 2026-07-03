@@ -490,7 +490,7 @@
             ${dog.rescue_only ? `<div class="dog-needs-callout"><strong>This dog needs:</strong>🔒 A licensed rescue to pull them from the shelter · 💛 Funding support (coming soon) · 📢 Your share right now</div>` : `<div class="dog-needs-callout dog-needs-callout--public"><strong>Good to know for adopters:</strong>May benefit from a patient home · Recommend slow intro to kids &amp; other pets · May need basic training support · 📢 Share to find them the right home</div>`}
             <button class="btn-primary" onclick="event.stopPropagation(); openShareModal(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📢 Share This Dog</button>
         `;
-        return `<div class="dog-card">
+        return `<div class="dog-card" data-shelter-id="${dog.shelter_id||''}">
             <img src="${dog.photo_url || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'}" alt="${dog.name}" class="dog-image" onerror="this.src='https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400'">
             <div class="dog-content">
                 <div class="dog-badges" style="min-height:2.2rem;">${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only — Must be pulled by a rescue org</span>` : `<span class="badge badge-public">✅ Open to Public — Can adopt or foster directly</span>`}</div>
@@ -531,6 +531,22 @@
         let filteredDogs = currentCategory === 'rescue_only' ? allDogs.filter(d => d.rescue_only) : allDogs;
         if (filteredDogs.length === 0) { grid.innerHTML = '<p style="text-align:center;color:#6b6560;grid-column:1/-1;padding:3rem;">No rescue-only dogs listed right now.</p>'; return; }
         grid.innerHTML = filteredDogs.map(createDogCard).filter(Boolean).join('');
+        // Add duotone button for Athena only - avoids template literal nesting
+        const athena = filteredDogs.find(d => (d.shelter_id||'').toUpperCase() === 'A2278446');
+        if (athena) {
+            const athenaCard = grid.querySelector('[data-shelter-id="A2278446"]');
+            if (athenaCard) {
+                const btns = athenaCard.querySelector('.dog-share-btns');
+                if (btns && !btns.querySelector('.btn-duotone')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-duotone';
+                    btn.textContent = '\u2728 Duotone';
+                    btn.style.cssText = 'background:linear-gradient(90deg,#ff0099,#7700ff,#00ccff);color:white;border:none;border-radius:6px;padding:0.42rem 0.8rem;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;';
+                    btn.addEventListener('click', function(e) { e.stopPropagation(); downloadAuroraCard(athena); });
+                    btns.appendChild(btn);
+                }
+            }
+        }
     }
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
