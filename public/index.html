@@ -511,7 +511,7 @@
                     <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📱 IG Story</button>
                     <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">⬇ Save</button>
                     <button class="btn-caption" onclick="event.stopPropagation(); copyDogCaption(this, ${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">Copy Caption</button>
-                    ${(dog.shelter_id||'').toUpperCase()==='A2278446'?`<button onclick="event.stopPropagation();downloadAuroraCard(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})" style="background:linear-gradient(135deg,#ff14b4,#9000ff,#00b4ff,#00ffc8);color:white;border:none;border-radius:6px;padding:0.42rem 0.8rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">✨ Aurora</button>`:''}
+
                 </div>
             </div>
         </div>`;
