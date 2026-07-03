@@ -511,6 +511,7 @@
                     <button class="btn-ig" onclick="event.stopPropagation(); shareIGStory(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">📱 IG Story</button>
                     <button class="btn-save" onclick="event.stopPropagation(); saveCard(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">⬇ Save</button>
                     <button class="btn-caption" onclick="event.stopPropagation(); copyDogCaption(this, ${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})">Copy Caption</button>
+                    ${(dog.shelter_id||'').toUpperCase()==='A2278446'?`<button onclick="event.stopPropagation();downloadAuroraCard(${JSON.stringify(dog).replace(/"/g,'&quot;').replace(/'/g,'&#39;')})" style="background:linear-gradient(90deg,#ff0099,#7700ff,#00ccff);color:white;border:none;border-radius:6px;padding:0.42rem 0.8rem;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;">✨ Duotone</button>`:''}
 
                 </div>
             </div>
@@ -3688,136 +3689,95 @@ function adminRunCard11(){
 }
 
 async function downloadAuroraCard(dog) {
-  if (!dog.photo_url) { alert('No photo available for this dog.'); return; }
+  if (!dog.photo_url) { alert('No photo for this dog.'); return; }
 
   const canvas = document.getElementById('phone-wrapper-canvas');
   const ctx = canvas.getContext('2d');
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
 
-  function auroraColor(angle) {
-    const t = ((angle / (Math.PI * 2)) + 1) % 1;
-    const stops = [
-      [255,0,180],[160,0,255],[0,140,255],
-      [0,255,210],[120,255,0],[255,180,0],
-      [255,50,100],[255,0,180]
-    ];
-    const scaled = t * (stops.length - 1);
-    const i = Math.floor(scaled);
-    const f = scaled - i;
-    const c1 = stops[i], c2 = stops[Math.min(i+1, stops.length-1)];
-    return [
-      Math.round(c1[0]+(c2[0]-c1[0])*f),
-      Math.round(c1[1]+(c2[1]-c1[1])*f),
-      Math.round(c1[2]+(c2[2]-c1[2])*f)
-    ];
-  }
-
   // Load image
   const img = await new Promise(resolve => {
-    const i = new Image();
-    i.crossOrigin = 'anonymous';
+    const i = new Image(); i.crossOrigin = 'anonymous';
     i.onload = () => resolve(i);
     i.onerror = () => resolve(null);
     i.src = dog.photo_url;
   });
+  if (!img) { alert('Photo could not load.'); return; }
 
-  if (!img) { alert('Could not load photo — try saving first.'); return; }
-
-  // Draw at full res for edge sampling
-  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  // Draw photo to canvas
   const cropOffset = parseFloat(dog.photo_crop_offset||0);
   const cropZoom = parseFloat(dog.photo_crop_zoom||1.0);
   const scale = Math.max(W/img.width, H/img.height) * cropZoom;
   const dw = img.width*scale, dh = img.height*scale;
+  const ox = (W-dw)/2;
   const defY = (H-dh)/2;
   const adjY = defY - (cropOffset * Math.abs(defY));
-  const ox = (W-dw)/2;
-
   ctx.drawImage(img, ox, adjY, dw, dh);
-  const bright = ctx.getImageData(0,0,W,H);
-  const bp = bright.data;
 
-  // Grayscale for edge detection
-  const gray = new Float32Array(W*H);
-  for (let i=0;i<W*H;i++) {
-    gray[i] = bp[i*4]*0.299 + bp[i*4+1]*0.587 + bp[i*4+2]*0.114;
+  // Get pixels
+  const imgData = ctx.getImageData(0, 0, W, H);
+  const px = imgData.data;
+
+  // Duotone color stops: grayscale 0-255 maps to these colors
+  // dark purple → hot pink → electric blue → neon cyan → bright white
+  const stops = [
+    [8,   0,  32],   // 0   — deep dark purple
+    [180,  0, 120],  // 64  — hot pink/magenta
+    [100,  0, 255],  // 128 — electric purple/blue
+    [0,  180, 255],  // 192 — neon cyan blue
+    [180, 255, 240], // 255 — bright cyan white
+  ];
+
+  function mapColor(gray) {
+    const t = (gray / 255) * (stops.length - 1);
+    const i = Math.min(Math.floor(t), stops.length - 2);
+    const f = t - i;
+    const c1 = stops[i], c2 = stops[i + 1];
+    return [
+      Math.round(c1[0] + (c2[0]-c1[0])*f),
+      Math.round(c1[1] + (c2[1]-c1[1])*f),
+      Math.round(c1[2] + (c2[2]-c1[2])*f),
+    ];
   }
 
-  // Sobel
-  const edges = new Float32Array(W*H);
-  for (let y=2;y<H-2;y++) {
-    for (let x=2;x<W-2;x++) {
-      const gx = (-gray[(y-1)*W+(x-1)] - 2*gray[y*W+(x-1)] - gray[(y+1)*W+(x-1)]
-                  +gray[(y-1)*W+(x+1)] + 2*gray[y*W+(x+1)] + gray[(y+1)*W+(x+1)]);
-      const gy = (-gray[(y-1)*W+(x-1)] - 2*gray[(y-1)*W+x] - gray[(y-1)*W+(x+1)]
-                  +gray[(y+1)*W+(x-1)] + 2*gray[(y+1)*W+x] + gray[(y+1)*W+(x+1)]);
-      edges[y*W+x] = Math.sqrt(gx*gx+gy*gy);
-    }
+  // Apply duotone
+  for (let i = 0; i < px.length; i += 4) {
+    const gray = px[i]*0.299 + px[i+1]*0.587 + px[i+2]*0.114;
+    const [r, g, b] = mapColor(gray);
+    px[i]   = r;
+    px[i+1] = g;
+    px[i+2] = b;
   }
+  ctx.putImageData(imgData, 0, 0);
 
-  // Build output: dark photo + aurora glow
-  const out = ctx.createImageData(W,H);
-  const op = out.data;
-  for (let i=0;i<W*H;i++) {
-    op[i*4]   = Math.round(bp[i*4]   * 0.2);
-    op[i*4+1] = Math.round(bp[i*4+1] * 0.2);
-    op[i*4+2] = Math.round(bp[i*4+2] * 0.2);
-    op[i*4+3] = 255;
-  }
-
-  const threshold = 15;
-  const glowR = 12;
-  for (let y=0;y<H;y++) {
-    for (let x=0;x<W;x++) {
-      const e = edges[y*W+x];
-      if (e < threshold) continue;
-      const angle = Math.atan2(y-H/2, x-W/2);
-      const [r,g,b] = auroraColor(angle);
-      const str = Math.min(1,(e-threshold)/55);
-      const ci = (y*W+x)*4;
-      op[ci]   = Math.min(255, Math.round(op[ci]   + r*str));
-      op[ci+1] = Math.min(255, Math.round(op[ci+1] + g*str));
-      op[ci+2] = Math.min(255, Math.round(op[ci+2] + b*str));
-      for (let dy=-glowR;dy<=glowR;dy++) {
-        for (let dx=-glowR;dx<=glowR;dx++) {
-          const nx=x+dx, ny=y+dy;
-          if (nx<0||nx>=W||ny<0||ny>=H) continue;
-          const dist=Math.sqrt(dx*dx+dy*dy);
-          if (dist>glowR) continue;
-          const falloff=Math.pow(1-dist/glowR, 2.2);
-          const glow=str*falloff*0.65;
-          const gi=(ny*W+nx)*4;
-          op[gi]   = Math.min(255,Math.round(op[gi]  +r*glow));
-          op[gi+1] = Math.min(255,Math.round(op[gi+1]+g*glow));
-          op[gi+2] = Math.min(255,Math.round(op[gi+2]+b*glow));
-        }
-      }
-    }
-  }
-  ctx.putImageData(out,0,0);
-
-  // Footer
-  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  // Footer overlay
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
   ctx.fillRect(0, H-110, W, 110);
-  const grad = ctx.createLinearGradient(0,0,W,0);
-  grad.addColorStop(0,   'rgb(255,0,180)');
-  grad.addColorStop(0.25,'rgb(160,0,255)');
-  grad.addColorStop(0.5, 'rgb(0,140,255)');
-  grad.addColorStop(0.75,'rgb(0,255,210)');
-  grad.addColorStop(1,   'rgb(255,180,0)');
+
+  // Gradient name text
+  const grad = ctx.createLinearGradient(0, 0, W, 0);
+  grad.addColorStop(0,    'rgb(255,0,180)');
+  grad.addColorStop(0.33, 'rgb(100,0,255)');
+  grad.addColorStop(0.66, 'rgb(0,180,255)');
+  grad.addColorStop(1,    'rgb(0,255,210)');
   ctx.fillStyle = grad;
-  ctx.font = '900 58px Arial Black,Arial';
+  ctx.font = '900 64px Arial Black,Arial';
   ctx.textAlign = 'center';
+
+  let ns = 64;
   const nm = (dog.name||dog.shelter_id).toUpperCase();
+  ctx.font = '900 ' + ns + 'px Arial Black,Arial';
+  while (ctx.measureText(nm).width > W-80 && ns > 36) { ns -= 4; ctx.font = '900 ' + ns + 'px Arial Black,Arial'; }
   ctx.fillText(nm, W/2, H-54);
+
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.font = 'bold 28px Arial';
   ctx.fillText((dog.shelter||'') + '  ·  ' + (dog.shelter_id||'') + '  ·  ladogdispatch.com', W/2, H-16);
 
   // Download
   const a = document.createElement('a');
-  a.download = (dog.name||dog.shelter_id).toLowerCase().replace(/\s+/g,'-') + '-aurora.png';
+  a.download = (dog.name||dog.shelter_id||'dog').toLowerCase().replace(/\s+/g,'-') + '-duotone.png';
   a.href = canvas.toDataURL('image/png');
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
