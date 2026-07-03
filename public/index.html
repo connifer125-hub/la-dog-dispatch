@@ -1442,25 +1442,19 @@ function adminDrawCard4(phase, dogIndex) {
 
   if (phase === 'intro') {
     // Opening title card
-    adminDrawLogo(ctx, W, 20, 200);
-    adminDivider(ctx, W, 245);
-
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 52px Georgia, serif'; ctx.textAlign = 'center';
-    ctx.fillText('These are the faces of the ' + (totalCount||'?') + ' dogs', W/2, 290, W-80);
-    ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='bold 44px Georgia,serif';
-    ctx.fillText('across the LA Animal Services network', W/2, 360, W-80);
-    ctx.fillStyle='#7ec8a0'; ctx.font='bold 44px Georgia,serif';
-    ctx.fillText('on the euthanasia list right now.', W/2, 428, W-80);
-
     const dogCount = adminC4Dogs.length;
     const totalCount = window.adminC4TotalCount || adminC4Dogs.length;
-    ctx.fillStyle = '#7ec8a0'; ctx.font = `900 ${totalCount > 9 ? 160 : 200}px Arial Black, Arial`; ctx.textAlign = 'center';
-    ctx.fillText(String(totalCount > 0 ? totalCount : '?'), W/2, 580);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 48px Arial'; ctx.textAlign = 'center';
-    ctx.fillText('dogs on the euth list right now', W/2, 650, W - 80);
-    ctx.fillText('Share to your networks NOW', W/2, 720, W - 80);
-
+    adminDrawLogo(ctx, W, 20, 180);
+    adminDivider(ctx, W, 220);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 48px Georgia,serif'; ctx.textAlign = 'center';
+    ctx.fillText('These are the faces of the', W/2, 310, W-80);
+    ctx.fillStyle = '#7ec8a0'; ctx.font = '900 ' + (totalCount > 9 ? '160' : '200') + 'px Arial Black,Arial'; ctx.textAlign = 'center';
+    ctx.fillText(String(totalCount > 0 ? totalCount : '?'), W/2, 530);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 48px Georgia,serif';
+    ctx.fillText('dogs across the LA Animal Services', W/2, 618, W-80);
+    ctx.fillText('euthanasia list right now.', W/2, 676, W-80);
+    ctx.fillStyle = '#ff5252'; ctx.font = 'bold 44px Arial';
+    ctx.fillText('Share to your networks NOW', W/2, 756, W-80);
     adminFooterPill(ctx, W, H);
 
   } else if (phase === 'dog' && adminC4Dogs[dogIndex]) {
