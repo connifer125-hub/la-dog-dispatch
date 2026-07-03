@@ -1416,7 +1416,11 @@ async function adminLoadWeeklyDogs() {
     // Get all dogs sorted by furthest deadline
     const c4Filtered = c4Dogs
       .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
-      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
+      .sort((a,b) => {
+        const shelterOrder = s => { const u = (s||'').toUpperCase(); if(u.includes('SOUTH')) return 1; if(u.includes('WEST L')) return 2; if(u.includes('NORTH')) return 3; if(u.includes('EAST')) return 4; if(u.includes('WEST V')) return 5; if(u.includes('HARBOR')) return 6; return 7; };
+        if (shelterOrder(a.shelter) !== shelterOrder(b.shelter)) return shelterOrder(a.shelter) - shelterOrder(b.shelter);
+        return new Date(a.deadline) - new Date(b.deadline);
+      });
     window.adminC4TotalCount = c4Filtered.length;
     adminC4Dogs = c4Filtered;
     // Update caption with real dog count
@@ -1620,7 +1624,11 @@ async function adminLoadDogs() {
         const d = new Date(dog.deadline); d.setHours(0,0,0,0);
         return Math.round((d - today) / 86400000) >= 3;
       })
-      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
+      .sort((a,b) => {
+        const isSLA = d => (d.shelter||'').toUpperCase().replace(/[^A-Z]/g,'').includes('SOUTHLA');
+        if (isSLA(a) !== isSLA(b)) return isSLA(a) ? -1 : 1;
+        return new Date(a.deadline) - new Date(b.deadline);
+      })
 
     // Preload images
     adminC3Images = await Promise.all(adminC3Dogs.map(dog => new Promise(resolve => {
