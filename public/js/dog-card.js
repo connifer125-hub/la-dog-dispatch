@@ -177,9 +177,6 @@ async function generateCard(dog) {
             const img = new Image(); img.crossOrigin='anonymous';
             img.onload = () => {
                 ctx.save(); rr(photoX,photoY,photoSize,photoSize,20); ctx.clip();
-                const scale=Math.max(photoSize/img.width,photoSize/img.height);
-                const dw=img.width*scale, dh=img.height*scale;
-                const defaultImgY = photoY+(photoSize-dh)/2;
                 const cropOffset = parseFloat(dog.photo_crop_offset || 0);
                 const scale = Math.max(photoSize/img.width, photoSize/img.height);
                 const dw = img.width * scale, dh = img.height * scale;
