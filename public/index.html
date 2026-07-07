@@ -1620,7 +1620,7 @@ function adminRunCard4() {
     t += 1200;
   }
   // CTA
-  adminC4Timers.push(setTimeout(() => adminDrawCard4('cta', 0), t + 300));
+  adminC4Timers.push(setTimeout(() => adminDrawCard4('cta', 0), t + 1200));
   // Hold CTA for 4 seconds (recording ends after this)
 }
 
@@ -1789,7 +1789,7 @@ function adminRunCard3() {
     adminC3Timers.push(setTimeout(() => adminDrawCard3('dog', idx), t));
     t += dogDuration;
   }
-  adminC3Timers.push(setTimeout(() => adminDrawCard3('message', 0), t + 300));
+  adminC3Timers.push(setTimeout(() => adminDrawCard3('message', 0), t + 1200));
 }
 
 function spmComingSoon(name) {
