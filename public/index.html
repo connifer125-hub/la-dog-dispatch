@@ -676,15 +676,16 @@
           (alertPrefix ? alertPrefix + ' ' : '') + 'Every dog on the euth list deserves to be seen. ' + name + '\u2019s deadline is ' + dl + ' \u2014 ' + urgText + '.',
           (alertPrefix ? alertPrefix + ' If not now, when? ' : 'If not now, when? ') + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
         ];
+        const idTag = '#' + (dog.shelter_id||'').replace(/[^a-zA-Z0-9]/g,'');
         const hashPools = [
-          '#ladogdispatch ' + breedTag + ' #adoptdontshop',
-          '#ladogdispatch ' + breedTag + ' #rescuedog',
-          '#ladogdispatch ' + breedTag + ' #fosterdog',
-          '#ladogdispatch ' + breedTag + ' #shelterdog',
-          '#ladogdispatch ' + breedTag + ' #urgentdog',
-          '#ladogdispatch ' + breedTag + ' #laanimals',
-          '#ladogdispatch ' + breedTag + ' #dogrescue',
-          '#ladogdispatch ' + breedTag + ' #adoptme',
+          '#ladogdispatch ' + breedTag + ' ' + idTag,
+          '#ladogdispatch ' + breedTag + ' ' + idTag,
+          '#ladogdispatch ' + breedTag + ' ' + idTag,
+          '#ladogdispatch ' + breedTag + ' ' + idTag,
+          '#ladogdispatch ' + breedTag + ' ' + idTag,
+          '#ladogdispatch ' + breedTag + ' ' + idTag,
+          '#ladogdispatch ' + breedTag + ' ' + idTag,
+          '#ladogdispatch ' + breedTag + ' ' + idTag,
         ];
         const roLine = isRO
           ? '\ud83d\udd12 RESCUE ORGANIZATIONS ONLY \u2014 a licensed rescue must pull this dog from the shelter.'
