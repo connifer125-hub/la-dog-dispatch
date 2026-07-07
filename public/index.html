@@ -526,11 +526,22 @@
             renderDogs();
         } catch (error) { console.error('Error loading dogs:', error); }
     }
+    function sortDogs(dogs) {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const daysLeft = d => { const dl = new Date(d.deadline); dl.setHours(0,0,0,0); return Math.round((dl-today)/86400000); };
+        const isSouthLA = d => (d.shelter||'').toUpperCase().replace(/[^A-Z]/g,'').includes('SOUTHLA') || (d.shelter||'').toUpperCase().includes('SOUTH L');
+        return [...dogs].sort((a,b) => {
+            const aSouth = isSouthLA(a) ? 0 : 1;
+            const bSouth = isSouthLA(b) ? 0 : 1;
+            if (aSouth !== bSouth) return aSouth - bSouth;
+            return daysLeft(a) - daysLeft(b);
+        });
+    }
     function renderDogs() {
         const grid = document.getElementById('dogs-grid');
         let filteredDogs = currentCategory === 'rescue_only' ? allDogs.filter(d => d.rescue_only) : allDogs;
         if (filteredDogs.length === 0) { grid.innerHTML = '<p style="text-align:center;color:#6b6560;grid-column:1/-1;padding:3rem;">No rescue-only dogs listed right now.</p>'; return; }
-        grid.innerHTML = filteredDogs.map(createDogCard).filter(Boolean).join('');
+        grid.innerHTML = sortDogs(filteredDogs).map(createDogCard).filter(Boolean).join('');
     }
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -634,31 +645,53 @@
         const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
-        const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
-        const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
-        const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
+        const notesBlock = dog.notes ? ('\n\n\u26a0\ufe0f Shelter notes: ' + dog.notes + '\n\n\ud83d\udccb Shelter notes are snapshots written in stressful environments & may not reflect a dog\'s real personality. Training, love & patience needed.') : '';
         const ageStr = (dog.age||'').toLowerCase();
         const ageNum = parseFloat(ageStr);
         const isPuppy = ageStr.includes('month') || (!isNaN(ageNum) && ageNum < 1);
         const isSenior = !isPuppy && !isNaN(ageNum) && ageNum >= 7;
-        const alertPrefix = isPuppy ? '🐶 Puppy Alert' : isSenior ? '🐾 Senior Dog Alert' : '🚨';
-        const openingLine = (isPuppy || isSenior)
-          ? `${alertPrefix} — ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`
-          : `🚨 ${dog.name||dog.shelter_id} needs rescue by ${dl} — ${urgency}.`;
         let intakeLine = '';
         if (dog.intake_date) {
           const intake = new Date(dog.intake_date); intake.setHours(0,0,0,0);
           const today = new Date(); today.setHours(0,0,0,0);
           const days = Math.floor((today - intake) / 86400000);
-          if (days > 0) intakeLine = `In shelter ${days} day${days!==1?'s':''}`;
+          if (days > 0) intakeLine = ' \u00b7 In shelter ' + days + ' day' + (days!==1?'s':'');
         }
         const breedRaw = (dog.breed||'').toLowerCase().replace(/[^a-z]/g,'');
-        const breedTag = breedRaw ? `#${breedRaw}` : '#adoptdontshop';
-        const hashtags = `#ladogdispatch #urgentdogs #laanimals ${breedTag} #adoptdontshop`;
-        const idLine = `ID: ${dog.shelter_id||''}${intakeLine ? ' · ' + intakeLine : ''}`;
-        return `${idLine}\n\n${openingLine}\n\n${dog.breed||'Mixed breed'} · ${dog.shelter||'Los Angeles'}\n\n${isRO?'🔒 RESCUE ORGANIZATIONS ONLY — a licensed rescue must pull this dog from the shelter.':'✅ OPEN TO PUBLIC — This dog can be adopted or fostered directly by anyone.'}\n${notesBlock}${disclaimerBlock}\nEvery dog on the LA euth list gets a post on @la_dog_dispatch so no dog goes unseen.\n\nFoster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch\n\n${hashtags}`;
+        const breedTag = breedRaw ? ('#' + breedRaw) : '#rescuedog';
+        const idNum = parseInt((dog.shelter_id||'A0').replace(/[^0-9]/g,'')) || 0;
+        const v = idNum % 8;
+        const urgEmoji = daysLeft <= 0 ? '\ud83c\udd98' : daysLeft === 1 ? '\ud83d\udea8' : daysLeft <= 4 ? '\u23f0' : '\ud83d\udc3e';
+        const urgText = daysLeft <= 0 ? 'TODAY' : (daysLeft + ' day' + (daysLeft!==1?'s':'') + ' left');
+        const alertPrefix = isPuppy ? '\ud83d\udc36 Puppy Alert \u2014' : isSenior ? '\ud83d\udc3e Senior Dog Alert \u2014' : '';
+        const name = dog.name || dog.shelter_id;
+        const shelter = dog.shelter || 'Los Angeles';
+        const openings = [
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' is on the ' + shelter + ' euthanasia list. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' Who will save ' : 'Who will save ') + name + '? Rescue deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs a foster, adopter, or rescue by ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + name + ' has been at the shelter' + intakeLine + '. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + 'This is ' + name + '. Still waiting. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + 'Every dog on the euth list deserves to be seen. ' + name + '\u2019s deadline is ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' If not now, when? ' : 'If not now, when? ') + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
+        ];
+        const hashPools = [
+          '#ladogdispatch ' + breedTag + ' #adoptdontshop',
+          '#ladogdispatch ' + breedTag + ' #rescuedog',
+          '#ladogdispatch ' + breedTag + ' #fosterdog',
+          '#ladogdispatch ' + breedTag + ' #shelterdog',
+          '#ladogdispatch ' + breedTag + ' #urgentdog',
+          '#ladogdispatch ' + breedTag + ' #laanimals',
+          '#ladogdispatch ' + breedTag + ' #dogrescue',
+          '#ladogdispatch ' + breedTag + ' #adoptme',
+        ];
+        const roLine = isRO
+          ? '\ud83d\udd12 RESCUE ORGANIZATIONS ONLY \u2014 a licensed rescue must pull this dog from the shelter.'
+          : '\u2705 OPEN TO PUBLIC \u2014 This dog can be adopted or fostered directly by anyone.';
+        return 'ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + '\n\n' + roLine + notesBlock + '\n\nFoster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n' + hashPools[v];
     }
-
+    
     async function copyDogCaption(btn, dog) {
         const caption = buildDogCaption(dog);
         try { await navigator.clipboard.writeText(caption); btn.textContent='✓ Copied!'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2500); }
@@ -747,6 +780,9 @@
                   <button onclick="spmDownloadWantedPoster()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🪧 Wanted Poster</button>
                   <button onclick="spmDownloadCrayonCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🖍 Crayon Drawing</button>
                   <button onclick="spmDownloadGRWM()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">✨ GRWM</button>
+                  <button onclick="spmDownloadWebCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🖼 Web Card</button>
+                  <button onclick="spmDownloadNameCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🏷 Name Card</button>
+                  <button onclick="spmDownloadTagCard()" style="background:#e8e4dd;color:#6b6560;border:none;border-radius:6px;padding:0.45rem 0.9rem;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🏥 Tag Rescues</button>
 
                 </div>
                 <canvas id="phone-wrapper-canvas" style="display:none;" width="1080" height="1920"></canvas>
