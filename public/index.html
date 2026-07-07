@@ -3988,7 +3988,10 @@ function adminRecordCard(cardNum) {
     var sDogs=[null,null,null,null,null,null,adminC6Dogs,adminC7Dogs,adminC8Dogs,adminC9Dogs,adminC10Dogs,adminC11Dogs];
     var goS=function(){
       sRunFns[cardNum]();
-      var totalTime=3000+((sDogs[cardNum].length+1)*3000)+3000;
+      // Recalculate after dogs are loaded
+      var dogCount=[0,0,0,0,0,0,adminC6Dogs.length,adminC7Dogs.length,adminC8Dogs.length,adminC9Dogs.length,adminC10Dogs.length,adminC11Dogs.length][cardNum]||0;
+      var totalTime=3000+((dogCount+1)*3000)+3000;
+      console.log('Recording card '+cardNum+' with '+dogCount+' dogs, total time: '+totalTime+'ms');
       setTimeout(function(){recorder.stop();},totalTime);
     };
     sDogs[cardNum].length===0?sLoadFns[cardNum]().then(goS):goS();
