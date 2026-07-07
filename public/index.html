@@ -3979,7 +3979,7 @@ function adminRecordCard(cardNum) {
   } else if (cardNum === 3) {
     var go3 = function() {
       adminRunCard3();
-      setTimeout(function() { recorder.stop(); }, (adminC3Dogs.length * 1200) + 2000);
+      setTimeout(function() { recorder.stop(); }, 2500 + (adminC3Dogs.length * 1200) + 1200 + 4000);
     };
     adminC3Dogs.length === 0 ? adminLoadDogs().then(go3) : go3();
   } else if(cardNum>=6&&cardNum<=11){
@@ -3988,7 +3988,7 @@ function adminRecordCard(cardNum) {
     var sDogs=[null,null,null,null,null,null,adminC6Dogs,adminC7Dogs,adminC8Dogs,adminC9Dogs,adminC10Dogs,adminC11Dogs];
     var goS=function(){
       sRunFns[cardNum]();
-      var totalTime=2500+(sDogs[cardNum].length*1200)+1200+4000;
+      var totalTime=2500+(sDogs[cardNum].length*1200)+1200+5000;
       setTimeout(function(){recorder.stop();},totalTime);
     };
     sDogs[cardNum].length===0?sLoadFns[cardNum]().then(goS):goS();
