@@ -1612,15 +1612,15 @@ function adminRunCard4() {
   let t = 0;
   // Intro
   adminC4Timers.push(setTimeout(() => adminDrawCard4('intro', 0), t));
-  t += 2500;
+  t += 3000;
   // Dogs — show all
   for (let i = 0; i < adminC4Dogs.length; i++) {
     const idx = i;
     adminC4Timers.push(setTimeout(() => adminDrawCard4('dog', idx), t));
-    t += 1200;
+    t += 3000;
   }
   // CTA
-  adminC4Timers.push(setTimeout(() => adminDrawCard4('cta', 0), t + 1200));
+  adminC4Timers.push(setTimeout(() => adminDrawCard4('cta', 0), t));
   // Hold CTA for 4 seconds (recording ends after this)
 }
 
@@ -1782,14 +1782,14 @@ function adminRunCard3() {
     adminLoadDogs().then(() => adminRunCard3());
     return;
   }
-  const dogDuration = 1200;
+  const dogDuration = 3000;
   let t = 0;
   for (let i = 0; i < adminC3Dogs.length; i++) {
     const idx = i;
     adminC3Timers.push(setTimeout(() => adminDrawCard3('dog', idx), t));
     t += dogDuration;
   }
-  adminC3Timers.push(setTimeout(() => adminDrawCard3('message', 0), t + 1200));
+  adminC3Timers.push(setTimeout(() => adminDrawCard3('message', 0), t));
 }
 
 function spmComingSoon(name) {
@@ -3247,12 +3247,12 @@ function adminRunCard6(){
   adminC6Timers.forEach(t=>clearTimeout(t)); adminC6Timers=[];
   if(!adminC6Dogs.length){adminLoadShelter6Dogs().then(()=>adminRunCard6());return;}
   let t=0;
-  adminC6Timers.push(setTimeout(()=>adminDrawCard6("intro",0),t)); t+=2500;
+  adminC6Timers.push(setTimeout(()=>adminDrawCard6("intro",0),t)); t+=3000;
   for(let i=0;i<adminC6Dogs.length;i++){
     const idx=i;
-    adminC6Timers.push(setTimeout(()=>adminDrawCard6("dog",idx),t)); t+=1200;
+    adminC6Timers.push(setTimeout(()=>adminDrawCard6("dog",idx),t)); t+=3000;
   }
-  adminC6Timers.push(setTimeout(()=>adminDrawCard6("cta",0),t+1200));
+  adminC6Timers.push(setTimeout(()=>adminDrawCard6("cta",0),t));
 }
 
 // CARD 7: WEST LA
@@ -3380,12 +3380,12 @@ function adminRunCard7(){
   adminC7Timers.forEach(t=>clearTimeout(t)); adminC7Timers=[];
   if(!adminC7Dogs.length){adminLoadShelter7Dogs().then(()=>adminRunCard7());return;}
   let t=0;
-  adminC7Timers.push(setTimeout(()=>adminDrawCard7("intro",0),t)); t+=2500;
+  adminC7Timers.push(setTimeout(()=>adminDrawCard7("intro",0),t)); t+=3000;
   for(let i=0;i<adminC7Dogs.length;i++){
     const idx=i;
-    adminC7Timers.push(setTimeout(()=>adminDrawCard7("dog",idx),t)); t+=1200;
+    adminC7Timers.push(setTimeout(()=>adminDrawCard7("dog",idx),t)); t+=3000;
   }
-  adminC7Timers.push(setTimeout(()=>adminDrawCard7("cta",0),t+1200));
+  adminC7Timers.push(setTimeout(()=>adminDrawCard7("cta",0),t));
 }
 
 // CARD 8: NORTH CENTRAL
@@ -3513,12 +3513,12 @@ function adminRunCard8(){
   adminC8Timers.forEach(t=>clearTimeout(t)); adminC8Timers=[];
   if(!adminC8Dogs.length){adminLoadShelter8Dogs().then(()=>adminRunCard8());return;}
   let t=0;
-  adminC8Timers.push(setTimeout(()=>adminDrawCard8("intro",0),t)); t+=2500;
+  adminC8Timers.push(setTimeout(()=>adminDrawCard8("intro",0),t)); t+=3000;
   for(let i=0;i<adminC8Dogs.length;i++){
     const idx=i;
-    adminC8Timers.push(setTimeout(()=>adminDrawCard8("dog",idx),t)); t+=1200;
+    adminC8Timers.push(setTimeout(()=>adminDrawCard8("dog",idx),t)); t+=3000;
   }
-  adminC8Timers.push(setTimeout(()=>adminDrawCard8("cta",0),t+1200));
+  adminC8Timers.push(setTimeout(()=>adminDrawCard8("cta",0),t));
 }
 
 // CARD 9: EAST VALLEY
@@ -3646,12 +3646,12 @@ function adminRunCard9(){
   adminC9Timers.forEach(t=>clearTimeout(t)); adminC9Timers=[];
   if(!adminC9Dogs.length){adminLoadShelter9Dogs().then(()=>adminRunCard9());return;}
   let t=0;
-  adminC9Timers.push(setTimeout(()=>adminDrawCard9("intro",0),t)); t+=2500;
+  adminC9Timers.push(setTimeout(()=>adminDrawCard9("intro",0),t)); t+=3000;
   for(let i=0;i<adminC9Dogs.length;i++){
     const idx=i;
-    adminC9Timers.push(setTimeout(()=>adminDrawCard9("dog",idx),t)); t+=1200;
+    adminC9Timers.push(setTimeout(()=>adminDrawCard9("dog",idx),t)); t+=3000;
   }
-  adminC9Timers.push(setTimeout(()=>adminDrawCard9("cta",0),t+1200));
+  adminC9Timers.push(setTimeout(()=>adminDrawCard9("cta",0),t));
 }
 
 // CARD 10: WEST VALLEY
@@ -3779,12 +3779,12 @@ function adminRunCard10(){
   adminC10Timers.forEach(t=>clearTimeout(t)); adminC10Timers=[];
   if(!adminC10Dogs.length){adminLoadShelter10Dogs().then(()=>adminRunCard10());return;}
   let t=0;
-  adminC10Timers.push(setTimeout(()=>adminDrawCard10("intro",0),t)); t+=2500;
+  adminC10Timers.push(setTimeout(()=>adminDrawCard10("intro",0),t)); t+=3000;
   for(let i=0;i<adminC10Dogs.length;i++){
     const idx=i;
-    adminC10Timers.push(setTimeout(()=>adminDrawCard10("dog",idx),t)); t+=1200;
+    adminC10Timers.push(setTimeout(()=>adminDrawCard10("dog",idx),t)); t+=3000;
   }
-  adminC10Timers.push(setTimeout(()=>adminDrawCard10("cta",0),t+1200));
+  adminC10Timers.push(setTimeout(()=>adminDrawCard10("cta",0),t));
 }
 
 // CARD 11: HARBOR
@@ -3912,12 +3912,12 @@ function adminRunCard11(){
   adminC11Timers.forEach(t=>clearTimeout(t)); adminC11Timers=[];
   if(!adminC11Dogs.length){adminLoadShelter11Dogs().then(()=>adminRunCard11());return;}
   let t=0;
-  adminC11Timers.push(setTimeout(()=>adminDrawCard11("intro",0),t)); t+=2500;
+  adminC11Timers.push(setTimeout(()=>adminDrawCard11("intro",0),t)); t+=3000;
   for(let i=0;i<adminC11Dogs.length;i++){
     const idx=i;
-    adminC11Timers.push(setTimeout(()=>adminDrawCard11("dog",idx),t)); t+=1200;
+    adminC11Timers.push(setTimeout(()=>adminDrawCard11("dog",idx),t)); t+=3000;
   }
-  adminC11Timers.push(setTimeout(()=>adminDrawCard11("cta",0),t+1200));
+  adminC11Timers.push(setTimeout(()=>adminDrawCard11("cta",0),t));
 }
 
 function adminCopyText(id, btn) {
@@ -3979,7 +3979,7 @@ function adminRecordCard(cardNum) {
   } else if (cardNum === 3) {
     var go3 = function() {
       adminRunCard3();
-      setTimeout(function() { recorder.stop(); }, 2500 + (adminC3Dogs.length * 1200) + 1200 + 6000);
+      setTimeout(function() { recorder.stop(); }, 3000 + ((adminC3Dogs.length+1)*3000) + 3000);
     };
     adminC3Dogs.length === 0 ? adminLoadDogs().then(go3) : go3();
   } else if(cardNum>=6&&cardNum<=11){
@@ -3988,14 +3988,14 @@ function adminRecordCard(cardNum) {
     var sDogs=[null,null,null,null,null,null,adminC6Dogs,adminC7Dogs,adminC8Dogs,adminC9Dogs,adminC10Dogs,adminC11Dogs];
     var goS=function(){
       sRunFns[cardNum]();
-      var totalTime=2500+(sDogs[cardNum].length*1200)+1200+6000;
+      var totalTime=3000+((sDogs[cardNum].length+1)*3000)+3000;
       setTimeout(function(){recorder.stop();},totalTime);
     };
     sDogs[cardNum].length===0?sLoadFns[cardNum]().then(goS):goS();
   } else {
     var go4 = function() {
       adminRunCard4();
-      var totalTime4=2500+(adminC4Dogs.length*1200)+1200+6000;
+      var totalTime4=3000+((adminC4Dogs.length+1)*3000)+3000;
       setTimeout(function() { recorder.stop(); }, totalTime4);
     };
     adminC4Dogs.length === 0 ? adminLoadWeeklyDogs().then(go4) : go4();
