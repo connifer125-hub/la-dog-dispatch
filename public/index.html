@@ -3968,16 +3968,17 @@ function adminRecordCard(cardNum) {
     btn.disabled = false;
   };
 
-  recorder.start(100);
-
   if (cardNum === 1) {
+    recorder.start(100);
     adminRunCard1();
     setTimeout(function() { recorder.stop(); }, 6000);
   } else if (cardNum === 2) {
+    recorder.start(100);
     adminRunCard2();
     setTimeout(function() { recorder.stop(); }, 6500);
   } else if (cardNum === 3) {
     var go3 = function() {
+      recorder.start(100);
       adminRunCard3();
       setTimeout(function() { recorder.stop(); }, 3000 + ((adminC3Dogs.length+1)*3000) + 3000);
     };
@@ -3987,8 +3988,8 @@ function adminRecordCard(cardNum) {
     var sLoadFns=[null,null,null,null,null,null,adminLoadShelter6Dogs,adminLoadShelter7Dogs,adminLoadShelter8Dogs,adminLoadShelter9Dogs,adminLoadShelter10Dogs,adminLoadShelter11Dogs];
     var sDogs=[null,null,null,null,null,null,adminC6Dogs,adminC7Dogs,adminC8Dogs,adminC9Dogs,adminC10Dogs,adminC11Dogs];
     var goS=function(){
+      recorder.start(100);
       sRunFns[cardNum]();
-      // Recalculate after dogs are loaded
       var dogCount=[0,0,0,0,0,0,adminC6Dogs.length,adminC7Dogs.length,adminC8Dogs.length,adminC9Dogs.length,adminC10Dogs.length,adminC11Dogs.length][cardNum]||0;
       var totalTime=3000+((dogCount+1)*3000)+3000;
       console.log('Recording card '+cardNum+' with '+dogCount+' dogs, total time: '+totalTime+'ms');
@@ -3997,6 +3998,7 @@ function adminRecordCard(cardNum) {
     sDogs[cardNum].length===0?sLoadFns[cardNum]().then(goS):goS();
   } else {
     var go4 = function() {
+      recorder.start(100);
       adminRunCard4();
       var totalTime4=3000+((adminC4Dogs.length+1)*3000)+3000;
       setTimeout(function() { recorder.stop(); }, totalTime4);
