@@ -529,11 +529,20 @@
     function sortDogs(dogs) {
         const today = new Date(); today.setHours(0,0,0,0);
         const daysLeft = d => { const dl = new Date(d.deadline); dl.setHours(0,0,0,0); return Math.round((dl-today)/86400000); };
-        const isSouthLA = d => (d.shelter||'').toUpperCase().replace(/[^A-Z]/g,'').includes('SOUTHLA') || (d.shelter||'').toUpperCase().includes('SOUTH L');
+        const shelterOrder = d => {
+            const s = (d.shelter||'').toUpperCase();
+            if (s === 'SOUTH L.A.') return 1;
+            if (s === 'WEST L.A.') return 2;
+            if (s === 'NORTH CENTRAL') return 3;
+            if (s === 'EAST VALLEY') return 4;
+            if (s === 'WEST VALLEY') return 5;
+            if (s === 'HARBOR') return 6;
+            return 99;
+        };
         return [...dogs].sort((a,b) => {
-            const aSouth = isSouthLA(a) ? 0 : 1;
-            const bSouth = isSouthLA(b) ? 0 : 1;
-            if (aSouth !== bSouth) return aSouth - bSouth;
+            const oa = shelterOrder(a);
+            const ob = shelterOrder(b);
+            if (oa !== ob) return oa - ob;
             return daysLeft(a) - daysLeft(b);
         });
     }
