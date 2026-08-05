@@ -2009,41 +2009,75 @@ async function spmDownloadPhoneWrapper() {
 
   const colors = getShelterColors(dog.shelter);
 
+  // ── THEME ROTATION by day of month ──
+  const today = new Date();
+  const day = today.getDate();
+  let theme;
+  if (day <= 7) theme = 'black';
+  else if (day <= 14) theme = 'white';
+  else if (day <= 21) theme = 'silver';
+  else theme = 'immersive';
+
+  // Dark shelter variants for light backgrounds
+  const darkShelterMap = {
+    'SOUTH L.A.': '#2d6a4f',
+    'WEST L.A.': '#5b21b6',
+    'NORTH CENTRAL': '#1e40af',
+    'EAST VALLEY': '#991b1b',
+    'WEST VALLEY': '#9a3412',
+    'HARBOR': '#92400e'
+  };
+  const shelterKey = (dog.shelter||'').toUpperCase();
+  const darkShelter = darkShelterMap[shelterKey] || colors.primary;
+
+  // Theme palette
+  let bgColor, bgGrad, primaryText, secondaryText, mutedText, accentColor, phoneFrameColor, phoneScreenBase;
+  if (theme === 'black') {
+    bgColor = '#0a0a0a'; bgGrad = 'rgba(74,140,106,0.08)';
+    primaryText = '#ffffff'; secondaryText = 'rgba(255,255,255,0.75)'; mutedText = 'rgba(255,255,255,0.5)';
+    accentColor = colors.light; phoneFrameColor = '#222'; phoneScreenBase = '#1a2e24';
+  } else if (theme === 'white') {
+    bgColor = '#fafaf7'; bgGrad = 'rgba(74,140,106,0.05)';
+    primaryText = '#1a1614'; secondaryText = '#4a4540'; mutedText = '#6b6560';
+    accentColor = darkShelter; phoneFrameColor = '#3a3632'; phoneScreenBase = '#f0ede8';
+  } else if (theme === 'silver') {
+    bgColor = '#c5c8cc'; bgGrad = 'rgba(74,140,106,0.06)';
+    primaryText = '#1a2332'; secondaryText = '#3a4a5c'; mutedText = '#5a6a7c';
+    accentColor = darkShelter; phoneFrameColor = '#5a6a7c'; phoneScreenBase = '#a8adb4';
+  } else { // immersive
+    bgColor = darkShelter; bgGrad = 'rgba(255,255,255,0.08)';
+    primaryText = '#ffffff'; secondaryText = 'rgba(255,255,255,0.85)'; mutedText = 'rgba(255,255,255,0.7)';
+    accentColor = '#ffffff'; phoneFrameColor = 'rgba(0,0,0,0.4)'; phoneScreenBase = 'rgba(0,0,0,0.15)';
+  }
+
   // Background
-  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = bgColor; ctx.fillRect(0, 0, W, H);
+  const bgRadial = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, H*0.7);
+  bgRadial.addColorStop(0, bgGrad); bgRadial.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = bgRadial; ctx.fillRect(0, 0, W, H);
 
-  // Subtle gradient bg
-  const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, H*0.7);
-  bgGrad.addColorStop(0, 'rgba(74,140,106,0.08)');
-  bgGrad.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, W, H);
-
-  // Phone frame dimensions - portrait, centered
-  const phoneW = 680;
-  const phoneH = 1340;
-  const phoneX = (W - phoneW) / 2;
-  const phoneY = (H - phoneH) / 2 - 80;
+  // Phone dimensions
+  const phoneW = 680, phoneH = 1340;
+  const phoneX = (W - phoneW) / 2, phoneY = (H - phoneH) / 2 - 80;
   const phoneR = 56;
 
-  // Phone outer shadow/glow
+  // Phone glow
   ctx.shadowColor = colors.primary;
-  ctx.shadowBlur = 60;
-  ctx.fillStyle = '#222';
+  ctx.shadowBlur = theme === 'white' || theme === 'silver' ? 30 : 60;
+  ctx.fillStyle = phoneFrameColor;
   ctx.beginPath(); ctx.roundRect(phoneX, phoneY, phoneW, phoneH, phoneR); ctx.fill();
   ctx.shadowBlur = 0;
 
   // Phone border
-  ctx.strokeStyle = '#444'; ctx.lineWidth = 6;
+  ctx.strokeStyle = theme === 'white' ? '#888' : theme === 'silver' ? '#7a8590' : '#444';
+  ctx.lineWidth = 6;
   ctx.beginPath(); ctx.roundRect(phoneX, phoneY, phoneW, phoneH, phoneR); ctx.stroke();
 
   // Screen inset
-  const scrX = phoneX + 14;
-  const scrY = phoneY + 14;
-  const scrW = phoneW - 28;
-  const scrH = phoneH - 28;
+  const scrX = phoneX + 14, scrY = phoneY + 14;
+  const scrW = phoneW - 28, scrH = phoneH - 28;
   const scrR = 44;
 
-  // Screen background - dog photo
   ctx.save();
   ctx.beginPath(); ctx.roundRect(scrX, scrY, scrW, scrH, scrR); ctx.clip();
 
@@ -2060,14 +2094,14 @@ async function spmDownloadPhoneWrapper() {
         ctx.drawImage(img, scrX + (scrW - dw) / 2, adjustedY, dw, dh);
         resolve();
       };
-      img.onerror = () => { ctx.fillStyle = '#1a2e24'; ctx.fillRect(scrX, scrY, scrW, scrH); resolve(); };
+      img.onerror = () => { ctx.fillStyle = phoneScreenBase; ctx.fillRect(scrX, scrY, scrW, scrH); resolve(); };
       img.src = dog.photo_url.startsWith('http') ? dog.photo_url : window.location.origin + dog.photo_url;
     });
   } else {
-    ctx.fillStyle = '#1a2e24'; ctx.fillRect(scrX, scrY, scrW, scrH);
+    ctx.fillStyle = phoneScreenBase; ctx.fillRect(scrX, scrY, scrW, scrH);
   }
 
-  // Gradient overlay - bottom 40%
+  // Gradient overlay bottom for text legibility
   const scGrad = ctx.createLinearGradient(0, scrY + scrH * 0.5, 0, scrY + scrH);
   scGrad.addColorStop(0, 'rgba(0,0,0,0)');
   scGrad.addColorStop(1, 'rgba(0,0,0,0.92)');
@@ -2075,14 +2109,13 @@ async function spmDownloadPhoneWrapper() {
 
   ctx.restore();
 
-  // Phone speaker/notch at top
-  ctx.fillStyle = '#111';
+  // Phone notch
+  ctx.fillStyle = theme === 'white' ? '#666' : theme === 'silver' ? '#4a5560' : '#111';
   ctx.beginPath(); ctx.roundRect(phoneX + phoneW/2 - 80, phoneY + 22, 160, 28, 14); ctx.fill();
 
-  // IG-style top bar on screen
+  // IG top bar on screen (always dark for legibility over photo)
   ctx.fillStyle = 'rgba(0,0,0,0.4)';
   ctx.fillRect(scrX, scrY, scrW, 70);
-  // IG dot + handle
   const igGrad = ctx.createLinearGradient(scrX+16, scrY+18, scrX+16+40, scrY+58);
   igGrad.addColorStop(0,'#f09433'); igGrad.addColorStop(0.5,'#dc2743'); igGrad.addColorStop(1,'#bc1888');
   ctx.fillStyle = igGrad;
@@ -2092,7 +2125,7 @@ async function spmDownloadPhoneWrapper() {
   ctx.fillStyle = 'white'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'left';
   ctx.fillText('@la_dog_dispatch', scrX+68, scrY+44);
 
-  // Urgent badge on screen
+  // Urgent badge
   const d = new Date(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d - t) / 86400000);
@@ -2100,22 +2133,20 @@ async function spmDownloadPhoneWrapper() {
   ctx.fillStyle = isCrit ? '#c4281c' : colors.primary;
   ctx.beginPath(); ctx.roundRect(scrX + scrW - 220, scrY + 16, 204, 44, 22); ctx.fill();
   ctx.fillStyle = 'white'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
-  ctx.fillText(isCrit ? '🚨 TODAY' : `⏰ ${daysLeft} DAYS LEFT`, scrX + scrW - 118, scrY + 44);
+  ctx.fillText(isCrit ? '\ud83d\udea8 TODAY' : '\u23f0 ' + daysLeft + ' DAYS LEFT', scrX + scrW - 118, scrY + 44);
 
-  // Dog name - big on screen
+  // Dog name (on photo, always white for legibility over gradient)
   ctx.fillStyle = 'white'; ctx.textAlign = 'center';
   let nameSize = 120;
-  ctx.font = `900 ${nameSize}px Arial Black, Arial`;
+  ctx.font = 'bold ' + nameSize + 'px Arial Black,Arial';
   const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
-  while (ctx.measureText(name).width > scrW - 60 && nameSize > 60) { nameSize -= 6; ctx.font = `900 ${nameSize}px Arial Black, Arial`; }
+  while (ctx.measureText(name).width > scrW - 60 && nameSize > 60) { nameSize -= 6; ctx.font = 'bold ' + nameSize + 'px Arial Black,Arial'; }
   ctx.fillText(name, scrX + scrW/2, scrY + scrH - 280);
 
-  // Breed + shelter
   ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'italic 34px Georgia,serif';
-  ctx.fillText([dog.breed, dog.gender, dog.age].filter(Boolean).join('  ·  '), scrX + scrW/2, scrY + scrH - 228);
+  ctx.fillText([dog.breed, dog.gender, dog.age].filter(Boolean).join('  \u00b7  '), scrX + scrW/2, scrY + scrH - 228);
 
-  // Shelter + ID
-  ctx.fillStyle = colors.deadline; ctx.font = 'bold 30px Arial';
+  ctx.fillStyle = colors.deadline || colors.light; ctx.font = 'bold 30px Arial';
   ctx.fillText(dog.shelter, scrX + scrW/2, scrY + scrH - 178);
   ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '24px monospace';
   ctx.fillText(dog.shelter_id || '', scrX + scrW/2, scrY + scrH - 138);
@@ -2124,22 +2155,22 @@ async function spmDownloadPhoneWrapper() {
   ctx.fillStyle = colors.primary;
   ctx.beginPath(); ctx.roundRect(scrX + 60, scrY + scrH - 112, scrW - 120, 72, 36); ctx.fill();
   ctx.fillStyle = 'white'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
-  ctx.fillText('Share to save this dog 🐾', scrX + scrW/2, scrY + scrH - 68);
+  ctx.fillText('Share to save this dog \ud83d\udc3e', scrX + scrW/2, scrY + scrH - 68);
 
-  // Home button on phone
-  ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
+  // Home button
+  ctx.strokeStyle = theme === 'white' ? '#888' : theme === 'silver' ? '#5a6a7c' : '#555';
+  ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(W/2, phoneY + phoneH - 28, 18, 0, Math.PI*2); ctx.stroke();
 
-  // Bottom text outside phone
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
+  // Bottom text OUTSIDE phone — uses theme text colors
+  ctx.fillStyle = mutedText; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
   ctx.fillText('ladogdispatch.com', W/2, phoneY + phoneH + 60);
-  ctx.fillStyle = colors.deadline; ctx.font = 'bold 26px Arial';
+  ctx.fillStyle = accentColor; ctx.font = 'bold 26px Arial';
   ctx.fillText('@la_dog_dispatch', W/2, phoneY + phoneH + 100);
 
-  // Download
   setTimeout(() => {
     const a = document.createElement('a');
-    a.download = (dog.name || dog.shelter_id) + '-phone-wrapper.png';
+    a.download = (dog.name || dog.shelter_id) + '-phone-' + theme + '.png';
     a.href = canvas.toDataURL('image/png');
     document.body.appendChild(a);
     a.click();
@@ -3162,7 +3193,7 @@ async function adminLoadShelter6Dogs(){
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
-        cap.textContent="These are the faces of the "+adminC6Dogs.length+" dogs at the South LA / Chesterfield Square shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nSouth LA / Chesterfield Square\n1850 W 60th St, Los Angeles, CA 90047\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #southla #urgentdogs";
+        cap.textContent="\ud83d\udea8 These are the faces of the "+adminC6Dogs.length+" dogs at the South LA / Chesterfield Square shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd South LA / Chesterfield Square\n1850 W 60th St, Los Angeles, CA 90047\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #southla #urgentdogs";
       }
     }
   }catch(e){adminC6Dogs=[];adminC6Images=[];}
@@ -3295,7 +3326,7 @@ async function adminLoadShelter7Dogs(){
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
-        cap.textContent="These are the faces of the "+adminC7Dogs.length+" dogs at the West Los Angeles shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nWest Los Angeles\n11361 W Pico Blvd, Los Angeles, CA 90064\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #westla #urgentdogs";
+        cap.textContent="\ud83d\udea8 These are the faces of the "+adminC7Dogs.length+" dogs at the West Los Angeles shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd West Los Angeles\n11361 W Pico Blvd, Los Angeles, CA 90064\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #westla #urgentdogs";
       }
     }
   }catch(e){adminC7Dogs=[];adminC7Images=[];}
@@ -3428,7 +3459,7 @@ async function adminLoadShelter8Dogs(){
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
-        cap.textContent="These are the faces of the "+adminC8Dogs.length+" dogs at the North Central shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nNorth Central\n3201 Lacy St, Los Angeles, CA 90031\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #northcentral #urgentdogs";
+        cap.textContent="\ud83d\udea8 These are the faces of the "+adminC8Dogs.length+" dogs at the North Central shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd North Central\n3201 Lacy St, Los Angeles, CA 90031\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #northcentral #urgentdogs";
       }
     }
   }catch(e){adminC8Dogs=[];adminC8Images=[];}
@@ -3561,7 +3592,7 @@ async function adminLoadShelter9Dogs(){
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
-        cap.textContent="These are the faces of the "+adminC9Dogs.length+" dogs at the East Valley shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nEast Valley\n14409 Vanowen St, Van Nuys, CA 91405\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #eastvalley #urgentdogs";
+        cap.textContent="\ud83d\udea8 These are the faces of the "+adminC9Dogs.length+" dogs at the East Valley shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd East Valley\n14409 Vanowen St, Van Nuys, CA 91405\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #eastvalley #urgentdogs";
       }
     }
   }catch(e){adminC9Dogs=[];adminC9Images=[];}
@@ -3694,7 +3725,7 @@ async function adminLoadShelter10Dogs(){
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
-        cap.textContent="These are the faces of the "+adminC10Dogs.length+" dogs at the West Valley shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nWest Valley\n20655 Plummer St, Chatsworth, CA 91311\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #westvalley #urgentdogs";
+        cap.textContent="\ud83d\udea8 These are the faces of the "+adminC10Dogs.length+" dogs at the West Valley shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd West Valley\n20655 Plummer St, Chatsworth, CA 91311\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #westvalley #urgentdogs";
       }
     }
   }catch(e){adminC10Dogs=[];adminC10Images=[];}
@@ -3827,7 +3858,7 @@ async function adminLoadShelter11Dogs(){
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
           const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
         }).join("\n");
-        cap.textContent="These are the faces of the "+adminC11Dogs.length+" dogs at the Harbor shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\nHarbor\n957 N Gaffey St, San Pedro, CA 90731\n\nShare to your networks NOW. Every share saves time.\nFoster - Adopt - Share -> ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #harbor #urgentdogs";
+        cap.textContent="\ud83d\udea8 These are the faces of the "+adminC11Dogs.length+" dogs at the Harbor shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd Harbor\n957 N Gaffey St, San Pedro, CA 90731\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #harbor #urgentdogs";
       }
     }
   }catch(e){adminC11Dogs=[];adminC11Images=[];}
