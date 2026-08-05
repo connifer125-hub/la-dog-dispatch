@@ -496,10 +496,8 @@
                 <div class="dog-badges" style="min-height:2.2rem;">${dog.rescue_only ? `<span class="badge badge-rescue-only">🔒 Rescue Only — Must be pulled by a rescue org</span>` : `<span class="badge badge-public">✅ Open to Public — Can adopt or foster directly</span>`}</div>
                 <h3 class="dog-name">${dog.name}</h3>
                 <p class="dog-details">${dog.breed} • ${(() => {
-                  const a=(dog.age||'').toLowerCase(), n=parseFloat(a);
-                  const isPup=a.includes('month')||(!isNaN(n)&&n<1);
-                  const isSen=!isPup&&!isNaN(n)&&n>=7;
-                  return dog.age+(isPup?' (Puppy)':isSen?' (Senior)':'');
+                  const { isPuppy, isSenior } = getAgeFlags(dog.age);
+                  return dog.age+(isPuppy?' (Puppy)':isSenior?' (Senior)':'');
                 })()} • ${dog.gender}</p>
                 <p style="font-size:0.72rem;color:#9ca3af;font-family:monospace;margin-top:2px;">${dog.shelter_id||''}</p>
                 <div class="dog-location">📍 ${dog.shelter}</div>
@@ -650,15 +648,50 @@
     }
 
     
+    function getAgeFlags(ageRaw) {
+        const ageStr = (ageRaw||'').toLowerCase().trim();
+        const hasYearWord = /year|\byr\b/.test(ageStr);
+        const monthMatch = ageStr.match(/(\d+(?:\.\d+)?)\s*(?:mo\.?|mo's|mos|months?)\b/);
+        const plainNumMatch = ageStr.match(/^(\d+(?:\.\d+)?)$/);
+        let isPuppy = false, isSenior = false;
+        if (!hasYearWord && monthMatch) {
+            isPuppy = parseFloat(monthMatch[1]) < 12;
+        } else if (!hasYearWord && plainNumMatch) {
+            isPuppy = parseFloat(plainNumMatch[1]) < 1;
+        }
+        if (!isPuppy) {
+            let years = null;
+            if (hasYearWord) {
+                const ym = ageStr.match(/(\d+(?:\.\d+)?)\s*(?:year|yr)/);
+                if (ym) years = parseFloat(ym[1]);
+            } else if (plainNumMatch) {
+                years = parseFloat(plainNumMatch[1]);
+            }
+            if (years !== null && years >= 7) isSenior = true;
+        }
+        return { isPuppy, isSenior };
+    }
+    function isSpaceEuthanasia(notes) {
+        const n = (notes||'').toLowerCase();
+        return /overcapacity|over capacity|lack of space|due to space|shelter space|kennel space|space (constraints|concerns|issues|reasons)|out of space/.test(n);
+    }
+    function getShelterAddress(shelter) {
+        const s = (shelter||'').toUpperCase();
+        if (s === 'SOUTH L.A.') return '1850 W 60th St, Los Angeles, CA 90047';
+        if (s === 'WEST L.A.') return '11361 W Pico Blvd, Los Angeles, CA 90064';
+        if (s === 'NORTH CENTRAL') return '3201 Lacy St, Los Angeles, CA 90031';
+        if (s === 'EAST VALLEY') return '14409 Vanowen St, Van Nuys, CA 91405';
+        if (s === 'WEST VALLEY') return '20655 Plummer St, Chatsworth, CA 91311';
+        if (s === 'HARBOR') return '957 N Gaffey St, San Pedro, CA 90731';
+        return '';
+    }
     function buildDogCaption(dog) {
         const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? ('\n\n\u26a0\ufe0f Shelter notes: ' + dog.notes + '\n\n\ud83d\udccb Shelter notes are snapshots written in stressful environments & may not reflect a dog\'s real personality. Training, love & patience needed.') : '';
         const ageStr = (dog.age||'').toLowerCase();
-        const ageNum = parseFloat(ageStr);
-        const isPuppy = ageStr.includes('month') || (!isNaN(ageNum) && ageNum < 1);
-        const isSenior = !isPuppy && !isNaN(ageNum) && ageNum >= 7;
+        const { isPuppy, isSenior } = getAgeFlags(dog.age);
         let intakeLine = '';
         if (dog.intake_date) {
           const intake = new Date(dog.intake_date); intake.setHours(0,0,0,0);
@@ -699,7 +732,20 @@
         const roLine = isRO
           ? '\ud83d\udd12 RESCUE ORGANIZATIONS ONLY \u2014 a licensed rescue must pull this dog from the shelter.'
           : '\u2705 OPEN TO PUBLIC \u2014 This dog can be adopted or fostered directly by anyone.';
-        return 'ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + '\n\n' + roLine + notesBlock + '\n\nFoster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n' + hashPools[v];
+        const address = getShelterAddress(shelter);
+        const addressLine = address ? ('\n\ud83d\udccd ' + address) : '';
+        const englishBlock = 'ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + addressLine + '\n\n' + roLine + notesBlock + '\n\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch';
+
+        // Shorter Spanish-language summary, appended after a divider
+        const esDl = new Date(dog.deadline).toLocaleDateString('es-ES', {month:'long', day:'numeric'});
+        const esUrgency = daysLeft <= 0 ? 'HOY' : (daysLeft === 1 ? '1 d\u00eda restante' : daysLeft + ' d\u00edas restantes');
+        const esAlertPrefix = isPuppy ? '\ud83d\udc36 Alerta Cachorro \u2014 ' : isSenior ? '\ud83d\udc3e Alerta Perro Mayor \u2014 ' : '';
+        const esRoLine = isRO
+          ? '\ud83d\udd12 SOLO ORGANIZACIONES DE RESCATE \u2014 un rescate con licencia debe retirarlo del refugio.'
+          : '\u2705 ABIERTO AL P\u00daBLICO \u2014 cualquier persona puede adoptarlo o acogerlo directamente.';
+        const esBlock = esAlertPrefix + name + ' necesita un hogar antes del ' + esDl + ' \u2014 ' + esUrgency + '.\n\n' + (dog.breed||'Raza mixta') + ' \u00b7 ' + shelter + addressLine + '\n\n' + esRoLine + '\n\nAdopta \u00b7 Acoge \u00b7 Comparte \u2192 ladogdispatch.com\n@la_dog_dispatch';
+
+        return englishBlock + '\n\n------\n\n' + esBlock + '\n\n' + hashPools[v];
     }
     
     async function copyDogCaption(btn, dog) {
@@ -1856,9 +1902,7 @@ async function spmDownloadWebCard() {
   const nm=(dog.name||dog.shelter_id).toUpperCase();
   while(ctx.measureText(nm).width>W-mx*2&&ns>44){ns-=4;ctx.font=`900 ${ns}px Georgia,serif`;}
   ctx.fillText(nm,mx,cy+ns*0.78,W-mx*2); cy+=ns+gap;
-  const ageStr=(dog.age||'').toLowerCase(), ageNum=parseFloat(ageStr);
-  const isPup=ageStr.includes('month')||(!isNaN(ageNum)&&ageNum<1);
-  const isSen=!isPup&&!isNaN(ageNum)&&ageNum>=7;
+  const { isPuppy: isPup, isSenior: isSen } = getAgeFlags(dog.age);
   const ageLabel=dog.age+(isPup?' (Puppy)':isSen?' (Senior)':'');
   ctx.fillStyle='#6b6560'; ctx.font='34px Arial'; ctx.textAlign='left';
   ctx.fillText(`${dog.breed||'Mixed'} \u2022 ${ageLabel} \u2022 ${dog.gender||''}`,mx,cy,W-mx*2); cy+=38+gap;
@@ -2134,6 +2178,18 @@ async function spmDownloadPhoneWrapper() {
   ctx.beginPath(); ctx.roundRect(scrX + scrW - 220, scrY + 16, 204, 44, 22); ctx.fill();
   ctx.fillStyle = 'white'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
   ctx.fillText(isCrit ? '\ud83d\udea8 TODAY' : '\u23f0 ' + daysLeft + ' DAYS LEFT', scrX + scrW - 118, scrY + 44);
+
+  // Space-euthanasia banner — sits on the photo, right below the IG bar
+  const spaceEuthPW = isSpaceEuthanasia(dog.notes);
+  if (spaceEuthPW) {
+    const bannerY = scrY + 70 + 16, bannerH = 64;
+    ctx.fillStyle = 'rgba(120,20,14,0.88)';
+    ctx.beginPath(); ctx.roundRect(scrX + 20, bannerY, scrW - 40, bannerH, 12); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,120,100,0.8)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(scrX + 20, bannerY, scrW - 40, bannerH, 12); ctx.stroke();
+    ctx.fillStyle = '#ffb3a8'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('\ud83c\udfe0 WILL BE EUTHANIZED FOR SHELTER SPACE', scrX + scrW/2, bannerY + bannerH/2 + 9, scrW - 70);
+  }
 
   // Dog name (on photo, always white for legibility over gradient)
   ctx.fillStyle = 'white'; ctx.textAlign = 'center';

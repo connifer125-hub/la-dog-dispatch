@@ -24,6 +24,49 @@ function getShelterColors(shelter) {
   return { primary: '#4a8c6a', light: '#7ec8a0', dark: '#1a2e24', deadline: '#7ec8a0' };
 }
 
+// ── CITY/STATE per shelter (short form for the top badge) ─────────
+function getShelterCityState(shelter) {
+  const s = (shelter || '').toUpperCase();
+  if (s === 'SOUTH L.A.') return 'Los Angeles, CA';
+  if (s === 'WEST L.A.') return 'Los Angeles, CA';
+  if (s === 'NORTH CENTRAL') return 'Los Angeles, CA';
+  if (s === 'EAST VALLEY') return 'Van Nuys, CA';
+  if (s === 'WEST VALLEY') return 'Chatsworth, CA';
+  if (s === 'HARBOR') return 'San Pedro, CA';
+  return '';
+}
+
+// ── Detects shelter notes indicating a space/overcapacity release ─
+function isSpaceEuthanasia(notes) {
+  const n = (notes || '').toLowerCase();
+  return /overcapacity|over capacity|lack of space|due to space|shelter space|kennel space|space (constraints|concerns|issues|reasons)|out of space/.test(n);
+}
+
+// ── Puppy (<12mo, isolated month age only) / Senior (7+ yrs) flags ─
+function getAgeFlags(ageRaw) {
+  const ageStr = (ageRaw || '').toLowerCase().trim();
+  const hasYearWord = /year|\byr\b/.test(ageStr);
+  const monthMatch = ageStr.match(/(\d+(?:\.\d+)?)\s*(?:mo\.?|mo's|mos|months?)\b/);
+  const plainNumMatch = ageStr.match(/^(\d+(?:\.\d+)?)$/);
+  let isPuppy = false, isSenior = false;
+  if (!hasYearWord && monthMatch) {
+    isPuppy = parseFloat(monthMatch[1]) < 12;
+  } else if (!hasYearWord && plainNumMatch) {
+    isPuppy = parseFloat(plainNumMatch[1]) < 1;
+  }
+  if (!isPuppy) {
+    let years = null;
+    if (hasYearWord) {
+      const ym = ageStr.match(/(\d+(?:\.\d+)?)\s*(?:year|yr)/);
+      if (ym) years = parseFloat(ym[1]);
+    } else if (plainNumMatch) {
+      years = parseFloat(plainNumMatch[1]);
+    }
+    if (years !== null && years >= 7) isSenior = true;
+  }
+  return { isPuppy, isSenior };
+}
+
 function safeJson(dog) {
     return JSON.stringify(dog)
         .replace(/"/g, '&quot;')
@@ -58,6 +101,8 @@ async function generateCard(dog) {
     const isRescueOnly = dog.rescue_only === true || dog.rescue_only === "true" || dog.rescue_only === 1;
     const hasNotes = dog.notes && dog.notes.trim().length > 0;
     const colors = getShelterColors(dog.shelter);
+    const spaceEuth = isSpaceEuthanasia(dog.notes);
+    const { isPuppy, isSenior } = getAgeFlags(dog.age);
 
     function rr(x, y, w, h, r) {
         ctx.beginPath();
@@ -65,6 +110,19 @@ async function generateCard(dog) {
         ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
         ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
         ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+    }
+
+    function wrapText(text, font, maxW) {
+        ctx.font = font;
+        const words = text.split(' ');
+        let line = '', result = [];
+        for (const w of words) {
+            const test = line ? line + ' ' + w : w;
+            if (ctx.measureText(test).width > maxW && line) { result.push(line); line = w; }
+            else { line = test; }
+        }
+        if (line) result.push(line);
+        return result;
     }
 
     function drawBubble(text, centerX, y, fontSize, maxWidth) {
@@ -100,9 +158,17 @@ async function generateCard(dog) {
     ctx.fillStyle = 'white'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(isCritical ? '🚨 CRITICAL' : '⚠️ URGENT', 136, rowMid+8);
 
-    // Shelter badge — shelter color
-    ctx.fillStyle = colors.deadline; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('📍 '+(dog.shelter||'LA COUNTY').toUpperCase(), W/2, rowMid+9, 520);
+    // Shelter badge — shelter color, now with City/State, auto-shrinks to fit
+    const cityState = getShelterCityState(dog.shelter);
+    const shelterBadgeText = '📍 ' + (dog.shelter||'LA COUNTY').toUpperCase() + (cityState ? ' - ' + cityState.toUpperCase() : '');
+    const shelterBadgeMaxW = 700;
+    let shelterFontSize = 26;
+    ctx.font = `bold ${shelterFontSize}px sans-serif`;
+    while (ctx.measureText(shelterBadgeText).width > shelterBadgeMaxW && shelterFontSize > 15) {
+        shelterFontSize -= 1; ctx.font = `bold ${shelterFontSize}px sans-serif`;
+    }
+    ctx.fillStyle = colors.deadline; ctx.textAlign = 'center';
+    ctx.fillText(shelterBadgeText, W/2, rowMid+9, shelterBadgeMaxW);
 
     const lr=32, lx=W-36-lr, ly=rowMid;
     await new Promise(resolve => {
@@ -126,13 +192,26 @@ async function generateCard(dog) {
     ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(44,14+rowH); ctx.lineTo(W-44,14+rowH); ctx.stroke();
 
+    // ── SPACE-EUTHANASIA BANNER — between top row and dog's name ──
+    let topExtra = 0;
+    if (spaceEuth) {
+        const bannerH = 56, bannerY = 14 + rowH + 14;
+        ctx.fillStyle = 'rgba(196,40,28,0.18)'; rr(36, bannerY, W-72, bannerH, 10); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,90,72,0.7)'; ctx.lineWidth = 2; rr(36, bannerY, W-72, bannerH, 10); ctx.stroke();
+        ctx.fillStyle = '#ff8a80'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('🏠 WILL BE EUTHANIZED FOR SHELTER SPACE', W/2, bannerY + bannerH/2 + 10, W-110);
+        topExtra = bannerH + 16;
+    }
+
     // ── NAME, META, DEADLINE ──
     const SAFE_W = W-80;
     const name = (dog.name||dog.shelter_id||'UNKNOWN').toUpperCase();
-    let fontSize = 220;
+    // Cap the max starting size a bit lower when the space-euth banner is shown,
+    // so a short name + RESCUE ONLY badge can never collide with the divider below.
+    let fontSize = spaceEuth ? 160 : 220;
     ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
     while(ctx.measureText(name).width > SAFE_W && fontSize > 80){ fontSize-=8; ctx.font=`900 ${fontSize}px 'Arial Black', Arial, sans-serif`; }
-    const nameY = 14+rowH+10+fontSize+10;
+    const nameY = 14+rowH+10+topExtra+fontSize+10;
     drawBubble(name, W/2, nameY, fontSize, SAFE_W);
 
     ctx.fillStyle='#ffffff'; ctx.font='italic 36px Georgia,serif'; ctx.textAlign='center';
@@ -230,62 +309,91 @@ async function generateCard(dog) {
     })(44, divY+130, 28);
     ctx.fillText('@la_dog_dispatch', 44+28+8, divY+130, leftMax-36);
 
-    // ── SHELTER NOTES ──
-    if (hasNotes) {
-        const PAD_L = 44, PAD_R = 20;
-        const boxW = leftMax - PAD_R;
-        const innerW = boxW - 28;
+    // ── STACKED BLOCKS: puppy/senior badge + shelter notes ──
+    // (space-euth banner lives up near the name now — see above)
+    const PAD_L = 44, PAD_R = 20;
+    const boxW = leftMax - PAD_R;
+    const innerW = boxW - 28;
+    const blocks = [];
 
-        function wrapText(text, font, maxW) {
-            ctx.font = font;
-            const words = text.split(' ');
-            let line = '', result = [];
-            for (const w of words) {
-                const test = line ? line + ' ' + w : w;
-                if (ctx.measureText(test).width > maxW && line) {
-                    result.push(line);
-                    line = w;
-                } else { line = test; }
+    if (isPuppy || isSenior) {
+        const badgeH = 44;
+        const label = isPuppy ? '🐶 PUPPY ALERT' : '🐾 SENIOR ALERT';
+        blocks.push({
+            height: badgeH,
+            draw: (y) => {
+                ctx.fillStyle = 'rgba(255,255,255,0.08)'; rr(PAD_L, y, boxW, badgeH, 22); ctx.fill();
+                ctx.strokeStyle = colors.light; ctx.lineWidth = 1.5; rr(PAD_L, y, boxW, badgeH, 22); ctx.stroke();
+                ctx.fillStyle = colors.light; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(label, PAD_L + boxW/2, y + badgeH/2 + 7, boxW - 20);
             }
-            if (line) result.push(line);
-            return result;
-        }
-
-        const noteFont = '24px sans-serif';
-        const discFont = 'italic 22px sans-serif';
-        const noteLines = wrapText(dog.notes, noteFont, innerW).slice(0, 3);
-        const disclaimerText = "Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.";
-        const discLines = wrapText(disclaimerText, discFont, innerW);
-        const lineH = 32, discLineH = 30;
-
-        const boxH = 14 + 22 + 10 + noteLines.length * lineH + 12 + discLines.length * discLineH + 14;
-        const igHandleBottom = divY + 130 + 10;
-        const bottomBarTop = H - 16;
-        const availableSpace = bottomBarTop - igHandleBottom;
-        const noteStartY = igHandleBottom + Math.round((availableSpace - boxH) / 2);
-
-        ctx.fillStyle = 'rgba(251,191,36,0.10)';
-        rr(PAD_L, noteStartY, boxW, boxH, 8); ctx.fill();
-        ctx.strokeStyle = 'rgba(251,191,36,0.4)'; ctx.lineWidth = 1.2;
-        rr(PAD_L, noteStartY, boxW, boxH, 8); ctx.stroke();
-
-        const textX = PAD_L + 14;
-        let curY = noteStartY + 14;
-        ctx.fillStyle = '#fcd34d'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'left';
-        curY += 18; ctx.fillText('⚠️  SHELTER NOTES', textX, curY);
-        curY += 8;
-        ctx.strokeStyle = 'rgba(251,191,36,0.25)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(textX, curY); ctx.lineTo(PAD_L+boxW-14, curY); ctx.stroke();
-        curY += 6;
-        ctx.fillStyle = '#ffffff'; ctx.font = noteFont;
-        noteLines.forEach(l => { curY += lineH; ctx.fillText(l, textX, curY, innerW); });
-        curY += 12;
-        ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = discFont;
-        discLines.forEach(l => { curY += discLineH; ctx.fillText(l, textX, curY, innerW); });
+        });
     }
 
-    // ── SHELTER ID — small, bottom left corner ──
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    if (hasNotes) {
+        const disclaimerFull = NOTES_DISCLAIMER;
+        const disclaimerShort = "Notes are shelter snapshots & may not reflect real personality.";
+
+        // Space already claimed by the age badge above (if any)
+        const otherH = blocks.reduce((s, b) => s + b.height + 12, 0);
+        const igHandleBottom = divY + 130 + 10;
+        const bottomBarTop = H - 16 - 34; // reserve room for the shelter-ID line
+        const remaining = (bottomBarTop - igHandleBottom) - otherH - (blocks.length ? 12 : 0);
+
+        // Try configs from most spacious to most compact until one fits
+        const configs = [
+            { maxLines: 3, noteFont: 24, discFont: 22, disc: disclaimerFull },
+            { maxLines: 2, noteFont: 24, discFont: 22, disc: disclaimerFull },
+            { maxLines: 2, noteFont: 22, discFont: 20, disc: disclaimerShort },
+            { maxLines: 1, noteFont: 22, discFont: 20, disc: disclaimerShort },
+            { maxLines: 1, noteFont: 20, discFont: 18, disc: disclaimerShort },
+        ];
+        let chosen = null;
+        for (const cfg of configs) {
+            const noteFontStr = `${cfg.noteFont}px sans-serif`;
+            const discFontStr = `italic ${cfg.discFont}px sans-serif`;
+            const noteLines = wrapText(dog.notes, noteFontStr, innerW).slice(0, cfg.maxLines);
+            const discLines = wrapText(cfg.disc, discFontStr, innerW);
+            const lineH = cfg.noteFont + 8, discLineH = cfg.discFont + 8;
+            const boxH = 14 + 22 + 10 + noteLines.length * lineH + 12 + discLines.length * discLineH + 14;
+            chosen = { ...cfg, noteFontStr, discFontStr, noteLines, discLines, lineH, discLineH, boxH };
+            if (boxH <= remaining || cfg === configs[configs.length - 1]) break;
+        }
+
+        blocks.push({
+            height: chosen.boxH,
+            draw: (y) => {
+                ctx.fillStyle = 'rgba(251,191,36,0.10)'; rr(PAD_L, y, boxW, chosen.boxH, 8); ctx.fill();
+                ctx.strokeStyle = 'rgba(251,191,36,0.4)'; ctx.lineWidth = 1.2; rr(PAD_L, y, boxW, chosen.boxH, 8); ctx.stroke();
+                const textX = PAD_L + 14;
+                let curY = y + 14;
+                ctx.fillStyle = '#fcd34d'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'left';
+                curY += 18; ctx.fillText('⚠️  SHELTER NOTES', textX, curY);
+                curY += 8;
+                ctx.strokeStyle = 'rgba(251,191,36,0.25)'; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(textX, curY); ctx.lineTo(PAD_L+boxW-14, curY); ctx.stroke();
+                curY += 6;
+                ctx.fillStyle = '#ffffff'; ctx.font = chosen.noteFontStr;
+                chosen.noteLines.forEach(l => { curY += chosen.lineH; ctx.fillText(l, textX, curY, innerW); });
+                curY += 12;
+                ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = chosen.discFontStr;
+                chosen.discLines.forEach(l => { curY += chosen.discLineH; ctx.fillText(l, textX, curY, innerW); });
+            }
+        });
+    }
+
+    if (blocks.length) {
+        const GAP = 12;
+        const totalH = blocks.reduce((s,b) => s + b.height, 0) + GAP*(blocks.length-1);
+        const igHandleBottom = divY + 130 + 10;
+        const bottomBarTop = H - 16 - 34;
+        const availableSpace = bottomBarTop - igHandleBottom;
+        let by = igHandleBottom + Math.max(0, Math.round((availableSpace - totalH)/2));
+        for (const b of blocks) { b.draw(by); by += b.height + GAP; }
+    }
+
+    // ── SHELTER ID — small, bottom left corner, pure white ──
+    ctx.fillStyle = '#ffffff';
     ctx.font = '22px monospace';
     ctx.textAlign = 'left';
     ctx.fillText(dog.shelter_id || '', 44, H - 28);
