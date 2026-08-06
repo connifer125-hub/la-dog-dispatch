@@ -45,23 +45,25 @@ function isSpaceEuthanasia(notes) {
 // ── Puppy (<12mo, isolated month age only) / Senior (7+ yrs) flags ─
 function getAgeFlags(ageRaw) {
   const ageStr = (ageRaw || '').toLowerCase().trim();
-  const hasYearWord = /year|\byr\b/.test(ageStr);
+
+  // Explicit categorical labels some shelters use instead of a numeric age
+  if (/\bsenior\b/.test(ageStr)) return { isPuppy: false, isSenior: true };
+  if (/\bpuppy\b|\bpup\b/.test(ageStr)) return { isPuppy: true, isSenior: false };
+
+  const yearMatch = ageStr.match(/(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?|y\/?o|y)\b/);
   const monthMatch = ageStr.match(/(\d+(?:\.\d+)?)\s*(?:mo\.?|mo's|mos|months?)\b/);
-  const plainNumMatch = ageStr.match(/^(\d+(?:\.\d+)?)$/);
+  const plainNumMatch = ageStr.match(/^(\d+(?:\.\d+)?)\+?$/);
+
   let isPuppy = false, isSenior = false;
-  if (!hasYearWord && monthMatch) {
+  if (!yearMatch && monthMatch) {
     isPuppy = parseFloat(monthMatch[1]) < 12;
-  } else if (!hasYearWord && plainNumMatch) {
+  } else if (!yearMatch && !monthMatch && plainNumMatch) {
     isPuppy = parseFloat(plainNumMatch[1]) < 1;
   }
   if (!isPuppy) {
     let years = null;
-    if (hasYearWord) {
-      const ym = ageStr.match(/(\d+(?:\.\d+)?)\s*(?:year|yr)/);
-      if (ym) years = parseFloat(ym[1]);
-    } else if (plainNumMatch) {
-      years = parseFloat(plainNumMatch[1]);
-    }
+    if (yearMatch) years = parseFloat(yearMatch[1]);
+    else if (!monthMatch && plainNumMatch) years = parseFloat(plainNumMatch[1]);
     if (years !== null && years >= 7) isSenior = true;
   }
   return { isPuppy, isSenior };
