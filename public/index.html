@@ -734,7 +734,7 @@
           : '\u2705 OPEN TO PUBLIC \u2014 This dog can be adopted or fostered directly by anyone.';
         const address = getShelterAddress(shelter);
         const addressLine = address ? ('\n\ud83d\udccd ' + address) : '';
-        const englishBlock = 'ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + addressLine + '\n\n' + roLine + notesBlock + '\n\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch';
+        const englishBlock = 'DOG ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + addressLine + '\n\n' + roLine + notesBlock + '\n\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch';
 
         // Shorter Spanish-language summary, appended after a divider
         const esDl = new Date(dog.deadline).toLocaleDateString('es-ES', {month:'long', day:'numeric'});
@@ -2179,16 +2179,37 @@ async function spmDownloadPhoneWrapper() {
   ctx.fillStyle = 'white'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
   ctx.fillText(isCrit ? '\ud83d\udea8 TODAY' : '\u23f0 ' + daysLeft + ' DAYS LEFT', scrX + scrW - 118, scrY + 44);
 
-  // Space-euthanasia banner — sits on the photo, right below the IG bar
+  // Space-euth + age-alert banners — stacked full-size on the photo, right below the IG bar
   const spaceEuthPW = isSpaceEuthanasia(dog.notes);
+  const ageFlagsPW = getAgeFlags(dog.age);
+  const hasAgeAlertPW = ageFlagsPW.isPuppy || ageFlagsPW.isSenior;
+  let bannerCursorYPW = scrY + 70 + 16;
+  const pwBannerH = 64, pwBannerGap = 14;
+
+  function drawPhoneBanner(y, isSpace, label) {
+    if (isSpace) {
+      ctx.fillStyle = 'rgba(120,20,14,0.88)';
+      ctx.beginPath(); ctx.roundRect(scrX + 20, y, scrW - 40, pwBannerH, 12); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,120,100,0.8)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(scrX + 20, y, scrW - 40, pwBannerH, 12); ctx.stroke();
+      ctx.fillStyle = '#ffb3a8'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+    } else {
+      ctx.fillStyle = 'rgba(20,20,20,0.75)';
+      ctx.beginPath(); ctx.roundRect(scrX + 20, y, scrW - 40, pwBannerH, 12); ctx.fill();
+      ctx.strokeStyle = colors.light; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(scrX + 20, y, scrW - 40, pwBannerH, 12); ctx.stroke();
+      ctx.fillStyle = colors.light; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+    }
+    ctx.fillText(label, scrX + scrW/2, y + pwBannerH/2 + 9, scrW - 70);
+  }
+
   if (spaceEuthPW) {
-    const bannerY = scrY + 70 + 16, bannerH = 64;
-    ctx.fillStyle = 'rgba(120,20,14,0.88)';
-    ctx.beginPath(); ctx.roundRect(scrX + 20, bannerY, scrW - 40, bannerH, 12); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,120,100,0.8)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.roundRect(scrX + 20, bannerY, scrW - 40, bannerH, 12); ctx.stroke();
-    ctx.fillStyle = '#ffb3a8'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
-    ctx.fillText('\ud83c\udfe0 WILL BE EUTHANIZED FOR SHELTER SPACE', scrX + scrW/2, bannerY + bannerH/2 + 9, scrW - 70);
+    drawPhoneBanner(bannerCursorYPW, true, '\ud83c\udfe0 WILL BE EUTHANIZED FOR SHELTER SPACE');
+    bannerCursorYPW += pwBannerH + pwBannerGap;
+  }
+  if (hasAgeAlertPW) {
+    const label = ageFlagsPW.isPuppy ? '\ud83d\udc36 PUPPY ALERT' : '\ud83d\udc3e SENIOR ALERT';
+    drawPhoneBanner(bannerCursorYPW, false, label);
   }
 
   // Dog name (on photo, always white for legibility over gradient)
@@ -2204,8 +2225,8 @@ async function spmDownloadPhoneWrapper() {
 
   ctx.fillStyle = colors.deadline || colors.light; ctx.font = 'bold 30px Arial';
   ctx.fillText(dog.shelter, scrX + scrW/2, scrY + scrH - 178);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '24px monospace';
-  ctx.fillText(dog.shelter_id || '', scrX + scrW/2, scrY + scrH - 138);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 24px monospace';
+  ctx.fillText(dog.shelter_id ? ('DOG ID: ' + dog.shelter_id) : '', scrX + scrW/2, scrY + scrH - 138);
 
   // CTA pill
   ctx.fillStyle = colors.primary;
