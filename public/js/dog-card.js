@@ -39,7 +39,7 @@ function getShelterCityState(shelter) {
 // ── Detects shelter notes indicating a space/overcapacity release ─
 function isSpaceEuthanasia(notes) {
   const n = (notes || '').toLowerCase();
-  return /overcapacity|over capacity|lack of space|due to space|shelter space|kennel space|space (constraints|concerns|issues|reasons)|out of space/.test(n);
+  return /capacity|lack of space|due to space|shelter space|kennel space|space (constraints|concerns|issues|reasons)|out of space/.test(n);
 }
 
 // ── Puppy (<12mo, isolated month age only) / Senior (7+ yrs) flags ─
@@ -192,23 +192,36 @@ async function generateCard(dog) {
     ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(44,14+rowH); ctx.lineTo(W-44,14+rowH); ctx.stroke();
 
-    // ── SPACE-EUTHANASIA BANNER — between top row and dog's name ──
+    // ── TOP BANNER: space-euth takes priority; otherwise age alert takes the slot ──
     let topExtra = 0;
-    if (spaceEuth) {
+    const topBannerIsSpace = spaceEuth;
+    const topBannerIsAge = !spaceEuth && (isPuppy || isSenior);
+    // If space-euth AND an age flag, the age alert becomes a small tag above the photo instead
+    const ageTagAbovePhoto = spaceEuth && (isPuppy || isSenior);
+
+    if (topBannerIsSpace || topBannerIsAge) {
         const bannerH = 56, bannerY = 14 + rowH + 14;
-        ctx.fillStyle = 'rgba(196,40,28,0.18)'; rr(36, bannerY, W-72, bannerH, 10); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,90,72,0.7)'; ctx.lineWidth = 2; rr(36, bannerY, W-72, bannerH, 10); ctx.stroke();
-        ctx.fillStyle = '#ff8a80'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('🏠 WILL BE EUTHANIZED FOR SHELTER SPACE', W/2, bannerY + bannerH/2 + 10, W-110);
+        if (topBannerIsSpace) {
+            ctx.fillStyle = 'rgba(196,40,28,0.18)'; rr(36, bannerY, W-72, bannerH, 10); ctx.fill();
+            ctx.strokeStyle = 'rgba(255,90,72,0.7)'; ctx.lineWidth = 2; rr(36, bannerY, W-72, bannerH, 10); ctx.stroke();
+            ctx.fillStyle = '#ff8a80'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('🏠 WILL BE EUTHANIZED FOR SHELTER SPACE', W/2, bannerY + bannerH/2 + 10, W-110);
+        } else {
+            const label = isPuppy ? '🐶 PUPPY ALERT' : '🐾 SENIOR ALERT';
+            ctx.fillStyle = 'rgba(255,255,255,0.08)'; rr(36, bannerY, W-72, bannerH, 10); ctx.fill();
+            ctx.strokeStyle = colors.light; ctx.lineWidth = 2; rr(36, bannerY, W-72, bannerH, 10); ctx.stroke();
+            ctx.fillStyle = colors.light; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(label, W/2, bannerY + bannerH/2 + 10, W-110);
+        }
         topExtra = bannerH + 16;
     }
 
     // ── NAME, META, DEADLINE ──
     const SAFE_W = W-80;
     const name = (dog.name||dog.shelter_id||'UNKNOWN').toUpperCase();
-    // Cap the max starting size a bit lower when the space-euth banner is shown,
+    // Cap the max starting size a bit lower when a top banner is shown,
     // so a short name + RESCUE ONLY badge can never collide with the divider below.
-    let fontSize = spaceEuth ? 160 : 220;
+    let fontSize = topExtra > 0 ? 160 : 220;
     ctx.font = `900 ${fontSize}px 'Arial Black', Arial, sans-serif`;
     while(ctx.measureText(name).width > SAFE_W && fontSize > 80){ fontSize-=8; ctx.font=`900 ${fontSize}px 'Arial Black', Arial, sans-serif`; }
     const nameY = 14+rowH+10+topExtra+fontSize+10;
@@ -246,36 +259,51 @@ async function generateCard(dog) {
     ctx.beginPath(); ctx.moveTo(44,divY); ctx.lineTo(W-44,divY); ctx.stroke();
 
     // ── BOTTOM: left text + right photo ──
-    const photoSize = H-divY-28-16;
-    const photoX = W-photoSize-36;
-    const photoY = divY+14;
+    const photoW = H-divY-28-16; // fixed width, independent of any tag above
+    const photoX = W-photoW-36;
+    let photoY = divY+14;
+    let photoH = photoW; // square by default
     const leftMax = photoX-44-24;
+
+    // Small age-alert tag above the photo — only shown when the space-euth
+    // banner already claimed the main top slot. Always red (distinct alert,
+    // independent of shelter color), fixed to the photo's width so edges align.
+    if (ageTagAbovePhoto) {
+        const tagH = 34, tagGap = 10;
+        const label = isPuppy ? '🐾 PUPPY ALERT' : '🐾 SENIOR ALERT';
+        ctx.fillStyle = 'rgba(196,40,28,0.18)'; rr(photoX, photoY, photoW, tagH, 17); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,90,72,0.7)'; ctx.lineWidth = 1.5; rr(photoX, photoY, photoW, tagH, 17); ctx.stroke();
+        ctx.fillStyle = '#ff8a80'; ctx.font = 'bold 17px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(label, photoX+photoW/2, photoY+tagH/2+6, photoW-16);
+        photoY += tagH + tagGap;
+        photoH -= (tagH + tagGap);
+    }
 
     if (dog.photo_url) {
         await new Promise(resolve => {
             const img = new Image(); img.crossOrigin='anonymous';
             img.onload = () => {
-                ctx.save(); rr(photoX,photoY,photoSize,photoSize,20); ctx.clip();
+                ctx.save(); rr(photoX,photoY,photoW,photoH,20); ctx.clip();
                 const cropOffset = parseFloat(dog.photo_crop_offset || 0);
-                const scale = Math.max(photoSize/img.width, photoSize/img.height);
+                const scale = Math.max(photoW/img.width, photoH/img.height);
                 const dw = img.width * scale, dh = img.height * scale;
-                const defaultImgY = photoY+(photoSize-dh)/2;
+                const defaultImgY = photoY+(photoH-dh)/2;
                 const maxShift = Math.abs(defaultImgY - photoY);
                 const adjustedImgY = defaultImgY - (cropOffset * maxShift);
-                ctx.drawImage(img,photoX+(photoSize-dw)/2,adjustedImgY,dw,dh);
+                ctx.drawImage(img,photoX+(photoW-dw)/2,adjustedImgY,dw,dh);
                 ctx.restore();
-                rr(photoX,photoY,photoSize,photoSize,20);
+                rr(photoX,photoY,photoW,photoH,20);
                 ctx.strokeStyle=colors.primary; ctx.lineWidth=4; ctx.stroke(); resolve();
             };
             img.onerror = () => {
-                rr(photoX,photoY,photoSize,photoSize,20);
+                rr(photoX,photoY,photoW,photoH,20);
                 ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.fill();
                 ctx.strokeStyle=colors.primary; ctx.lineWidth=3; ctx.stroke(); resolve();
             };
             img.src = dog.photo_url.startsWith('http') ? dog.photo_url : window.location.origin+dog.photo_url;
         });
     } else {
-        rr(photoX,photoY,photoSize,photoSize,20);
+        rr(photoX,photoY,photoW,photoH,20);
         ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.fill();
         ctx.strokeStyle=colors.primary; ctx.lineWidth=3; ctx.stroke();
     }
@@ -309,26 +337,12 @@ async function generateCard(dog) {
     })(44, divY+130, 28);
     ctx.fillText('@la_dog_dispatch', 44+28+8, divY+130, leftMax-36);
 
-    // ── STACKED BLOCKS: puppy/senior badge + shelter notes ──
-    // (space-euth banner lives up near the name now — see above)
+    // ── STACKED BLOCK: shelter notes ──
+    // (space-euth banner and puppy/senior alerts live near the top/photo now — see above)
     const PAD_L = 44, PAD_R = 20;
     const boxW = leftMax - PAD_R;
     const innerW = boxW - 28;
     const blocks = [];
-
-    if (isPuppy || isSenior) {
-        const badgeH = 44;
-        const label = isPuppy ? '🐶 PUPPY ALERT' : '🐾 SENIOR ALERT';
-        blocks.push({
-            height: badgeH,
-            draw: (y) => {
-                ctx.fillStyle = 'rgba(255,255,255,0.08)'; rr(PAD_L, y, boxW, badgeH, 22); ctx.fill();
-                ctx.strokeStyle = colors.light; ctx.lineWidth = 1.5; rr(PAD_L, y, boxW, badgeH, 22); ctx.stroke();
-                ctx.fillStyle = colors.light; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(label, PAD_L + boxW/2, y + badgeH/2 + 7, boxW - 20);
-            }
-        });
-    }
 
     if (hasNotes) {
         const disclaimerFull = NOTES_DISCLAIMER;
@@ -396,7 +410,7 @@ async function generateCard(dog) {
     ctx.fillStyle = '#ffffff';
     ctx.font = '22px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(dog.shelter_id || '', 44, H - 28);
+    ctx.fillText(dog.shelter_id ? ('DOG ID: ' + dog.shelter_id) : '', 44, H - 28);
 
     // ── BOTTOM BAR — shelter color ──
     const botBar = ctx.createLinearGradient(0,0,W,0);

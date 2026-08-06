@@ -673,7 +673,7 @@
     }
     function isSpaceEuthanasia(notes) {
         const n = (notes||'').toLowerCase();
-        return /overcapacity|over capacity|lack of space|due to space|shelter space|kennel space|space (constraints|concerns|issues|reasons)|out of space/.test(n);
+        return /capacity|lack of space|due to space|shelter space|kennel space|space (constraints|concerns|issues|reasons)|out of space/.test(n);
     }
     function getShelterAddress(shelter) {
         const s = (shelter||'').toUpperCase();
