@@ -204,7 +204,7 @@ async function generateCard(dog) {
         if (topBannerIsSpace) {
             ctx.fillStyle = 'rgba(196,40,28,0.18)'; rr(36, bannerY, W-72, bannerH, 10); ctx.fill();
             ctx.strokeStyle = 'rgba(255,90,72,0.7)'; ctx.lineWidth = 2; rr(36, bannerY, W-72, bannerH, 10); ctx.stroke();
-            ctx.fillStyle = '#ff8a80'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 34px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText('🏠 WILL BE EUTHANIZED FOR SHELTER SPACE', W/2, bannerY + bannerH/2 + 10, W-110);
         } else {
             const label = isPuppy ? '🐶 PUPPY ALERT' : '🐾 SENIOR ALERT';
