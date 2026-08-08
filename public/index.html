@@ -736,7 +736,12 @@
           : '\u2705 OPEN TO PUBLIC \u2014 This dog can be adopted or fostered directly by anyone.';
         const address = getShelterAddress(shelter);
         const addressLine = address ? ('\n\ud83d\udccd ' + address) : '';
-        const englishBlock = 'DOG ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + addressLine + '\n\n' + roLine + notesBlock + '\n\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch';
+        const euthDateObj = new Date(dog.deadline);
+        const euthMD = (euthDateObj.getMonth()+1) + '/' + euthDateObj.getDate();
+        const rescueDeadlineObj = new Date(euthDateObj); rescueDeadlineObj.setDate(rescueDeadlineObj.getDate()-1);
+        const rescueMD = (rescueDeadlineObj.getMonth()+1) + '/' + rescueDeadlineObj.getDate();
+        const euthDeadlineBlock = '\ud83d\udcc5 Timeline for this dog:\n\u2022 Euthanasia Date: ' + euthMD + '\n\u2022 Rescue Deadline: EOD ' + rescueMD + '\n\u2022 *Any last-minute rescue on ' + euthMD + ' must be coordinated with shelter staff \u2014 some shelters euthanize before opening to the public';
+        const englishBlock = 'DOG ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + euthDeadlineBlock + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + addressLine + '\n\n' + roLine + notesBlock + '\n\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch';
 
         // Shorter Spanish-language summary, appended after a divider
         const esDl = new Date(dog.deadline).toLocaleDateString('es-ES', {month:'long', day:'numeric'});
@@ -2176,10 +2181,11 @@ async function spmDownloadPhoneWrapper() {
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d - t) / 86400000);
   const isCrit = daysLeft <= 1;
+  const pwShortDate = (d.getMonth()+1) + '/' + d.getDate();
   ctx.fillStyle = isCrit ? '#c4281c' : colors.primary;
   ctx.beginPath(); ctx.roundRect(scrX + scrW - 220, scrY + 16, 204, 44, 22); ctx.fill();
   ctx.fillStyle = 'white'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
-  ctx.fillText(isCrit ? '\ud83d\udea8 TODAY' : '\u23f0 ' + daysLeft + ' DAYS LEFT', scrX + scrW - 118, scrY + 44);
+  ctx.fillText(daysLeft <= 0 ? '\ud83d\udea8 TODAY' : '\u23f0 EUTH: ' + pwShortDate, scrX + scrW - 118, scrY + 44);
 
   // Space-euth + age-alert banners — stacked full-size on the photo, right below the IG bar
   const spaceEuthPW = isSpaceEuthanasia(dog.notes);

@@ -232,9 +232,15 @@ async function generateCard(dog) {
     ctx.fillStyle='#ffffff'; ctx.font='italic 36px Georgia,serif'; ctx.textAlign='center';
     ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '), W/2, nameY+62, SAFE_W);
 
-    const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
-    const dlLabel = `Deadline: ${dlStr}`;
-    const dlDays = `  ·  ${daysLeft<=0?'TODAY':daysLeft===1?'1 DAY LEFT':daysLeft+' DAYS LEFT'}`;
+    const dlDateObj = new Date(dog.deadline);
+    const dlStr = (dlDateObj.getMonth()+1) + '/' + dlDateObj.getDate();
+    const rescueDlObj = new Date(dlDateObj); rescueDlObj.setDate(rescueDlObj.getDate()-1);
+    const rescueDlStr = (rescueDlObj.getMonth()+1) + '/' + rescueDlObj.getDate();
+    const dlLabel = `Euth Date: ${dlStr}`;
+    const dlDays = daysLeft<=0 ? ' \u2014 TODAY'
+        : daysLeft===1 ? `  \u00b7  Rescue Deadline EOD ${rescueDlStr}`
+        : daysLeft===2 ? '  \u00b7  2 Days Until Euth Date'
+        : `  \u00b7  ${daysLeft} DAYS LEFT`;
     let dlSize = 46; ctx.font=`bold ${dlSize}px sans-serif`;
     while(ctx.measureText(dlLabel+dlDays).width > SAFE_W && dlSize>26){ dlSize-=2; ctx.font=`bold ${dlSize}px sans-serif`; }
     const dlLabelW = ctx.measureText(dlLabel).width, dlDaysW = ctx.measureText(dlDays).width;
@@ -313,7 +319,7 @@ async function generateCard(dog) {
     ctx.textAlign='left';
     ctx.fillStyle='#ffffff'; ctx.font='28px sans-serif';
     ctx.fillText(isRescueOnly?'Contact a rescue org to pull.':'Donate · Foster · Share.', 44, divY+30, leftMax);
-    ctx.fillStyle='#ffffff'; ctx.font='bold 42px sans-serif';
+    ctx.fillStyle='#ffffff'; ctx.font='bold 28px sans-serif';
     ctx.fillText('ladogdispatch.com', 44, divY+86, leftMax);
 
     // ── IG HANDLE — solid shelter deadline color ──
