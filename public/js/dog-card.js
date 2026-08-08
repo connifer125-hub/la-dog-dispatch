@@ -83,8 +83,17 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
 }
 
+function parseLocalDate(dateStr) {
+    if (!dateStr) return new Date(NaN);
+    if (dateStr instanceof Date) return dateStr;
+    const parts = String(dateStr).split(/[-T]/);
+    const y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
+    if (!y || !m || !d) return new Date(dateStr);
+    return new Date(y, m - 1, d);
+}
+
 function calcDaysLeft(deadline) {
-    const d = new Date(deadline);
+    const d = parseLocalDate(deadline);
     const today = new Date();
     d.setHours(0,0,0,0);
     today.setHours(0,0,0,0);
@@ -232,7 +241,7 @@ async function generateCard(dog) {
     ctx.fillStyle='#ffffff'; ctx.font='italic 36px Georgia,serif'; ctx.textAlign='center';
     ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '), W/2, nameY+62, SAFE_W);
 
-    const dlDateObj = new Date(dog.deadline);
+    const dlDateObj = parseLocalDate(dog.deadline);
     const dlStr = (dlDateObj.getMonth()+1) + '/' + dlDateObj.getDate();
     const rescueDlObj = new Date(dlDateObj); rescueDlObj.setDate(rescueDlObj.getDate()-1);
     const rescueDlStr = (rescueDlObj.getMonth()+1) + '/' + rescueDlObj.getDate();

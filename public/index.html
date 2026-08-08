@@ -449,12 +449,12 @@
 
     function formatShelterDate(dateStr) {
         if (!dateStr) return '';
-        const d = new Date(dateStr);
+        const d = parseLocalDate(dateStr);
         return `${d.getMonth()+1}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
     }
     function getShelterDuration(intakeDateStr) {
         if (!intakeDateStr) return '';
-        const intake = new Date(intakeDateStr);
+        const intake = parseLocalDate(intakeDateStr);
         const now = new Date();
         const diffDays = Math.floor((now - intake) / (1000 * 60 * 60 * 24));
         if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
@@ -463,10 +463,10 @@
         return `${months} month${months !== 1 ? 's' : ''}`;
     }
     function formatDate(dateString) {
-        const date = new Date(dateString);
+        const date = parseLocalDate(dateString);
         return `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear().toString().slice(-2)}`;
     }
-    function getDaysUntil(deadline) { const d = new Date(deadline); const today = new Date(); d.setHours(0,0,0,0); today.setHours(0,0,0,0); return Math.round((d - today) / (1000 * 60 * 60 * 24)); }
+    function getDaysUntil(deadline) { const d = parseLocalDate(deadline); const today = new Date(); d.setHours(0,0,0,0); today.setHours(0,0,0,0); return Math.round((d - today) / (1000 * 60 * 60 * 24)); }
 
     function createDogCard(dog) {
         const raisedAmount = 0;
@@ -520,13 +520,13 @@
             const response = await fetch('/api/dogs');
             const data = await response.json();
             const now = new Date();
-            const today = new Date(); today.setHours(0,0,0,0); allDogs = data.dogs.filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; });
+            const today = new Date(); today.setHours(0,0,0,0); allDogs = data.dogs.filter(dog => { const d = parseLocalDate(dog.deadline); d.setHours(0,0,0,0); return d >= today; });
             renderDogs();
         } catch (error) { console.error('Error loading dogs:', error); }
     }
     function sortDogs(dogs) {
         const today = new Date(); today.setHours(0,0,0,0);
-        const daysLeft = d => { const dl = new Date(d.deadline); dl.setHours(0,0,0,0); return Math.round((dl-today)/86400000); };
+        const daysLeft = d => { const dl = parseLocalDate(d.deadline); dl.setHours(0,0,0,0); return Math.round((dl-today)/86400000); };
         const shelterOrder = d => {
             const s = (d.shelter||'').toUpperCase();
             if (s === 'SOUTH L.A.') return 1;
@@ -590,7 +590,7 @@
             if (!allDogs.length) { setTimeout(tryPopulateAnimDog, 500); return; }
             const dog = allDogs.find(d => d.photo_url) || allDogs[0];
             if (!dog) return;
-            const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
+            const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
             if (dog.photo_url) { document.getElementById('iExpDogImg').src = dog.photo_url; document.getElementById('iExpIgImg').src = dog.photo_url; document.getElementById('iphPhoto').src = dog.photo_url; }
             document.getElementById('iExpDogName').textContent = (dog.name || 'RANGER').toUpperCase();
             document.getElementById('iExpDogMeta').textContent = (dog.breed || 'Mixed') + ' · ' + (dog.shelter || 'South LA').replace(/SOUTH L\.A\./i,'South LA');
@@ -648,6 +648,14 @@
     }
 
     
+        function parseLocalDate(dateStr) {
+        if (!dateStr) return new Date(NaN);
+        if (dateStr instanceof Date) return dateStr;
+        const parts = String(dateStr).split(/[-T]/);
+        const y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
+        if (!y || !m || !d) return new Date(dateStr);
+        return new Date(y, m - 1, d);
+    }
     function getAgeFlags(ageRaw) {
         const ageStr = (ageRaw||'').toLowerCase().trim();
 
@@ -688,15 +696,15 @@
         return '';
     }
     function buildDogCaption(dog) {
-        const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
-        const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+        const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
+        const dl = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? ('\n\n\u26a0\ufe0f Shelter notes: ' + dog.notes + '\n\n\ud83d\udccb Shelter notes are snapshots written in stressful environments & may not reflect a dog\'s real personality. Training, love & patience needed.') : '';
         const ageStr = (dog.age||'').toLowerCase();
         const { isPuppy, isSenior } = getAgeFlags(dog.age);
         let intakeLine = '';
         if (dog.intake_date) {
-          const intake = new Date(dog.intake_date); intake.setHours(0,0,0,0);
+          const intake = parseLocalDate(dog.intake_date); intake.setHours(0,0,0,0);
           const today = new Date(); today.setHours(0,0,0,0);
           const days = Math.floor((today - intake) / 86400000);
           if (days > 0) intakeLine = ' \u00b7 In shelter ' + days + ' day' + (days!==1?'s':'');
@@ -736,7 +744,7 @@
           : '\u2705 OPEN TO PUBLIC \u2014 This dog can be adopted or fostered directly by anyone.';
         const address = getShelterAddress(shelter);
         const addressLine = address ? ('\n\ud83d\udccd ' + address) : '';
-        const euthDateObj = new Date(dog.deadline);
+        const euthDateObj = parseLocalDate(dog.deadline);
         const euthMD = (euthDateObj.getMonth()+1) + '/' + euthDateObj.getDate();
         const rescueDeadlineObj = new Date(euthDateObj); rescueDeadlineObj.setDate(rescueDeadlineObj.getDate()-1);
         const rescueMD = (rescueDeadlineObj.getMonth()+1) + '/' + rescueDeadlineObj.getDate();
@@ -744,7 +752,7 @@
         const englishBlock = 'DOG ID: ' + (dog.shelter_id||'') + intakeLine + '\n\n' + openings[v] + '\n\n' + euthDeadlineBlock + '\n\n' + (dog.breed||'Mixed breed') + ' \u00b7 ' + shelter + addressLine + '\n\n' + roLine + notesBlock + '\n\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch';
 
         // Shorter Spanish-language summary, appended after a divider
-        const esDl = new Date(dog.deadline).toLocaleDateString('es-ES', {month:'long', day:'numeric'});
+        const esDl = parseLocalDate(dog.deadline).toLocaleDateString('es-ES', {month:'long', day:'numeric'});
         const esUrgency = daysLeft <= 0 ? 'HOY' : (daysLeft === 1 ? '1 d\u00eda restante' : daysLeft + ' d\u00edas restantes');
         const esAlertPrefix = isPuppy ? '\ud83d\udc36 Alerta Cachorro \u2014 ' : isSenior ? '\ud83d\udc3e Alerta Perro Mayor \u2014 ' : '';
         const esRoLine = isRO
@@ -764,8 +772,8 @@
     async function openShareModal(dog) {
   window._spmCurrentDog = dog;
         const overlay = document.getElementById('share-preview-overlay');
-        const daysLeft = (() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
-        const dl = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+        const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
+        const dl = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
         const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
@@ -822,7 +830,7 @@
     }
 
     
-    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · ${(() => { const d = new Date(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
+    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · ${(() => { const d = parseLocalDate(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
     function closeFundModal(e) { if (e.target===document.getElementById('fund-modal-overlay')) document.getElementById('fund-modal-overlay').classList.remove('open'); }
     function donateDirect(amount) { const link = STRIPE_LINKS[amount]; if (link) { window.open(link,'_blank'); document.getElementById('fund-modal-overlay').classList.remove('open'); } }
     </script>
@@ -1514,8 +1522,8 @@ async function adminLoadWeeklyDogs() {
     const c4Dogs = data.dogs || data || [];
     // Get all dogs sorted by furthest deadline
     const c4Filtered = c4Dogs
-      .filter(dog => { const d = new Date(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
-      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
+      .filter(dog => { const d = parseLocalDate(dog.deadline); d.setHours(0,0,0,0); return d >= today; })
+      .sort((a, b) => parseLocalDate(b.deadline) - parseLocalDate(a.deadline));
     window.adminC4TotalCount = c4Filtered.length;
     adminC4Dogs = c4Filtered;
     // Update caption with real dog count
@@ -1561,7 +1569,7 @@ function adminDrawCard4(phase, dogIndex) {
   } else if (phase === 'dog' && adminC4Dogs[dogIndex]) {
     const dog = adminC4Dogs[dogIndex];
     const img = adminC4Images[dogIndex];
-    const d = new Date(dog.deadline); const t = new Date();
+    const d = parseLocalDate(dog.deadline); const t = new Date();
     d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const daysLeft = Math.round((d - t) / 86400000);
 
@@ -1613,7 +1621,7 @@ function adminDrawCard4(phase, dogIndex) {
     ctx.fillText([dog.breed, dog.shelter].filter(Boolean).join('  ·  '), W/2, H - 145, W - 80);
 
     // Deadline
-    const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     ctx.fillStyle = daysLeft <= 0 ? '#ff5252' : '#fcd34d'; ctx.font = 'bold 36px Arial';
     ctx.fillText(`Deadline: ${dlStr}  ·  ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`, W/2, H - 90, W - 80);
 
@@ -1723,10 +1731,10 @@ async function adminLoadDogs() {
     const today = new Date(); today.setHours(0,0,0,0);
     adminC3Dogs = c3Dogs
       .filter(dog => {
-        const d = new Date(dog.deadline); d.setHours(0,0,0,0);
+        const d = parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
         return Math.round((d - today) / 86400000) >= 3;
       })
-      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
+      .sort((a, b) => parseLocalDate(b.deadline) - parseLocalDate(a.deadline))
 
     // Preload images
     adminC3Images = await Promise.all(adminC3Dogs.map(dog => new Promise(resolve => {
@@ -1751,7 +1759,7 @@ function adminDrawCard3(phase, dogIndex) {
   if (phase === 'dog' && adminC3Dogs[dogIndex]) {
     const dog = adminC3Dogs[dogIndex];
     const img = adminC3Images[dogIndex];
-    const d = new Date(dog.deadline); const t = new Date();
+    const d = parseLocalDate(dog.deadline); const t = new Date();
     d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const daysLeft = Math.round((d - t) / 86400000);
 
@@ -1791,7 +1799,7 @@ function adminDrawCard3(phase, dogIndex) {
     ctx.fillText([dog.breed, dog.shelter].filter(Boolean).join('  ·  '), W / 2, H - 148, W - 80);
 
     // Deadline
-    const dlStr = new Date(dog.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     ctx.fillStyle = isCrit ? '#ff5252' : '#fcd34d'; ctx.font = 'bold 38px Arial';
     ctx.fillText(`Deadline: ${dlStr}  ·  ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`, W / 2, H - 90, W - 80);
 
@@ -1868,9 +1876,9 @@ async function spmDownloadWebCard() {
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
   const today = new Date(); today.setHours(0,0,0,0);
-  const deadline = new Date(dog.deadline); deadline.setHours(0,0,0,0);
+  const deadline = parseLocalDate(dog.deadline); deadline.setHours(0,0,0,0);
   const daysLeft = Math.round((deadline-today)/86400000);
-  const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'});
+  const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'});
   const daysText = daysLeft===1?'1 day':`${daysLeft} days`;
   const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
   const mx = 48, gap = 16;
@@ -1916,11 +1924,11 @@ async function spmDownloadWebCard() {
   ctx.fillStyle='#9ca3af'; ctx.font='28px monospace'; ctx.fillText(dog.shelter_id||'',mx,cy); cy+=32+gap;
   ctx.fillStyle='#6b6560'; ctx.font='34px Arial'; ctx.fillText('\ud83d\udccd '+(dog.shelter||''),mx,cy); cy+=38+gap;
   if (dog.intake_date) {
-    const intake=new Date(dog.intake_date); intake.setHours(0,0,0,0);
+    const intake=parseLocalDate(dog.intake_date); intake.setHours(0,0,0,0);
     const days=Math.floor((today-intake)/86400000);
     const dur=days<7?`${days} days`:days<30?`${Math.floor(days/7)} weeks`:`${Math.floor(days/30)} months`;
     const fmt=d=>`${d.getMonth()+1}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
-    ctx.fillText(`\ud83c\udfe0 At shelter: ${fmt(intake)}${dog.list_date?' \u00b7 Listed: '+fmt(new Date(dog.list_date)):''} \u00b7 ${dur}`,mx,cy,W-mx*2); cy+=38+gap;
+    ctx.fillText(`\ud83c\udfe0 At shelter: ${fmt(intake)}${dog.list_date?' \u00b7 Listed: '+fmt(parseLocalDate(dog.list_date)):''} \u00b7 ${dur}`,mx,cy,W-mx*2); cy+=38+gap;
   }
   ctx.fillStyle='#c4281c'; ctx.font='bold 38px Arial';
   ctx.fillText(`\u23f0 ${dlStr} (${daysText})`,mx,cy); cy+=44+20;
@@ -1986,9 +1994,9 @@ async function spmDownloadNameCard() {
   ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='bold 44px Arial';
   ctx.fillText([dog.breed,dog.age,dog.gender].filter(Boolean).join(' \u00b7 '),W/2,720,W-80);
   const today=new Date(); today.setHours(0,0,0,0);
-  const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
+  const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
   const daysLeft=Math.round((dl-today)/86400000);
-  const dlStr=new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  const dlStr=parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
   ctx.fillStyle=daysLeft<=1?'#ff5252':colors.light; ctx.font='bold 48px Arial';
   ctx.fillText(`${daysLeft<=0?'\ud83c\udd98 TODAY':daysLeft===1?'\ud83d\udea8 1 DAY LEFT':'\u23f0 '+daysLeft+' DAYS'} \u2014 ${dlStr}`,W/2,820,W-80);
   ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 32px Arial';
@@ -2177,7 +2185,7 @@ async function spmDownloadPhoneWrapper() {
   ctx.fillText('@la_dog_dispatch', scrX+68, scrY+44);
 
   // Urgent badge
-  const d = new Date(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d - t) / 86400000);
   const isCrit = daysLeft <= 1;
@@ -2276,8 +2284,8 @@ async function spmDownloadCountdownCalendar() {
   const colors = getShelterColors(dog.shelter);
 
   const today = new Date(); today.setHours(0,0,0,0);
-  const deadline = new Date(dog.deadline); deadline.setHours(0,0,0,0);
-  const intakeDate = dog.intake_date ? new Date(dog.intake_date) : null;
+  const deadline = parseLocalDate(dog.deadline); deadline.setHours(0,0,0,0);
+  const intakeDate = dog.intake_date ? parseLocalDate(dog.intake_date) : null;
   if (intakeDate) intakeDate.setHours(0,0,0,0);
   const daysLeft = Math.round((deadline - today) / 86400000);
 
@@ -2592,7 +2600,7 @@ async function spmDownloadCrayonCard() {
   ctx.fillStyle = colors.deadline; ctx.fillText(name, W/2, H-260);
 
   // Days left
-  const d2 = new Date(dog.deadline); const t2 = new Date();
+  const d2 = parseLocalDate(dog.deadline); const t2 = new Date();
   d2.setHours(0,0,0,0); t2.setHours(0,0,0,0);
   const daysLeft = Math.round((d2-t2)/86400000);
   const urgencyText = daysLeft <= 0 ? '🚨 DEADLINE TODAY' : daysLeft === 1 ? '⏰ 1 DAY LEFT' : `⏰ ${daysLeft} DAYS LEFT`;
@@ -2637,10 +2645,10 @@ async function spmDownloadWantedPoster() {
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const d = new Date(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
-  const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'}).toUpperCase();
+  const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'}).toUpperCase();
 
   // ── AGED PAPER BACKGROUND — dusty like old wanted poster ──
   // Base — warm tan/khaki, not too yellow
@@ -2855,11 +2863,11 @@ async function spmDownloadGRWM() {
   const W = 1536, H = 1380;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const d = new Date(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
-  const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 
   // Load dog photo
   const dogImg = await new Promise(resolve => {
@@ -3007,11 +3015,11 @@ async function spmDownloadTinder() {
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const d = new Date(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
-  const dlStr = new Date(dog.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 
   const img = await new Promise(resolve => {
     if (!dog.photo_url) return resolve(null);
@@ -3173,7 +3181,7 @@ async function spmDownloadStillWaiting() {
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const d = new Date(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = new Date();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
@@ -3257,9 +3265,9 @@ async function adminLoadShelter6Dogs(){
     const today=new Date(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC6Dogs=all.filter(dog=>{
-      const d=new Date(dog.deadline); d.setHours(0,0,0,0);
+      const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase()==="SOUTH L.A.";
-    }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+    }).sort((a,b)=>parseLocalDate(a.deadline)-parseLocalDate(b.deadline));
     adminC6Images=await Promise.all(adminC6Dogs.map(dog=>new Promise(resolve=>{
       if(!dog.photo_url)return resolve(null);
       const img=new Image(); img.crossOrigin="anonymous";
@@ -3272,7 +3280,7 @@ async function adminLoadShelter6Dogs(){
       } else {
         const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
         const list=adminC6Dogs.map(dog=>{
-          const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
+          const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
@@ -3314,7 +3322,7 @@ function adminDrawCard6(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC6Dogs[dogIndex]){
     const dog=adminC6Dogs[dogIndex], img=adminC6Images[dogIndex];
-    const d=new Date(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3341,7 +3349,7 @@ function adminDrawCard6(phase,dogIndex){
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
     ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
     ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=new Date(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
+    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
     ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
     ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
     ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
@@ -3390,9 +3398,9 @@ async function adminLoadShelter7Dogs(){
     const today=new Date(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC7Dogs=all.filter(dog=>{
-      const d=new Date(dog.deadline); d.setHours(0,0,0,0);
+      const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase()==="WEST L.A.";
-    }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+    }).sort((a,b)=>parseLocalDate(a.deadline)-parseLocalDate(b.deadline));
     adminC7Images=await Promise.all(adminC7Dogs.map(dog=>new Promise(resolve=>{
       if(!dog.photo_url)return resolve(null);
       const img=new Image(); img.crossOrigin="anonymous";
@@ -3405,7 +3413,7 @@ async function adminLoadShelter7Dogs(){
       } else {
         const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
         const list=adminC7Dogs.map(dog=>{
-          const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
+          const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
@@ -3447,7 +3455,7 @@ function adminDrawCard7(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC7Dogs[dogIndex]){
     const dog=adminC7Dogs[dogIndex], img=adminC7Images[dogIndex];
-    const d=new Date(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3474,7 +3482,7 @@ function adminDrawCard7(phase,dogIndex){
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
     ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
     ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=new Date(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
+    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
     ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
     ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
     ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
@@ -3523,9 +3531,9 @@ async function adminLoadShelter8Dogs(){
     const today=new Date(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC8Dogs=all.filter(dog=>{
-      const d=new Date(dog.deadline); d.setHours(0,0,0,0);
+      const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase()==="NORTH CENTRAL";
-    }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+    }).sort((a,b)=>parseLocalDate(a.deadline)-parseLocalDate(b.deadline));
     adminC8Images=await Promise.all(adminC8Dogs.map(dog=>new Promise(resolve=>{
       if(!dog.photo_url)return resolve(null);
       const img=new Image(); img.crossOrigin="anonymous";
@@ -3538,7 +3546,7 @@ async function adminLoadShelter8Dogs(){
       } else {
         const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
         const list=adminC8Dogs.map(dog=>{
-          const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
+          const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
@@ -3580,7 +3588,7 @@ function adminDrawCard8(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC8Dogs[dogIndex]){
     const dog=adminC8Dogs[dogIndex], img=adminC8Images[dogIndex];
-    const d=new Date(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3607,7 +3615,7 @@ function adminDrawCard8(phase,dogIndex){
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
     ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
     ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=new Date(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
+    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
     ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
     ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
     ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
@@ -3656,9 +3664,9 @@ async function adminLoadShelter9Dogs(){
     const today=new Date(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC9Dogs=all.filter(dog=>{
-      const d=new Date(dog.deadline); d.setHours(0,0,0,0);
+      const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase()==="EAST VALLEY";
-    }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+    }).sort((a,b)=>parseLocalDate(a.deadline)-parseLocalDate(b.deadline));
     adminC9Images=await Promise.all(adminC9Dogs.map(dog=>new Promise(resolve=>{
       if(!dog.photo_url)return resolve(null);
       const img=new Image(); img.crossOrigin="anonymous";
@@ -3671,7 +3679,7 @@ async function adminLoadShelter9Dogs(){
       } else {
         const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
         const list=adminC9Dogs.map(dog=>{
-          const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
+          const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
@@ -3713,7 +3721,7 @@ function adminDrawCard9(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC9Dogs[dogIndex]){
     const dog=adminC9Dogs[dogIndex], img=adminC9Images[dogIndex];
-    const d=new Date(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3740,7 +3748,7 @@ function adminDrawCard9(phase,dogIndex){
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
     ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
     ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=new Date(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
+    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
     ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
     ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
     ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
@@ -3789,9 +3797,9 @@ async function adminLoadShelter10Dogs(){
     const today=new Date(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC10Dogs=all.filter(dog=>{
-      const d=new Date(dog.deadline); d.setHours(0,0,0,0);
+      const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase()==="WEST VALLEY";
-    }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+    }).sort((a,b)=>parseLocalDate(a.deadline)-parseLocalDate(b.deadline));
     adminC10Images=await Promise.all(adminC10Dogs.map(dog=>new Promise(resolve=>{
       if(!dog.photo_url)return resolve(null);
       const img=new Image(); img.crossOrigin="anonymous";
@@ -3804,7 +3812,7 @@ async function adminLoadShelter10Dogs(){
       } else {
         const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
         const list=adminC10Dogs.map(dog=>{
-          const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
+          const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
@@ -3846,7 +3854,7 @@ function adminDrawCard10(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC10Dogs[dogIndex]){
     const dog=adminC10Dogs[dogIndex], img=adminC10Images[dogIndex];
-    const d=new Date(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3873,7 +3881,7 @@ function adminDrawCard10(phase,dogIndex){
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
     ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
     ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=new Date(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
+    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
     ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
     ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
     ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
@@ -3922,9 +3930,9 @@ async function adminLoadShelter11Dogs(){
     const today=new Date(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC11Dogs=all.filter(dog=>{
-      const d=new Date(dog.deadline); d.setHours(0,0,0,0);
+      const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
       return d>=today&&(dog.shelter||"").toUpperCase()==="HARBOR";
-    }).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+    }).sort((a,b)=>parseLocalDate(a.deadline)-parseLocalDate(b.deadline));
     adminC11Images=await Promise.all(adminC11Dogs.map(dog=>new Promise(resolve=>{
       if(!dog.photo_url)return resolve(null);
       const img=new Image(); img.crossOrigin="anonymous";
@@ -3937,7 +3945,7 @@ async function adminLoadShelter11Dogs(){
       } else {
         const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
         const list=adminC11Dogs.map(dog=>{
-          const dl=new Date(dog.deadline); dl.setHours(0,0,0,0);
+          const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
           const a=(dog.age||"").toLowerCase();
           const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
@@ -3979,7 +3987,7 @@ function adminDrawCard11(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC11Dogs[dogIndex]){
     const dog=adminC11Dogs[dogIndex], img=adminC11Images[dogIndex];
-    const d=new Date(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -4006,7 +4014,7 @@ function adminDrawCard11(phase,dogIndex){
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
     ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
     ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=new Date(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
+    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
     ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
     ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
     ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
