@@ -83,6 +83,18 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
 }
 
+function getPacificToday() {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        year: 'numeric', month: '2-digit', day: '2-digit'
+    });
+    const parts = fmt.formatToParts(new Date());
+    const y = parseInt(parts.find(p => p.type === 'year').value, 10);
+    const m = parseInt(parts.find(p => p.type === 'month').value, 10);
+    const d = parseInt(parts.find(p => p.type === 'day').value, 10);
+    return new Date(y, m - 1, d);
+}
+
 function parseLocalDate(dateStr) {
     if (!dateStr) return new Date(NaN);
     if (dateStr instanceof Date) return dateStr;
@@ -94,7 +106,7 @@ function parseLocalDate(dateStr) {
 
 function calcDaysLeft(deadline) {
     const d = parseLocalDate(deadline);
-    const today = new Date();
+    const today = getPacificToday();
     d.setHours(0,0,0,0);
     today.setHours(0,0,0,0);
     return Math.round((d - today) / 86400000);
@@ -239,17 +251,17 @@ async function generateCard(dog) {
     drawBubble(name, W/2, nameY, fontSize, SAFE_W);
 
     ctx.fillStyle='#ffffff'; ctx.font='italic 36px Georgia,serif'; ctx.textAlign='center';
-    ctx.fillText([dog.breed,dog.gender,dog.age].filter(Boolean).join('  ·  '), W/2, nameY+62, SAFE_W);
+    const ageDisplay = (dog.age && dog.age.trim()) ? dog.age : 'Age Unknown';
+    ctx.fillText([dog.breed, dog.gender, ageDisplay].filter(Boolean).join('  ·  '), W/2, nameY+62, SAFE_W);
 
     const dlDateObj = parseLocalDate(dog.deadline);
     const dlStr = (dlDateObj.getMonth()+1) + '/' + dlDateObj.getDate();
     const rescueDlObj = new Date(dlDateObj); rescueDlObj.setDate(rescueDlObj.getDate()-1);
     const rescueDlStr = (rescueDlObj.getMonth()+1) + '/' + rescueDlObj.getDate();
     const dlLabel = `Euth Date: ${dlStr}`;
-    const dlDays = daysLeft<=0 ? ' \u2014 TODAY'
-        : daysLeft===1 ? `  \u00b7  Rescue Deadline EOD ${rescueDlStr}`
-        : daysLeft===2 ? '  \u00b7  2 Days Until Euth Date'
-        : `  \u00b7  ${daysLeft} DAYS LEFT`;
+    // Always the two fixed dates — never a relative day-count, since we can't
+    // know when someone actually sees the post.
+    const dlDays = `  \u00b7  Rescue Deadline EOD ${rescueDlStr}`;
     let dlSize = 46; ctx.font=`bold ${dlSize}px sans-serif`;
     while(ctx.measureText(dlLabel+dlDays).width > SAFE_W && dlSize>26){ dlSize-=2; ctx.font=`bold ${dlSize}px sans-serif`; }
     const dlLabelW = ctx.measureText(dlLabel).width, dlDaysW = ctx.measureText(dlDays).width;

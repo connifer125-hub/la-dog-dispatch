@@ -455,7 +455,7 @@
     function getShelterDuration(intakeDateStr) {
         if (!intakeDateStr) return '';
         const intake = parseLocalDate(intakeDateStr);
-        const now = new Date();
+        const now = getPacificToday();
         const diffDays = Math.floor((now - intake) / (1000 * 60 * 60 * 24));
         if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
         if (diffDays < 30) { const weeks = Math.floor(diffDays / 7); return `${weeks} week${weeks !== 1 ? 's' : ''}`; }
@@ -466,7 +466,7 @@
         const date = parseLocalDate(dateString);
         return `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear().toString().slice(-2)}`;
     }
-    function getDaysUntil(deadline) { const d = parseLocalDate(deadline); const today = new Date(); d.setHours(0,0,0,0); today.setHours(0,0,0,0); return Math.round((d - today) / (1000 * 60 * 60 * 24)); }
+    function getDaysUntil(deadline) { const d = parseLocalDate(deadline); const today = getPacificToday(); d.setHours(0,0,0,0); today.setHours(0,0,0,0); return Math.round((d - today) / (1000 * 60 * 60 * 24)); }
 
     function createDogCard(dog) {
         const raisedAmount = 0;
@@ -519,13 +519,13 @@
         try {
             const response = await fetch('/api/dogs');
             const data = await response.json();
-            const now = new Date();
-            const today = new Date(); today.setHours(0,0,0,0); allDogs = data.dogs.filter(dog => { const d = parseLocalDate(dog.deadline); d.setHours(0,0,0,0); return d >= today; });
+            const now = getPacificToday();
+            const today = getPacificToday(); today.setHours(0,0,0,0); allDogs = data.dogs.filter(dog => { const d = parseLocalDate(dog.deadline); d.setHours(0,0,0,0); return d >= today; });
             renderDogs();
         } catch (error) { console.error('Error loading dogs:', error); }
     }
     function sortDogs(dogs) {
-        const today = new Date(); today.setHours(0,0,0,0);
+        const today = getPacificToday(); today.setHours(0,0,0,0);
         const daysLeft = d => { const dl = parseLocalDate(d.deadline); dl.setHours(0,0,0,0); return Math.round((dl-today)/86400000); };
         const shelterOrder = d => {
             const s = (d.shelter||'').toUpperCase();
@@ -590,7 +590,7 @@
             if (!allDogs.length) { setTimeout(tryPopulateAnimDog, 500); return; }
             const dog = allDogs.find(d => d.photo_url) || allDogs[0];
             if (!dog) return;
-            const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
+            const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
             if (dog.photo_url) { document.getElementById('iExpDogImg').src = dog.photo_url; document.getElementById('iExpIgImg').src = dog.photo_url; document.getElementById('iphPhoto').src = dog.photo_url; }
             document.getElementById('iExpDogName').textContent = (dog.name || 'RANGER').toUpperCase();
             document.getElementById('iExpDogMeta').textContent = (dog.breed || 'Mixed') + ' · ' + (dog.shelter || 'South LA').replace(/SOUTH L\.A\./i,'South LA');
@@ -648,7 +648,18 @@
     }
 
     
-        function parseLocalDate(dateStr) {
+            function getPacificToday() {
+        const fmt = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Los_Angeles',
+            year: 'numeric', month: '2-digit', day: '2-digit'
+        });
+        const parts = fmt.formatToParts(new Date());
+        const y = parseInt(parts.find(p => p.type === 'year').value, 10);
+        const m = parseInt(parts.find(p => p.type === 'month').value, 10);
+        const d = parseInt(parts.find(p => p.type === 'day').value, 10);
+        return new Date(y, m - 1, d);
+    }
+    function parseLocalDate(dateStr) {
         if (!dateStr) return new Date(NaN);
         if (dateStr instanceof Date) return dateStr;
         const parts = String(dateStr).split(/[-T]/);
@@ -696,7 +707,7 @@
         return '';
     }
     function buildDogCaption(dog) {
-        const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
+        const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? ('\n\n\u26a0\ufe0f Shelter notes: ' + dog.notes + '\n\n\ud83d\udccb Shelter notes are snapshots written in stressful environments & may not reflect a dog\'s real personality. Training, love & patience needed.') : '';
@@ -705,7 +716,7 @@
         let intakeLine = '';
         if (dog.intake_date) {
           const intake = parseLocalDate(dog.intake_date); intake.setHours(0,0,0,0);
-          const today = new Date(); today.setHours(0,0,0,0);
+          const today = getPacificToday(); today.setHours(0,0,0,0);
           const days = Math.floor((today - intake) / 86400000);
           if (days > 0) intakeLine = ' \u00b7 In shelter ' + days + ' day' + (days!==1?'s':'');
         }
@@ -714,19 +725,18 @@
         const idNum = parseInt((dog.shelter_id||'A0').replace(/[^0-9]/g,'')) || 0;
         const v = idNum % 8;
         const urgEmoji = daysLeft <= 0 ? '\ud83c\udd98' : daysLeft === 1 ? '\ud83d\udea8' : daysLeft <= 4 ? '\u23f0' : '\ud83d\udc3e';
-        const urgText = daysLeft <= 0 ? 'TODAY' : (daysLeft + ' day' + (daysLeft!==1?'s':'') + ' left');
         const alertPrefix = isPuppy ? '\ud83d\udc36 Puppy Alert \u2014' : isSenior ? '\ud83d\udc3e Senior Dog Alert \u2014' : '';
         const name = dog.name || dog.shelter_id;
         const shelter = dog.shelter || 'Los Angeles';
         const openings = [
-          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
-          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' is on the ' + shelter + ' euthanasia list. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
-          (alertPrefix ? alertPrefix + ' Who will save ' : 'Who will save ') + name + '? Rescue deadline: ' + dl + ' \u2014 ' + urgText + '.',
-          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs a foster, adopter, or rescue by ' + dl + ' \u2014 ' + urgText + '.',
-          (alertPrefix ? alertPrefix + ' ' : '') + name + ' has been at the shelter' + intakeLine + '. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
-          (alertPrefix ? alertPrefix + ' ' : '') + 'This is ' + name + '. Still waiting. Deadline: ' + dl + ' \u2014 ' + urgText + '.',
-          (alertPrefix ? alertPrefix + ' ' : '') + 'Every dog on the euth list deserves to be seen. ' + name + '\u2019s deadline is ' + dl + ' \u2014 ' + urgText + '.',
-          (alertPrefix ? alertPrefix + ' If not now, when? ' : 'If not now, when? ') + name + ' needs rescue by ' + dl + ' \u2014 ' + urgText + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs rescue by ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' is on the ' + shelter + ' euthanasia list. Deadline: ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' Who will save ' : 'Who will save ') + name + '? Rescue deadline: ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs a foster, adopter, or rescue by ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + name + ' has been at the shelter' + intakeLine + '. Deadline: ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + 'This is ' + name + '. Still waiting. Deadline: ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + 'Every dog on the euth list deserves to be seen. ' + name + '\u2019s deadline is ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' If not now, when? ' : 'If not now, when? ') + name + ' needs rescue by ' + dl + '.',
         ];
         const idTag = '#' + (dog.shelter_id||'').replace(/[^a-zA-Z0-9]/g,'');
         const hashPools = [
@@ -753,12 +763,12 @@
 
         // Shorter Spanish-language summary, appended after a divider
         const esDl = parseLocalDate(dog.deadline).toLocaleDateString('es-ES', {month:'long', day:'numeric'});
-        const esUrgency = daysLeft <= 0 ? 'HOY' : (daysLeft === 1 ? '1 d\u00eda restante' : daysLeft + ' d\u00edas restantes');
         const esAlertPrefix = isPuppy ? '\ud83d\udc36 Alerta Cachorro \u2014 ' : isSenior ? '\ud83d\udc3e Alerta Perro Mayor \u2014 ' : '';
         const esRoLine = isRO
           ? '\ud83d\udd12 SOLO ORGANIZACIONES DE RESCATE \u2014 un rescate con licencia debe retirarlo del refugio.'
           : '\u2705 ABIERTO AL P\u00daBLICO \u2014 cualquier persona puede adoptarlo o acogerlo directamente.';
-        const esBlock = esAlertPrefix + name + ' necesita un hogar antes del ' + esDl + ' \u2014 ' + esUrgency + '.\n\n' + (dog.breed||'Raza mixta') + ' \u00b7 ' + shelter + addressLine + '\n\n' + esRoLine + '\n\nAdopta \u00b7 Acoge \u00b7 Comparte \u2192 ladogdispatch.com\n@la_dog_dispatch';
+        const esTimelineBlock = '\ud83d\udcc5 Cronolog\u00eda para este perro:\n\u2022 Fecha de Eutanasia: ' + euthMD + '\n\u2022 Fecha L\u00edmite de Rescate: fin del d\u00eda ' + rescueMD + '\n\u2022 *Cualquier rescate de \u00faltimo momento el ' + euthMD + ' debe coordinarse con el personal del refugio \u2014 algunos refugios practican la eutanasia antes de abrir al p\u00fablico';
+        const esBlock = esAlertPrefix + name + ' necesita un hogar antes del ' + esDl + '.\n\n' + esTimelineBlock + '\n\n' + (dog.breed||'Raza mixta') + ' \u00b7 ' + shelter + addressLine + '\n\n' + esRoLine + '\n\nAdopta \u00b7 Acoge \u00b7 Comparte \u2192 ladogdispatch.com\n@la_dog_dispatch';
 
         return englishBlock + '\n\n------\n\n' + esBlock + '\n\n' + hashPools[v];
     }
@@ -772,14 +782,16 @@
     async function openShareModal(dog) {
   window._spmCurrentDog = dog;
         const overlay = document.getElementById('share-preview-overlay');
-        const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
+        const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
         const dl = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
         const isRO = dog.rescue_only===true||dog.rescue_only==='true'||dog.rescue_only===1;
         const notesBlock = dog.notes ? `\n⚠️ Shelter notes: ${dog.notes}\n` : '';
         const disclaimerBlock = `\n📋 Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.`;
-        const urgency = daysLeft<=0 ? 'TODAY' : daysLeft+' day'+(daysLeft!==1?'s':'')+' left';
+        const rescueDl = new Date(parseLocalDate(dog.deadline)); rescueDl.setDate(rescueDl.getDate()-1);
+        const euthMD = parseLocalDate(dog.deadline).getMonth()+1 + '/' + parseLocalDate(dog.deadline).getDate();
+        const rescueMD = (rescueDl.getMonth()+1) + '/' + rescueDl.getDate();
         document.getElementById('spm-dog-name').textContent = dog.name || dog.shelter_id;
-        document.getElementById('spm-dog-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · ${urgency}`;
+        document.getElementById('spm-dog-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · Euth Date: ${euthMD} · Rescue Deadline EOD ${rescueMD}`;
         const caption = buildDogCaption(dog);
         document.getElementById('spm-caption-text').value = caption;
         window._spmDog = dog; window._spmCaption = caption;
@@ -830,7 +842,7 @@
     }
 
     
-    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · ${(() => { const d = parseLocalDate(dog.deadline); const t = new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
+    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · ${(() => { const d = parseLocalDate(dog.deadline); const t = getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
     function closeFundModal(e) { if (e.target===document.getElementById('fund-modal-overlay')) document.getElementById('fund-modal-overlay').classList.remove('open'); }
     function donateDirect(amount) { const link = STRIPE_LINKS[amount]; if (link) { window.open(link,'_blank'); document.getElementById('fund-modal-overlay').classList.remove('open'); } }
     </script>
@@ -1342,6 +1354,28 @@ Sign up → ladogdispatch.com/social-sharer-signup.html
         </div>
       </div>
 
+      <!-- CARD 12: SPACE/CAPACITY ONLY -->
+      <div style="background:#1a1614;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+        <div style="padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:0.8rem;font-weight:700;color:#4a8c6a;">Card 12 — Space/Capacity Only</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.2rem;">All shelters · Zero behavioral concerns · Space release only</div>
+        </div>
+        <div style="padding:1rem;background:#0d0d0d;display:flex;justify-content:center;">
+          <canvas id="admin-c12" width="1080" height="1080" style="width:100%;max-width:340px;border-radius:4px;"></canvas>
+        </div>
+        <div id="admin-spaceonly-loading" style="display:none;padding:0.5rem 1.2rem;font-size:0.75rem;color:#4a8c6a;text-align:center;">Loading space-only dogs...</div>
+        <div style="padding:0.8rem 1.2rem;display:flex;gap:0.6rem;">
+          <button onclick="adminRecordCard(12)" id="admin-rec-btn-12" style="flex:1;background:#4a8c6a;color:white;border:none;border-radius:6px;padding:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">⏺ Record Video</button>
+          <button onclick="adminDownload('admin-c12','ladogdispatch-space-only',12)" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">PNG</button>
+          <button onclick="adminRunCardSpaceOnly()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.6rem 1rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">↺</button>
+        </div>
+        <div style="padding:0.8rem 1.2rem;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Caption Copy</div>
+          <div id="admin-copy-spaceonly" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.7rem;font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;"></div>
+          <button onclick="adminCopyText('admin-copy-spaceonly',this)" style="margin-top:0.5rem;background:transparent;color:#4a8c6a;border:1px solid #4a8c6a;border-radius:6px;padding:0.4rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Copy Caption</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1518,7 +1552,7 @@ async function adminLoadWeeklyDogs() {
   try {
     const res = await fetch('/api/dogs');
     const data = await res.json();
-    const today = new Date(); today.setHours(0,0,0,0);
+    const today = getPacificToday(); today.setHours(0,0,0,0);
     const c4Dogs = data.dogs || data || [];
     // Get all dogs sorted by furthest deadline
     const c4Filtered = c4Dogs
@@ -1569,7 +1603,7 @@ function adminDrawCard4(phase, dogIndex) {
   } else if (phase === 'dog' && adminC4Dogs[dogIndex]) {
     const dog = adminC4Dogs[dogIndex];
     const img = adminC4Images[dogIndex];
-    const d = parseLocalDate(dog.deadline); const t = new Date();
+    const d = parseLocalDate(dog.deadline); const t = getPacificToday();
     d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const daysLeft = Math.round((d - t) / 86400000);
 
@@ -1620,10 +1654,13 @@ function adminDrawCard4(phase, dogIndex) {
     ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'italic 32px Georgia, serif';
     ctx.fillText([dog.breed, dog.shelter].filter(Boolean).join('  ·  '), W/2, H - 145, W - 80);
 
-    // Deadline
-    const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    // Deadline — absolute dates only
+    const dlDeadlineObj = parseLocalDate(dog.deadline);
+    const c4RescueObj = new Date(dlDeadlineObj); c4RescueObj.setDate(c4RescueObj.getDate()-1);
+    const c4EuthMD = (dlDeadlineObj.getMonth()+1) + '/' + dlDeadlineObj.getDate();
+    const c4RescueMD = (c4RescueObj.getMonth()+1) + '/' + c4RescueObj.getDate();
     ctx.fillStyle = daysLeft <= 0 ? '#ff5252' : '#fcd34d'; ctx.font = 'bold 36px Arial';
-    ctx.fillText(`Deadline: ${dlStr}  ·  ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`, W/2, H - 90, W - 80);
+    ctx.fillText(`Euth Date: ${c4EuthMD}  ·  Rescue Deadline EOD ${c4RescueMD}`, W/2, H - 90, W - 80);
 
     // Shelter ID — small bottom left
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
@@ -1709,6 +1746,7 @@ function adminDownload(canvasId, filename, cardNum) {
   if(cardNum===9)adminDrawCard9('cta',0);
   if(cardNum===10)adminDrawCard10('cta',0);
   if(cardNum===11)adminDrawCard11('cta',0);
+  if(cardNum===12)adminDrawCardSpaceOnly('cta',0);
   setTimeout(() => {
     const a = document.createElement('a');
     a.download = filename + '.png';
@@ -1728,7 +1766,7 @@ async function adminLoadDogs() {
     const res = await fetch('/api/dogs?limit=100');
     const data = await res.json();
     const c3Dogs = data.dogs || data || [];
-    const today = new Date(); today.setHours(0,0,0,0);
+    const today = getPacificToday(); today.setHours(0,0,0,0);
     adminC3Dogs = c3Dogs
       .filter(dog => {
         const d = parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
@@ -1759,7 +1797,7 @@ function adminDrawCard3(phase, dogIndex) {
   if (phase === 'dog' && adminC3Dogs[dogIndex]) {
     const dog = adminC3Dogs[dogIndex];
     const img = adminC3Images[dogIndex];
-    const d = parseLocalDate(dog.deadline); const t = new Date();
+    const d = parseLocalDate(dog.deadline); const t = getPacificToday();
     d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const daysLeft = Math.round((d - t) / 86400000);
 
@@ -1798,16 +1836,19 @@ function adminDrawCard3(phase, dogIndex) {
     ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'italic 34px Georgia, serif';
     ctx.fillText([dog.breed, dog.shelter].filter(Boolean).join('  ·  '), W / 2, H - 148, W - 80);
 
-    // Deadline
-    const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    // Deadline — absolute dates only
+    const c3DeadlineObj = parseLocalDate(dog.deadline);
+    const c3RescueObj = new Date(c3DeadlineObj); c3RescueObj.setDate(c3RescueObj.getDate()-1);
+    const c3EuthMD = (c3DeadlineObj.getMonth()+1) + '/' + c3DeadlineObj.getDate();
+    const c3RescueMD = (c3RescueObj.getMonth()+1) + '/' + c3RescueObj.getDate();
     ctx.fillStyle = isCrit ? '#ff5252' : '#fcd34d'; ctx.font = 'bold 38px Arial';
-    ctx.fillText(`Deadline: ${dlStr}  ·  ${daysLeft <= 0 ? 'TODAY' : daysLeft === 1 ? '1 DAY LEFT' : daysLeft + ' DAYS LEFT'}`, W / 2, H - 90, W - 80);
+    ctx.fillText(`Euth Date: ${c3EuthMD}  ·  Rescue Deadline EOD ${c3RescueMD}`, W / 2, H - 90, W - 80);
 
     // Shelter ID — small bottom left
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.font = '28px monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 28px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(dog.shelter_id || '', 40, H - 22);
+    ctx.fillText(dog.shelter_id ? ('DOG ID: ' + dog.shelter_id) : '', 40, H - 22);
 
     // Bottom bar
     ctx.fillStyle = '#4a8c6a'; ctx.fillRect(0, H - 12, W, 12);
@@ -1875,7 +1916,7 @@ async function spmDownloadWebCard() {
   const W = 1080, H = 1350;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = getPacificToday(); today.setHours(0,0,0,0);
   const deadline = parseLocalDate(dog.deadline); deadline.setHours(0,0,0,0);
   const daysLeft = Math.round((deadline-today)/86400000);
   const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'});
@@ -1913,25 +1954,29 @@ async function spmDownloadWebCard() {
   ctx.fillStyle=badgeColor; ctx.font='bold 24px Arial'; ctx.textAlign='center';
   ctx.fillText(badgeLabel,W/2,cy+34,W-mx*2-16); cy+=52+gap;
   ctx.fillStyle='#1a1614'; ctx.textAlign='left';
-  let ns=82; ctx.font=`900 ${ns}px Georgia,serif`;
+  let ns=76; ctx.font=`900 ${ns}px Arial`;
   const nm=(dog.name||dog.shelter_id).toUpperCase();
-  while(ctx.measureText(nm).width>W-mx*2&&ns>44){ns-=4;ctx.font=`900 ${ns}px Georgia,serif`;}
-  ctx.fillText(nm,mx,cy+ns*0.78,W-mx*2); cy+=ns+gap;
+  while(ctx.measureText(nm).width>W-mx*2&&ns>44){ns-=4;ctx.font=`900 ${ns}px Arial`;}
+  ctx.fillText(nm,mx,cy+ns*0.78,W-mx*2); cy+=ns+gap+18;
   const { isPuppy: isPup, isSenior: isSen } = getAgeFlags(dog.age);
   const ageLabel=dog.age+(isPup?' (Puppy)':isSen?' (Senior)':'');
   ctx.fillStyle='#6b6560'; ctx.font='34px Arial'; ctx.textAlign='left';
   ctx.fillText(`${dog.breed||'Mixed'} \u2022 ${ageLabel} \u2022 ${dog.gender||''}`,mx,cy,W-mx*2); cy+=38+gap;
-  ctx.fillStyle='#9ca3af'; ctx.font='28px monospace'; ctx.fillText(dog.shelter_id||'',mx,cy); cy+=32+gap;
+  ctx.fillStyle='#4b5563'; ctx.font='bold 30px monospace'; ctx.fillText(dog.shelter_id?('DOG ID: '+dog.shelter_id):'',mx,cy); cy+=38+gap;
   ctx.fillStyle='#6b6560'; ctx.font='34px Arial'; ctx.fillText('\ud83d\udccd '+(dog.shelter||''),mx,cy); cy+=38+gap;
   if (dog.intake_date) {
     const intake=parseLocalDate(dog.intake_date); intake.setHours(0,0,0,0);
     const days=Math.floor((today-intake)/86400000);
     const dur=days<7?`${days} days`:days<30?`${Math.floor(days/7)} weeks`:`${Math.floor(days/30)} months`;
     const fmt=d=>`${d.getMonth()+1}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+    ctx.fillStyle='#6b6560'; ctx.font='34px Arial';
     ctx.fillText(`\ud83c\udfe0 At shelter: ${fmt(intake)}${dog.list_date?' \u00b7 Listed: '+fmt(parseLocalDate(dog.list_date)):''} \u00b7 ${dur}`,mx,cy,W-mx*2); cy+=38+gap;
   }
   ctx.fillStyle='#c4281c'; ctx.font='bold 38px Arial';
-  ctx.fillText(`\u23f0 ${dlStr} (${daysText})`,mx,cy); cy+=44+20;
+  const rescueDlObjWC = new Date(deadline); rescueDlObjWC.setDate(rescueDlObjWC.getDate()-1);
+  const wcEuthMD = (deadline.getMonth()+1) + '/' + deadline.getDate();
+  const wcRescueMD = (rescueDlObjWC.getMonth()+1) + '/' + rescueDlObjWC.getDate();
+  ctx.fillText(`\u23f0 Euth Date: ${wcEuthMD}  \u00b7  Rescue Deadline EOD ${wcRescueMD}`,mx,cy); cy+=44+20;
   if (notesExist) {
     ctx.fillStyle='#fffbeb'; ctx.strokeStyle='#fcd34d'; ctx.lineWidth=2;
     ctx.beginPath(); ctx.roundRect(mx,cy,W-mx*2,170,10); ctx.fill(); ctx.stroke();
@@ -1962,6 +2007,7 @@ async function spmDownloadWebCard() {
   },100);
 }
 
+
 // ── NAME CARD ──
 async function spmDownloadNameCard() {
   const dog = window._spmCurrentDog;
@@ -1978,29 +2024,39 @@ async function spmDownloadNameCard() {
   for(let i=0;i<H;i+=60){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(W,i);ctx.stroke();}
   ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=8;
   ctx.beginPath(); ctx.roundRect(16,16,W-32,H-32,20); ctx.stroke();
-  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 52px monospace'; ctx.textAlign='center';
-  ctx.fillText(dog.shelter_id||'',W/2,160);
+  ctx.fillStyle='#ffffff'; ctx.font='bold 60px monospace'; ctx.textAlign='center';
+  ctx.fillText(dog.shelter_id?('DOG ID: '+dog.shelter_id):'',W/2,155);
   ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='bold 40px Arial';
-  ctx.fillText((dog.shelter||'').toUpperCase(),W/2,220);
+  ctx.fillText((dog.shelter||'').toUpperCase(),W/2,212);
+  const nameCardAddr = getShelterAddress(dog.shelter);
+  if (nameCardAddr) {
+    ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.font='28px Arial';
+    ctx.fillText(nameCardAddr,W/2,248);
+  }
   ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(120,260); ctx.lineTo(W-120,260); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(120,288); ctx.lineTo(W-120,288); ctx.stroke();
   ctx.fillStyle='#ffffff'; ctx.textAlign='center';
   let nameSize=200; ctx.font=`900 ${nameSize}px Arial Black,Arial`;
   const name=(dog.name||dog.shelter_id).toUpperCase();
   while(ctx.measureText(name).width>W-80&&nameSize>80){nameSize-=8;ctx.font=`900 ${nameSize}px Arial Black,Arial`;}
-  ctx.fillText(name,W/2,580,W-60);
+  ctx.fillText(name,W/2,608,W-60);
   ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(120,640); ctx.lineTo(W-120,640); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(120,668); ctx.lineTo(W-120,668); ctx.stroke();
   ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='bold 44px Arial';
-  ctx.fillText([dog.breed,dog.age,dog.gender].filter(Boolean).join(' \u00b7 '),W/2,720,W-80);
-  const today=new Date(); today.setHours(0,0,0,0);
+  ctx.fillText([dog.breed,dog.age,dog.gender].filter(Boolean).join(' \u00b7 '),W/2,748,W-80);
+  const today=getPacificToday(); today.setHours(0,0,0,0);
   const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
   const daysLeft=Math.round((dl-today)/86400000);
-  const dlStr=parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'});
-  ctx.fillStyle=daysLeft<=1?'#ff5252':colors.light; ctx.font='bold 48px Arial';
-  ctx.fillText(`${daysLeft<=0?'\ud83c\udd98 TODAY':daysLeft===1?'\ud83d\udea8 1 DAY LEFT':'\u23f0 '+daysLeft+' DAYS'} \u2014 ${dlStr}`,W/2,820,W-80);
+  const ncRescueObj = new Date(dl); ncRescueObj.setDate(ncRescueObj.getDate()-1);
+  const ncEuthMD = (dl.getMonth()+1) + '/' + dl.getDate();
+  const ncRescueMD = (ncRescueObj.getMonth()+1) + '/' + ncRescueObj.getDate();
+  const ncDateText = (daysLeft<=0?'\ud83d\udea8 ':'\u23f0 ')+'Euth Date: '+ncEuthMD+'  \u00b7  Rescue Deadline EOD '+ncRescueMD;
+  ctx.fillStyle=daysLeft<=1?'#ff5252':colors.light;
+  let ncDateSize=44; ctx.font=`bold ${ncDateSize}px Arial`;
+  while(ctx.measureText(ncDateText).width>W-80&&ncDateSize>24){ncDateSize-=2;ctx.font=`bold ${ncDateSize}px Arial`;}
+  ctx.fillText(ncDateText,W/2,848,W-80);
   ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 32px Arial';
-  ctx.fillText('ladogdispatch.com \u00b7 @la_dog_dispatch',W/2,960);
+  ctx.fillText('ladogdispatch.com \u00b7 @la_dog_dispatch',W/2,980);
   setTimeout(()=>{
     const a=document.createElement('a');
     a.download=`${dog.name||dog.shelter_id}-name-card.png`;
@@ -2047,8 +2103,8 @@ async function spmDownloadTagCard() {
   ctx.fillText('or share to your network.',W/2,726,W-80);
   ctx.fillStyle=colors.light; ctx.font='bold 32px Arial'; ctx.textAlign='center';
   ctx.fillText('@la_dog_dispatch',W/2,840);
-  ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='26px monospace';
-  ctx.fillText(dog.shelter_id||'',W/2,890);
+  ctx.fillStyle='#ffffff'; ctx.font='bold 34px monospace';
+  ctx.fillText(dog.shelter_id?('DOG ID: '+dog.shelter_id):'',W/2,890);
   setTimeout(()=>{
     const a=document.createElement('a');
     a.download=`${dog.name||dog.shelter_id}-tag-rescues.png`;
@@ -2069,7 +2125,7 @@ async function spmDownloadPhoneWrapper() {
   const colors = getShelterColors(dog.shelter);
 
   // ── THEME ROTATION by day of month ──
-  const today = new Date();
+  const today = getPacificToday();
   const day = today.getDate();
   let theme;
   if (day <= 7) theme = 'black';
@@ -2184,16 +2240,31 @@ async function spmDownloadPhoneWrapper() {
   ctx.fillStyle = 'white'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'left';
   ctx.fillText('@la_dog_dispatch', scrX+68, scrY+44);
 
-  // Urgent badge
-  const d = parseLocalDate(dog.deadline); const t = new Date();
+  // Urgent badge — always shows the real date, never "TODAY". Taller font,
+  // pill grows to match — this canvas has plenty of vertical room to spare.
+  const d = parseLocalDate(dog.deadline); const t = getPacificToday();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d - t) / 86400000);
   const isCrit = daysLeft <= 1;
   const pwShortDate = (d.getMonth()+1) + '/' + d.getDate();
+  const pillLabel = (daysLeft <= 0 ? '\ud83d\udea8 ' : '\u23f0 ') + 'Euth Date: ' + pwShortDate;
+  ctx.font = 'bold 26px Arial';
+  const handleEndX = scrX + 68 + ctx.measureText('@la_dog_dispatch').width;
+  let pillFont = 32, pillTextW, pillW, pillX;
+  const pillPadX = 24, pillRightEdge = scrX + scrW - 16, minGap = 16;
+  do {
+    ctx.font = 'bold ' + pillFont + 'px Arial';
+    pillTextW = ctx.measureText(pillLabel).width;
+    pillW = Math.max(180, pillTextW + pillPadX * 2);
+    pillX = pillRightEdge - pillW;
+    if (pillX - handleEndX >= minGap) break;
+    pillFont -= 1;
+  } while (pillFont > 22);
+  const pillH = 62, pillY = scrY + 8;
   ctx.fillStyle = isCrit ? '#c4281c' : colors.primary;
-  ctx.beginPath(); ctx.roundRect(scrX + scrW - 220, scrY + 16, 204, 44, 22); ctx.fill();
-  ctx.fillStyle = 'white'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
-  ctx.fillText(daysLeft <= 0 ? '\ud83d\udea8 TODAY' : '\u23f0 EUTH: ' + pwShortDate, scrX + scrW - 118, scrY + 44);
+  ctx.beginPath(); ctx.roundRect(pillX, pillY, pillW, pillH, pillH/2); ctx.fill();
+  ctx.fillStyle = 'white'; ctx.font = 'bold ' + pillFont + 'px Arial'; ctx.textAlign = 'center';
+  ctx.fillText(pillLabel, pillX + pillW/2, pillY + pillH/2 + Math.round(pillFont*0.35));
 
   // Space-euth + age-alert banners — stacked full-size on the photo, right below the IG bar
   const spaceEuthPW = isSpaceEuthanasia(dog.notes);
@@ -2283,7 +2354,7 @@ async function spmDownloadCountdownCalendar() {
 
   const colors = getShelterColors(dog.shelter);
 
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = getPacificToday(); today.setHours(0,0,0,0);
   const deadline = parseLocalDate(dog.deadline); deadline.setHours(0,0,0,0);
   const intakeDate = dog.intake_date ? parseLocalDate(dog.intake_date) : null;
   if (intakeDate) intakeDate.setHours(0,0,0,0);
@@ -2319,11 +2390,14 @@ async function spmDownloadCountdownCalendar() {
   while (ctx.measureText(name).width > W - 80 && nameSize > 40) { nameSize -= 4; ctx.font = `900 ${nameSize}px Arial Black, Arial`; }
   ctx.fillText(name, W/2, 100);
 
-  // Urgency line
+  // Urgency line — absolute dates only, never a relative day-count
+  const calRescueObj = new Date(deadline); calRescueObj.setDate(calRescueObj.getDate()-1);
+  const calEuthMD2 = (deadline.getMonth()+1) + '/' + deadline.getDate();
+  const calRescueMD2 = (calRescueObj.getMonth()+1) + '/' + calRescueObj.getDate();
   ctx.fillStyle = daysLeft <= 1 ? '#ff5252' : colors.deadline;
   ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center';
   ctx.fillText(
-    daysLeft <= 0 ? '🚨 DEADLINE IS TODAY' : `⏰ ${daysLeft} day${daysLeft===1?'':'s'} until deadline`,
+    '⏰ Euth Date: ' + calEuthMD2 + '  ·  Rescue Deadline EOD ' + calRescueMD2,
     W/2, 148
   );
 
@@ -2585,45 +2659,59 @@ async function spmDownloadCrayonCard() {
   ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 6;
   ctx.strokeRect(28, 28, W-56, H-56);
 
+  // ── SHELTER NAME + ADDRESS banner, top (tightened spacing) ──
+  const shelterAddr = getShelterAddress(dog.shelter);
+  const bannerH = shelterAddr ? 112 : 88;
+  ctx.fillStyle = 'rgba(0,0,0,0.58)';
+  ctx.fillRect(40, 40, W-80, bannerH);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 46px Arial';
+  ctx.fillText((dog.shelter || '').toUpperCase(), W/2, 40 + 52);
+  if (shelterAddr) {
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = '30px Arial';
+    ctx.fillText(shelterAddr, W/2, 40 + 92);
+  }
+
   // Step 6: Text overlays — crayon style
   // Name — big bold
   ctx.fillStyle = '#ffffff';
   ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 18;
   ctx.font = '900 130px Arial Black, Arial'; ctx.textAlign = 'center';
   const name = (dog.name || dog.shelter_id || 'UNKNOWN').toUpperCase();
-  let nameSize = 130;
-  while (ctx.measureText(name).width > W-100 && nameSize > 60) {
+  let nameSize = 100;
+  while (ctx.measureText(name).width > W-100 && nameSize > 50) {
     nameSize -= 6; ctx.font = `900 ${nameSize}px Arial Black, Arial`;
   }
   ctx.lineJoin = 'round';
-  ctx.strokeText(name, W/2, H-260);
-  ctx.fillStyle = colors.deadline; ctx.fillText(name, W/2, H-260);
+  ctx.strokeText(name, W/2, H-190);
+  ctx.fillStyle = colors.deadline; ctx.fillText(name, W/2, H-190);
 
-  // Days left
-  const d2 = parseLocalDate(dog.deadline); const t2 = new Date();
+  // Euth Date · Rescue Deadline
+  const d2 = parseLocalDate(dog.deadline); const t2 = getPacificToday();
   d2.setHours(0,0,0,0); t2.setHours(0,0,0,0);
   const daysLeft = Math.round((d2-t2)/86400000);
-  const urgencyText = daysLeft <= 0 ? '🚨 DEADLINE TODAY' : daysLeft === 1 ? '⏰ 1 DAY LEFT' : `⏰ ${daysLeft} DAYS LEFT`;
-  ctx.strokeStyle = 'rgba(0,0,0,0.9)'; ctx.lineWidth = 12;
-  ctx.font = 'bold 56px Arial'; ctx.textAlign = 'center';
-  ctx.strokeText(urgencyText, W/2, H-185);
+  const rescueDlObjCr = new Date(d2); rescueDlObjCr.setDate(rescueDlObjCr.getDate()-1);
+  const crEuthMD = (d2.getMonth()+1) + '/' + d2.getDate();
+  const crRescueMD = (rescueDlObjCr.getMonth()+1) + '/' + rescueDlObjCr.getDate();
+  const urgencyText = (daysLeft <= 0 ? '🚨 ' : '⏰ ') + 'Euth Date: ' + crEuthMD + '  ·  Rescue Deadline EOD ' + crRescueMD;
+  ctx.strokeStyle = 'rgba(0,0,0,0.9)'; ctx.lineWidth = 8;
+  let urgSize = 34; ctx.font = `bold ${urgSize}px Arial`; ctx.textAlign = 'center';
+  while (ctx.measureText(urgencyText).width > W-100 && urgSize > 22) { urgSize -= 2; ctx.font = `bold ${urgSize}px Arial`; }
+  ctx.strokeText(urgencyText, W/2, H-140);
   ctx.fillStyle = daysLeft <= 1 ? '#ff5252' : '#ffffff';
-  ctx.fillText(urgencyText, W/2, H-185);
+  ctx.fillText(urgencyText, W/2, H-140);
 
-  // Shelter + ID
-  ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 8;
-  ctx.font = 'bold 40px Arial';
-  ctx.strokeText(dog.shelter || '', W/2, H-125);
-  ctx.fillStyle = '#ffffff'; ctx.fillText(dog.shelter || '', W/2, H-125);
-
-  ctx.font = '34px monospace';
-  ctx.strokeText(dog.shelter_id || '', W/2, H-80);
-  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fillText(dog.shelter_id || '', W/2, H-80);
+  // DOG ID (shelter name removed — already shown in the top banner)
+  ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 7;
+  ctx.font = 'bold 28px monospace';
+  const idText = dog.shelter_id ? ('DOG ID: ' + dog.shelter_id) : '';
+  ctx.strokeText(idText, W/2, H-98);
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fillText(idText, W/2, H-98);
 
   // @la_dog_dispatch
-  ctx.font = 'bold 36px Arial';
-  ctx.strokeText('@la_dog_dispatch', W/2, H-35);
-  ctx.fillStyle = colors.light; ctx.fillText('@la_dog_dispatch', W/2, H-35);
+  ctx.font = 'bold 32px Arial';
+  ctx.strokeText('@la_dog_dispatch', W/2, H-55);
+  ctx.fillStyle = colors.light; ctx.fillText('@la_dog_dispatch', W/2, H-55);
 
   // Download
   setTimeout(() => {
@@ -2645,7 +2733,7 @@ async function spmDownloadWantedPoster() {
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const d = parseLocalDate(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = getPacificToday();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
   const dlStr = parseLocalDate(dog.deadline).toLocaleDateString('en-US',{month:'long',day:'numeric'}).toUpperCase();
@@ -2831,12 +2919,15 @@ async function spmDownloadWantedPoster() {
   ctx.fillStyle='#2a1500'; ctx.fillRect(50,883,W-100,3); ctx.fillRect(50,887,W-100,5);
 
   // deadline_y=931, gap from rule=14px ✓
+  const wpRescueObj = new Date(d); wpRescueObj.setDate(wpRescueObj.getDate()-1);
+  const wpEuthMD = (d.getMonth()+1) + '/' + d.getDate();
+  const wpRescueMD = (wpRescueObj.getMonth()+1) + '/' + wpRescueObj.getDate();
   ctx.fillStyle='rgba(160,30,20,0.9)'; ctx.font='bold 32px Georgia,serif'; ctx.textAlign='center';
-  ctx.fillText(`⚠  DEADLINE: ${dlStr}  —  ${daysLeft<=0?'TODAY':daysLeft+' DAYS'}  ⚠`,W/2,931,W-80);
+  ctx.fillText(`⚠  Euth Date: ${wpEuthMD}  ·  Rescue Deadline EOD ${wpRescueMD}  ⚠`,W/2,931,W-80);
 
   // shelter_y=975
   ctx.fillStyle='#2a1500'; ctx.font='bold 26px Georgia,serif';
-  ctx.fillText(`${dog.shelter||'Los Angeles'}  ·  ID: ${dog.shelter_id||''}`,W/2,975);
+  ctx.fillText(`${dog.shelter||'Los Angeles'}  ·  DOG ID: ${dog.shelter_id||''}`,W/2,975);
 
   // rule4=[991,996]
   ctx.fillStyle='#2a1500'; ctx.fillRect(50,991,W-100,2); ctx.fillRect(50,994,W-100,5);
@@ -2863,7 +2954,7 @@ async function spmDownloadGRWM() {
   const W = 1536, H = 1380;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const d = parseLocalDate(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = getPacificToday();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
@@ -2966,11 +3057,14 @@ async function spmDownloadGRWM() {
   ctx.font = '900 62px Arial Black,Arial'; ctx.textAlign = 'center';
   ctx.fillText(`${name}  ·  ${dog.breed||'Mixed'}  ·  ${dog.shelter||'Los Angeles'}`, W/2, footerY+80, W-60);
 
-  // Deadline line
+  // Deadline line — absolute dates only
+  const grwmRescueObj = new Date(d); grwmRescueObj.setDate(grwmRescueObj.getDate()-1);
+  const grwmEuthMD = (d.getMonth()+1) + '/' + d.getDate();
+  const grwmRescueMD = (grwmRescueObj.getMonth()+1) + '/' + grwmRescueObj.getDate();
   ctx.fillStyle = daysLeft<=0?'#ef4444':'#ec4899';
-  ctx.font = 'bold 48px Arial'; ctx.textAlign='center';
+  ctx.font = 'bold 40px Arial'; ctx.textAlign='center';
   ctx.fillText(
-    `${daysLeft<=0?'🚨 DEADLINE TODAY':daysLeft+' DAYS LEFT — '+dlStr}  ·  ${dog.shelter_id||''}`,
+    `Euth Date: ${grwmEuthMD}  ·  Rescue Deadline EOD ${grwmRescueMD}  ·  ${dog.shelter_id||''}`,
     W/2, footerY+145, W-60
   );
 
@@ -3015,7 +3109,7 @@ async function spmDownloadTinder() {
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const d = parseLocalDate(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = getPacificToday();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
@@ -3066,7 +3160,7 @@ async function spmDownloadTinder() {
       ctx.fillStyle='#fd5564';
       ctx.beginPath(); ctx.roundRect(W-220,30,180,50,25); ctx.fill();
       ctx.fillStyle='white'; ctx.font='bold 24px Arial'; ctx.textAlign='center';
-      ctx.fillText(daysLeft<=0?'TODAY!':daysLeft+' DAYS LEFT', W-130, 62);
+      ctx.fillText('EUTH: ' + (d.getMonth()+1) + '/' + d.getDate(), W-130, 62);
       // Name + age
       ctx.fillStyle='white'; ctx.font='900 100px Arial Black,Arial'; ctx.textAlign='left';
       ctx.fillText(name, 40, H-280, W-80);
@@ -3148,10 +3242,13 @@ async function spmDownloadTinder() {
       ctx.beginPath(); ctx.moveTo(80,H-245); ctx.lineTo(W-80,H-245); ctx.stroke();
       ctx.fillStyle='white'; ctx.font='bold 44px Arial';
       ctx.fillText(`📍 ${dog.shelter||'Los Angeles'}`, W/2, H-190);
-      ctx.fillStyle=daysLeft<=0?'#ff5252':colors.deadline; ctx.font='bold 42px Arial';
-      ctx.fillText(`⏰ ${daysLeft<=0?'DEADLINE TODAY':daysLeft+' days left — '+dlStr}`, W/2, H-135, W-80);
-      ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='30px monospace';
-      ctx.fillText(dog.shelter_id||'', W/2, H-82);
+      const tinderRescueObj = new Date(d); tinderRescueObj.setDate(tinderRescueObj.getDate()-1);
+      const tinderEuthMD = (d.getMonth()+1) + '/' + d.getDate();
+      const tinderRescueMD = (tinderRescueObj.getMonth()+1) + '/' + tinderRescueObj.getDate();
+      ctx.fillStyle=daysLeft<=0?'#ff5252':colors.deadline; ctx.font='bold 38px Arial';
+      ctx.fillText(`⏰ Euth Date: ${tinderEuthMD}  ·  Rescue Deadline EOD ${tinderRescueMD}`, W/2, H-135, W-80);
+      ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='bold 30px monospace';
+      ctx.fillText(dog.shelter_id ? ('DOG ID: ' + dog.shelter_id) : '', W/2, H-82);
       ctx.fillStyle=colors.light; ctx.font='bold 36px Arial';
       ctx.fillText('@la_dog_dispatch  ·  ladogdispatch.com', W/2, H-36, W-60);
     }
@@ -3181,7 +3278,7 @@ async function spmDownloadStillWaiting() {
   const W = 1080, H = 1080;
   canvas.width = W; canvas.height = H;
   const colors = getShelterColors(dog.shelter);
-  const d = parseLocalDate(dog.deadline); const t = new Date();
+  const d = parseLocalDate(dog.deadline); const t = getPacificToday();
   d.setHours(0,0,0,0); t.setHours(0,0,0,0);
   const daysLeft = Math.round((d-t)/86400000);
   const name = (dog.name||dog.shelter_id).toUpperCase();
@@ -3230,17 +3327,20 @@ async function spmDownloadStillWaiting() {
   ctx.strokeText(name, W/2, H-260, W-80);
   ctx.fillText(name, W/2, H-260, W-80);
 
-  // Days
-  ctx.fillStyle=daysLeft<=0?'#ff5252':colors.deadline; ctx.font='bold 52px Arial';
-  ctx.fillText(daysLeft<=0?'Deadline is TODAY':daysLeft===1?'1 day left':(daysLeft+' days left'), W/2, H-190);
+  // Timeline — absolute dates only
+  const swRescueObj = new Date(d); swRescueObj.setDate(swRescueObj.getDate()-1);
+  const swEuthMD = (d.getMonth()+1) + '/' + d.getDate();
+  const swRescueMD = (swRescueObj.getMonth()+1) + '/' + swRescueObj.getDate();
+  ctx.fillStyle=daysLeft<=0?'#ff5252':colors.deadline; ctx.font='bold 38px Arial';
+  ctx.fillText('Euth Date: ' + swEuthMD + '  ·  Rescue Deadline EOD ' + swRescueMD, W/2, H-190, W-80);
 
   // Shelter
   ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='bold 38px Arial';
   ctx.fillText(dog.shelter||'Los Angeles', W/2, H-138);
 
   // ID
-  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='30px monospace';
-  ctx.fillText(dog.shelter_id||'', W/2, H-90);
+  ctx.fillStyle='#ffffff'; ctx.font='bold 30px monospace';
+  ctx.fillText(dog.shelter_id ? ('DOG ID: ' + dog.shelter_id) : '', W/2, H-90);
 
   // Handle
   ctx.fillStyle=colors.light; ctx.font='bold 34px Arial';
@@ -3262,7 +3362,7 @@ async function adminLoadShelter6Dogs(){
   document.getElementById("admin-c6-loading").style.display="block";
   try{
     const res=await fetch("/api/dogs"), data=await res.json();
-    const today=new Date(); today.setHours(0,0,0,0);
+    const today=getPacificToday(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC6Dogs=all.filter(dog=>{
       const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
@@ -3278,13 +3378,15 @@ async function adminLoadShelter6Dogs(){
       if(!adminC6Dogs.length){
         cap.textContent="No dogs listed this week at South LA / Chesterfield Square.";
       } else {
-        const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
+        const ue=d=>d<=0?"🚨":d===1?"⏰":d<=4?"⚠️":"";
         const list=adminC6Dogs.map(dog=>{
           const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
-          const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
-          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
+          const ag=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+          const rescueObj=new Date(dl); rescueObj.setDate(rescueObj.getDate()-1);
+          const euthMD=(dl.getMonth()+1)+"/"+dl.getDate();
+          const rescueMD=(rescueObj.getMonth()+1)+"/"+rescueObj.getDate();
+          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - Euth Date "+euthMD+" - Rescue Deadline EOD "+rescueMD;
         }).join("\n");
         cap.textContent="\ud83d\udea8 These are the faces of the "+adminC6Dogs.length+" dogs at the South LA / Chesterfield Square shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd South LA / Chesterfield Square\n1850 W 60th St, Los Angeles, CA 90047\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #southla #urgentdogs";
       }
@@ -3322,7 +3424,7 @@ function adminDrawCard6(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC6Dogs[dogIndex]){
     const dog=adminC6Dogs[dogIndex], img=adminC6Images[dogIndex];
-    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3334,7 +3436,7 @@ function adminDrawCard6(phase,dogIndex){
     g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,0.9)");
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     ctx.fillStyle=colors.primary; ctx.fillRect(0,0,W,12);
-    ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,0.85)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
     ctx.fillText("SOUTH LA / CHESTERFIELD SQUARE · URGENT",W/2,50);
     ctx.fillStyle="rgba(74,140,106,0.6)"; ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
     ctx.fillStyle="white"; ctx.font="bold 20px Arial";
@@ -3347,13 +3449,32 @@ function adminDrawCard6(phase,dogIndex){
     const nm=(dog.name||dog.shelter_id||"").toUpperCase();
     while(ctx.measureText(nm).width>W-80&&ns2>60){ns2-=8;ctx.font="900 "+ns2+"px Arial Black,Arial";}
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
-    ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
-    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
-    ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
-    ctx.fillText(dog.shelter_id||"",40,H-22);
+    const spaceEuthWU=isSpaceEuthanasia(dog.notes);
+    const {isPuppy:isPupWU,isSenior:isSenWU}=getAgeFlags(dog.age);
+    const badgeLabelWU=isPupWU?"PUPPY ALERT":isSenWU?"SENIOR ALERT":"";
+    const ageDisplayWU=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+    const breedAgeTextWU=(dog.breed||"Mixed")+" \u00b7 "+ageDisplayWU;
+    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif"; ctx.textAlign="center";
+    ctx.fillText(breedAgeTextWU,W/2,H-148,W-80);
+    if(spaceEuthWU){
+      ctx.fillStyle="rgba(120,20,14,0.85)";
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.fill();
+      ctx.strokeStyle="rgba(255,120,100,0.8)"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.stroke();
+      ctx.fillStyle="#ffb3a8"; ctx.font="bold 28px Arial"; ctx.textAlign="center";
+      ctx.fillText("🏠 WILL BE EUTHANIZED FOR SHELTER SPACE",W/2,150,W-110);
+    }
+    const wuRescueObj=new Date(d); wuRescueObj.setDate(wuRescueObj.getDate()-1);
+    const wuEuthMD=(d.getMonth()+1)+"/"+d.getDate();
+    const wuRescueMD=(wuRescueObj.getMonth()+1)+"/"+wuRescueObj.getDate();
+    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial"; ctx.textAlign="center";
+    ctx.fillText("Euth Date: "+wuEuthMD+"  ·  Rescue Deadline EOD "+wuRescueMD,W/2,H-90,W-80);
+    ctx.fillStyle="#ffffff"; ctx.font="bold 34px monospace"; ctx.textAlign="left";
+    ctx.fillText(dog.shelter_id?("DOG ID: "+dog.shelter_id):"",40,H-22);
+    if(badgeLabelWU){
+      ctx.textAlign="right";
+      ctx.fillText(badgeLabelWU,W-40,H-22);
+    }
     ctx.fillStyle=colors.primary; ctx.fillRect(0,H-12,W,12);
   } else if(phase==="cta"){
     adminDrawLogo(ctx,W,20,180); adminDivider(ctx,W,220);
@@ -3395,7 +3516,7 @@ async function adminLoadShelter7Dogs(){
   document.getElementById("admin-c7-loading").style.display="block";
   try{
     const res=await fetch("/api/dogs"), data=await res.json();
-    const today=new Date(); today.setHours(0,0,0,0);
+    const today=getPacificToday(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC7Dogs=all.filter(dog=>{
       const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
@@ -3411,13 +3532,15 @@ async function adminLoadShelter7Dogs(){
       if(!adminC7Dogs.length){
         cap.textContent="No dogs listed this week at West Los Angeles.";
       } else {
-        const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
+        const ue=d=>d<=0?"🚨":d===1?"⏰":d<=4?"⚠️":"";
         const list=adminC7Dogs.map(dog=>{
           const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
-          const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
-          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
+          const ag=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+          const rescueObj=new Date(dl); rescueObj.setDate(rescueObj.getDate()-1);
+          const euthMD=(dl.getMonth()+1)+"/"+dl.getDate();
+          const rescueMD=(rescueObj.getMonth()+1)+"/"+rescueObj.getDate();
+          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - Euth Date "+euthMD+" - Rescue Deadline EOD "+rescueMD;
         }).join("\n");
         cap.textContent="\ud83d\udea8 These are the faces of the "+adminC7Dogs.length+" dogs at the West Los Angeles shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd West Los Angeles\n11361 W Pico Blvd, Los Angeles, CA 90064\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #westla #urgentdogs";
       }
@@ -3455,7 +3578,7 @@ function adminDrawCard7(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC7Dogs[dogIndex]){
     const dog=adminC7Dogs[dogIndex], img=adminC7Images[dogIndex];
-    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3467,7 +3590,7 @@ function adminDrawCard7(phase,dogIndex){
     g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,0.9)");
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     ctx.fillStyle=colors.primary; ctx.fillRect(0,0,W,12);
-    ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,0.85)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
     ctx.fillText("WEST LOS ANGELES · URGENT",W/2,50);
     ctx.fillStyle="rgba(74,140,106,0.6)"; ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
     ctx.fillStyle="white"; ctx.font="bold 20px Arial";
@@ -3480,13 +3603,32 @@ function adminDrawCard7(phase,dogIndex){
     const nm=(dog.name||dog.shelter_id||"").toUpperCase();
     while(ctx.measureText(nm).width>W-80&&ns2>60){ns2-=8;ctx.font="900 "+ns2+"px Arial Black,Arial";}
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
-    ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
-    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
-    ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
-    ctx.fillText(dog.shelter_id||"",40,H-22);
+    const spaceEuthWU=isSpaceEuthanasia(dog.notes);
+    const {isPuppy:isPupWU,isSenior:isSenWU}=getAgeFlags(dog.age);
+    const badgeLabelWU=isPupWU?"PUPPY ALERT":isSenWU?"SENIOR ALERT":"";
+    const ageDisplayWU=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+    const breedAgeTextWU=(dog.breed||"Mixed")+" \u00b7 "+ageDisplayWU;
+    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif"; ctx.textAlign="center";
+    ctx.fillText(breedAgeTextWU,W/2,H-148,W-80);
+    if(spaceEuthWU){
+      ctx.fillStyle="rgba(120,20,14,0.85)";
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.fill();
+      ctx.strokeStyle="rgba(255,120,100,0.8)"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.stroke();
+      ctx.fillStyle="#ffb3a8"; ctx.font="bold 28px Arial"; ctx.textAlign="center";
+      ctx.fillText("🏠 WILL BE EUTHANIZED FOR SHELTER SPACE",W/2,150,W-110);
+    }
+    const wuRescueObj=new Date(d); wuRescueObj.setDate(wuRescueObj.getDate()-1);
+    const wuEuthMD=(d.getMonth()+1)+"/"+d.getDate();
+    const wuRescueMD=(wuRescueObj.getMonth()+1)+"/"+wuRescueObj.getDate();
+    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial"; ctx.textAlign="center";
+    ctx.fillText("Euth Date: "+wuEuthMD+"  ·  Rescue Deadline EOD "+wuRescueMD,W/2,H-90,W-80);
+    ctx.fillStyle="#ffffff"; ctx.font="bold 34px monospace"; ctx.textAlign="left";
+    ctx.fillText(dog.shelter_id?("DOG ID: "+dog.shelter_id):"",40,H-22);
+    if(badgeLabelWU){
+      ctx.textAlign="right";
+      ctx.fillText(badgeLabelWU,W-40,H-22);
+    }
     ctx.fillStyle=colors.primary; ctx.fillRect(0,H-12,W,12);
   } else if(phase==="cta"){
     adminDrawLogo(ctx,W,20,180); adminDivider(ctx,W,220);
@@ -3528,7 +3670,7 @@ async function adminLoadShelter8Dogs(){
   document.getElementById("admin-c8-loading").style.display="block";
   try{
     const res=await fetch("/api/dogs"), data=await res.json();
-    const today=new Date(); today.setHours(0,0,0,0);
+    const today=getPacificToday(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC8Dogs=all.filter(dog=>{
       const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
@@ -3544,13 +3686,15 @@ async function adminLoadShelter8Dogs(){
       if(!adminC8Dogs.length){
         cap.textContent="No dogs listed this week at North Central.";
       } else {
-        const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
+        const ue=d=>d<=0?"🚨":d===1?"⏰":d<=4?"⚠️":"";
         const list=adminC8Dogs.map(dog=>{
           const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
-          const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
-          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
+          const ag=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+          const rescueObj=new Date(dl); rescueObj.setDate(rescueObj.getDate()-1);
+          const euthMD=(dl.getMonth()+1)+"/"+dl.getDate();
+          const rescueMD=(rescueObj.getMonth()+1)+"/"+rescueObj.getDate();
+          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - Euth Date "+euthMD+" - Rescue Deadline EOD "+rescueMD;
         }).join("\n");
         cap.textContent="\ud83d\udea8 These are the faces of the "+adminC8Dogs.length+" dogs at the North Central shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd North Central\n3201 Lacy St, Los Angeles, CA 90031\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #northcentral #urgentdogs";
       }
@@ -3588,7 +3732,7 @@ function adminDrawCard8(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC8Dogs[dogIndex]){
     const dog=adminC8Dogs[dogIndex], img=adminC8Images[dogIndex];
-    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3600,7 +3744,7 @@ function adminDrawCard8(phase,dogIndex){
     g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,0.9)");
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     ctx.fillStyle=colors.primary; ctx.fillRect(0,0,W,12);
-    ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,0.85)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
     ctx.fillText("NORTH CENTRAL · URGENT",W/2,50);
     ctx.fillStyle="rgba(74,140,106,0.6)"; ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
     ctx.fillStyle="white"; ctx.font="bold 20px Arial";
@@ -3613,13 +3757,32 @@ function adminDrawCard8(phase,dogIndex){
     const nm=(dog.name||dog.shelter_id||"").toUpperCase();
     while(ctx.measureText(nm).width>W-80&&ns2>60){ns2-=8;ctx.font="900 "+ns2+"px Arial Black,Arial";}
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
-    ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
-    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
-    ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
-    ctx.fillText(dog.shelter_id||"",40,H-22);
+    const spaceEuthWU=isSpaceEuthanasia(dog.notes);
+    const {isPuppy:isPupWU,isSenior:isSenWU}=getAgeFlags(dog.age);
+    const badgeLabelWU=isPupWU?"PUPPY ALERT":isSenWU?"SENIOR ALERT":"";
+    const ageDisplayWU=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+    const breedAgeTextWU=(dog.breed||"Mixed")+" \u00b7 "+ageDisplayWU;
+    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif"; ctx.textAlign="center";
+    ctx.fillText(breedAgeTextWU,W/2,H-148,W-80);
+    if(spaceEuthWU){
+      ctx.fillStyle="rgba(120,20,14,0.85)";
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.fill();
+      ctx.strokeStyle="rgba(255,120,100,0.8)"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.stroke();
+      ctx.fillStyle="#ffb3a8"; ctx.font="bold 28px Arial"; ctx.textAlign="center";
+      ctx.fillText("🏠 WILL BE EUTHANIZED FOR SHELTER SPACE",W/2,150,W-110);
+    }
+    const wuRescueObj=new Date(d); wuRescueObj.setDate(wuRescueObj.getDate()-1);
+    const wuEuthMD=(d.getMonth()+1)+"/"+d.getDate();
+    const wuRescueMD=(wuRescueObj.getMonth()+1)+"/"+wuRescueObj.getDate();
+    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial"; ctx.textAlign="center";
+    ctx.fillText("Euth Date: "+wuEuthMD+"  ·  Rescue Deadline EOD "+wuRescueMD,W/2,H-90,W-80);
+    ctx.fillStyle="#ffffff"; ctx.font="bold 34px monospace"; ctx.textAlign="left";
+    ctx.fillText(dog.shelter_id?("DOG ID: "+dog.shelter_id):"",40,H-22);
+    if(badgeLabelWU){
+      ctx.textAlign="right";
+      ctx.fillText(badgeLabelWU,W-40,H-22);
+    }
     ctx.fillStyle=colors.primary; ctx.fillRect(0,H-12,W,12);
   } else if(phase==="cta"){
     adminDrawLogo(ctx,W,20,180); adminDivider(ctx,W,220);
@@ -3661,7 +3824,7 @@ async function adminLoadShelter9Dogs(){
   document.getElementById("admin-c9-loading").style.display="block";
   try{
     const res=await fetch("/api/dogs"), data=await res.json();
-    const today=new Date(); today.setHours(0,0,0,0);
+    const today=getPacificToday(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC9Dogs=all.filter(dog=>{
       const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
@@ -3677,13 +3840,15 @@ async function adminLoadShelter9Dogs(){
       if(!adminC9Dogs.length){
         cap.textContent="No dogs listed this week at East Valley.";
       } else {
-        const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
+        const ue=d=>d<=0?"🚨":d===1?"⏰":d<=4?"⚠️":"";
         const list=adminC9Dogs.map(dog=>{
           const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
-          const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
-          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
+          const ag=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+          const rescueObj=new Date(dl); rescueObj.setDate(rescueObj.getDate()-1);
+          const euthMD=(dl.getMonth()+1)+"/"+dl.getDate();
+          const rescueMD=(rescueObj.getMonth()+1)+"/"+rescueObj.getDate();
+          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - Euth Date "+euthMD+" - Rescue Deadline EOD "+rescueMD;
         }).join("\n");
         cap.textContent="\ud83d\udea8 These are the faces of the "+adminC9Dogs.length+" dogs at the East Valley shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd East Valley\n14409 Vanowen St, Van Nuys, CA 91405\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #eastvalley #urgentdogs";
       }
@@ -3721,7 +3886,7 @@ function adminDrawCard9(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC9Dogs[dogIndex]){
     const dog=adminC9Dogs[dogIndex], img=adminC9Images[dogIndex];
-    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3733,7 +3898,7 @@ function adminDrawCard9(phase,dogIndex){
     g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,0.9)");
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     ctx.fillStyle=colors.primary; ctx.fillRect(0,0,W,12);
-    ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,0.85)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
     ctx.fillText("EAST VALLEY · URGENT",W/2,50);
     ctx.fillStyle="rgba(74,140,106,0.6)"; ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
     ctx.fillStyle="white"; ctx.font="bold 20px Arial";
@@ -3746,13 +3911,32 @@ function adminDrawCard9(phase,dogIndex){
     const nm=(dog.name||dog.shelter_id||"").toUpperCase();
     while(ctx.measureText(nm).width>W-80&&ns2>60){ns2-=8;ctx.font="900 "+ns2+"px Arial Black,Arial";}
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
-    ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
-    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
-    ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
-    ctx.fillText(dog.shelter_id||"",40,H-22);
+    const spaceEuthWU=isSpaceEuthanasia(dog.notes);
+    const {isPuppy:isPupWU,isSenior:isSenWU}=getAgeFlags(dog.age);
+    const badgeLabelWU=isPupWU?"PUPPY ALERT":isSenWU?"SENIOR ALERT":"";
+    const ageDisplayWU=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+    const breedAgeTextWU=(dog.breed||"Mixed")+" \u00b7 "+ageDisplayWU;
+    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif"; ctx.textAlign="center";
+    ctx.fillText(breedAgeTextWU,W/2,H-148,W-80);
+    if(spaceEuthWU){
+      ctx.fillStyle="rgba(120,20,14,0.85)";
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.fill();
+      ctx.strokeStyle="rgba(255,120,100,0.8)"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.stroke();
+      ctx.fillStyle="#ffb3a8"; ctx.font="bold 28px Arial"; ctx.textAlign="center";
+      ctx.fillText("🏠 WILL BE EUTHANIZED FOR SHELTER SPACE",W/2,150,W-110);
+    }
+    const wuRescueObj=new Date(d); wuRescueObj.setDate(wuRescueObj.getDate()-1);
+    const wuEuthMD=(d.getMonth()+1)+"/"+d.getDate();
+    const wuRescueMD=(wuRescueObj.getMonth()+1)+"/"+wuRescueObj.getDate();
+    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial"; ctx.textAlign="center";
+    ctx.fillText("Euth Date: "+wuEuthMD+"  ·  Rescue Deadline EOD "+wuRescueMD,W/2,H-90,W-80);
+    ctx.fillStyle="#ffffff"; ctx.font="bold 34px monospace"; ctx.textAlign="left";
+    ctx.fillText(dog.shelter_id?("DOG ID: "+dog.shelter_id):"",40,H-22);
+    if(badgeLabelWU){
+      ctx.textAlign="right";
+      ctx.fillText(badgeLabelWU,W-40,H-22);
+    }
     ctx.fillStyle=colors.primary; ctx.fillRect(0,H-12,W,12);
   } else if(phase==="cta"){
     adminDrawLogo(ctx,W,20,180); adminDivider(ctx,W,220);
@@ -3794,7 +3978,7 @@ async function adminLoadShelter10Dogs(){
   document.getElementById("admin-c10-loading").style.display="block";
   try{
     const res=await fetch("/api/dogs"), data=await res.json();
-    const today=new Date(); today.setHours(0,0,0,0);
+    const today=getPacificToday(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC10Dogs=all.filter(dog=>{
       const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
@@ -3810,13 +3994,15 @@ async function adminLoadShelter10Dogs(){
       if(!adminC10Dogs.length){
         cap.textContent="No dogs listed this week at West Valley.";
       } else {
-        const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
+        const ue=d=>d<=0?"🚨":d===1?"⏰":d<=4?"⚠️":"";
         const list=adminC10Dogs.map(dog=>{
           const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
-          const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
-          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
+          const ag=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+          const rescueObj=new Date(dl); rescueObj.setDate(rescueObj.getDate()-1);
+          const euthMD=(dl.getMonth()+1)+"/"+dl.getDate();
+          const rescueMD=(rescueObj.getMonth()+1)+"/"+rescueObj.getDate();
+          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - Euth Date "+euthMD+" - Rescue Deadline EOD "+rescueMD;
         }).join("\n");
         cap.textContent="\ud83d\udea8 These are the faces of the "+adminC10Dogs.length+" dogs at the West Valley shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd West Valley\n20655 Plummer St, Chatsworth, CA 91311\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #westvalley #urgentdogs";
       }
@@ -3854,7 +4040,7 @@ function adminDrawCard10(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC10Dogs[dogIndex]){
     const dog=adminC10Dogs[dogIndex], img=adminC10Images[dogIndex];
-    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3866,7 +4052,7 @@ function adminDrawCard10(phase,dogIndex){
     g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,0.9)");
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     ctx.fillStyle=colors.primary; ctx.fillRect(0,0,W,12);
-    ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,0.85)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
     ctx.fillText("WEST VALLEY · URGENT",W/2,50);
     ctx.fillStyle="rgba(74,140,106,0.6)"; ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
     ctx.fillStyle="white"; ctx.font="bold 20px Arial";
@@ -3879,13 +4065,32 @@ function adminDrawCard10(phase,dogIndex){
     const nm=(dog.name||dog.shelter_id||"").toUpperCase();
     while(ctx.measureText(nm).width>W-80&&ns2>60){ns2-=8;ctx.font="900 "+ns2+"px Arial Black,Arial";}
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
-    ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
-    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
-    ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
-    ctx.fillText(dog.shelter_id||"",40,H-22);
+    const spaceEuthWU=isSpaceEuthanasia(dog.notes);
+    const {isPuppy:isPupWU,isSenior:isSenWU}=getAgeFlags(dog.age);
+    const badgeLabelWU=isPupWU?"PUPPY ALERT":isSenWU?"SENIOR ALERT":"";
+    const ageDisplayWU=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+    const breedAgeTextWU=(dog.breed||"Mixed")+" \u00b7 "+ageDisplayWU;
+    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif"; ctx.textAlign="center";
+    ctx.fillText(breedAgeTextWU,W/2,H-148,W-80);
+    if(spaceEuthWU){
+      ctx.fillStyle="rgba(120,20,14,0.85)";
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.fill();
+      ctx.strokeStyle="rgba(255,120,100,0.8)"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.stroke();
+      ctx.fillStyle="#ffb3a8"; ctx.font="bold 28px Arial"; ctx.textAlign="center";
+      ctx.fillText("🏠 WILL BE EUTHANIZED FOR SHELTER SPACE",W/2,150,W-110);
+    }
+    const wuRescueObj=new Date(d); wuRescueObj.setDate(wuRescueObj.getDate()-1);
+    const wuEuthMD=(d.getMonth()+1)+"/"+d.getDate();
+    const wuRescueMD=(wuRescueObj.getMonth()+1)+"/"+wuRescueObj.getDate();
+    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial"; ctx.textAlign="center";
+    ctx.fillText("Euth Date: "+wuEuthMD+"  ·  Rescue Deadline EOD "+wuRescueMD,W/2,H-90,W-80);
+    ctx.fillStyle="#ffffff"; ctx.font="bold 34px monospace"; ctx.textAlign="left";
+    ctx.fillText(dog.shelter_id?("DOG ID: "+dog.shelter_id):"",40,H-22);
+    if(badgeLabelWU){
+      ctx.textAlign="right";
+      ctx.fillText(badgeLabelWU,W-40,H-22);
+    }
     ctx.fillStyle=colors.primary; ctx.fillRect(0,H-12,W,12);
   } else if(phase==="cta"){
     adminDrawLogo(ctx,W,20,180); adminDivider(ctx,W,220);
@@ -3927,7 +4132,7 @@ async function adminLoadShelter11Dogs(){
   document.getElementById("admin-c11-loading").style.display="block";
   try{
     const res=await fetch("/api/dogs"), data=await res.json();
-    const today=new Date(); today.setHours(0,0,0,0);
+    const today=getPacificToday(); today.setHours(0,0,0,0);
     const all=data.dogs||data||[];
     adminC11Dogs=all.filter(dog=>{
       const d=parseLocalDate(dog.deadline); d.setHours(0,0,0,0);
@@ -3943,13 +4148,15 @@ async function adminLoadShelter11Dogs(){
       if(!adminC11Dogs.length){
         cap.textContent="No dogs listed this week at Harbor.";
       } else {
-        const ue=d=>d<=0?"[SOS]":d===1?"[URGENT]":d<=4?"[TIME SENSITIVE]":"";
+        const ue=d=>d<=0?"🚨":d===1?"⏰":d<=4?"⚠️":"";
         const list=adminC11Dogs.map(dog=>{
           const dl=parseLocalDate(dog.deadline); dl.setHours(0,0,0,0);
           const days=Math.round((dl-today)/86400000);
-          const a=(dog.age||"").toLowerCase();
-          const ag=a.includes("month")?a.replace(/\\s*months?\\s*/i," mo"):parseFloat(a)+" yrs";
-          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - "+(days<=0?"TODAY":days+" day"+(days!==1?"s":"")+" left");
+          const ag=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+          const rescueObj=new Date(dl); rescueObj.setDate(rescueObj.getDate()-1);
+          const euthMD=(dl.getMonth()+1)+"/"+dl.getDate();
+          const rescueMD=(rescueObj.getMonth()+1)+"/"+rescueObj.getDate();
+          const u=ue(days); return (u?u+" ":"")+(dog.name||dog.shelter_id)+" - "+ag+" - "+(dog.shelter_id||"")+" - Euth Date "+euthMD+" - Rescue Deadline EOD "+rescueMD;
         }).join("\n");
         cap.textContent="\ud83d\udea8 These are the faces of the "+adminC11Dogs.length+" dogs at the Harbor shelter on the euthanasia list right now. They need to be shared ASAP.\n\n"+list+"\n\n\ud83d\udccd Harbor\n957 N Gaffey St, San Pedro, CA 90731\n\n\ud83d\udea8 Share to your networks NOW. Every share saves time.\n\u2764\ufe0f Foster \u00b7 Adopt \u00b7 Share \u2192 ladogdispatch.com\n@la_dog_dispatch\n\n#ladogdispatch #harbor #urgentdogs";
       }
@@ -3987,7 +4194,7 @@ function adminDrawCard11(phase,dogIndex){
     adminFooterPill(ctx,W,H);
   } else if(phase==="dog"&&adminC11Dogs[dogIndex]){
     const dog=adminC11Dogs[dogIndex], img=adminC11Images[dogIndex];
-    const d=parseLocalDate(dog.deadline),t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const d=parseLocalDate(dog.deadline),t=getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
     const dl=Math.round((d-t)/86400000);
     if(img){
       const co=parseFloat(dog.photo_crop_offset||0);
@@ -3999,7 +4206,7 @@ function adminDrawCard11(phase,dogIndex){
     g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,0.9)");
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     ctx.fillStyle=colors.primary; ctx.fillRect(0,0,W,12);
-    ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,0.85)"; ctx.font="bold 26px Arial"; ctx.textAlign="center";
     ctx.fillText("HARBOR · URGENT",W/2,50);
     ctx.fillStyle="rgba(74,140,106,0.6)"; ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
     ctx.fillStyle="white"; ctx.font="bold 20px Arial";
@@ -4012,13 +4219,32 @@ function adminDrawCard11(phase,dogIndex){
     const nm=(dog.name||dog.shelter_id||"").toUpperCase();
     while(ctx.measureText(nm).width>W-80&&ns2>60){ns2-=8;ctx.font="900 "+ns2+"px Arial Black,Arial";}
     ctx.fillStyle="#ffffff"; ctx.textAlign="center"; ctx.fillText(nm,W/2,H-195,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif";
-    ctx.fillText(dog.breed||"Mixed",W/2,H-148,W-80);
-    const ds=parseLocalDate(dog.deadline).toLocaleDateString("en-US",{month:"long",day:"numeric"});
-    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial";
-    ctx.fillText("Deadline: "+ds+" · "+(dl<=0?"TODAY":dl===1?"1 DAY LEFT":dl+" DAYS LEFT"),W/2,H-90,W-80);
-    ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.font="bold 30px Arial"; ctx.textAlign="left";
-    ctx.fillText(dog.shelter_id||"",40,H-22);
+    const spaceEuthWU=isSpaceEuthanasia(dog.notes);
+    const {isPuppy:isPupWU,isSenior:isSenWU}=getAgeFlags(dog.age);
+    const badgeLabelWU=isPupWU?"PUPPY ALERT":isSenWU?"SENIOR ALERT":"";
+    const ageDisplayWU=(dog.age&&dog.age.trim())?dog.age:"Age Unknown";
+    const breedAgeTextWU=(dog.breed||"Mixed")+" \u00b7 "+ageDisplayWU;
+    ctx.fillStyle="rgba(255,255,255,0.75)"; ctx.font="italic 32px Georgia,serif"; ctx.textAlign="center";
+    ctx.fillText(breedAgeTextWU,W/2,H-148,W-80);
+    if(spaceEuthWU){
+      ctx.fillStyle="rgba(120,20,14,0.85)";
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.fill();
+      ctx.strokeStyle="rgba(255,120,100,0.8)"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.stroke();
+      ctx.fillStyle="#ffb3a8"; ctx.font="bold 28px Arial"; ctx.textAlign="center";
+      ctx.fillText("🏠 WILL BE EUTHANIZED FOR SHELTER SPACE",W/2,150,W-110);
+    }
+    const wuRescueObj=new Date(d); wuRescueObj.setDate(wuRescueObj.getDate()-1);
+    const wuEuthMD=(d.getMonth()+1)+"/"+d.getDate();
+    const wuRescueMD=(wuRescueObj.getMonth()+1)+"/"+wuRescueObj.getDate();
+    ctx.fillStyle=dl<=0?"#ff5252":"#fcd34d"; ctx.font="bold 36px Arial"; ctx.textAlign="center";
+    ctx.fillText("Euth Date: "+wuEuthMD+"  ·  Rescue Deadline EOD "+wuRescueMD,W/2,H-90,W-80);
+    ctx.fillStyle="#ffffff"; ctx.font="bold 34px monospace"; ctx.textAlign="left";
+    ctx.fillText(dog.shelter_id?("DOG ID: "+dog.shelter_id):"",40,H-22);
+    if(badgeLabelWU){
+      ctx.textAlign="right";
+      ctx.fillText(badgeLabelWU,W-40,H-22);
+    }
     ctx.fillStyle=colors.primary; ctx.fillRect(0,H-12,W,12);
   } else if(phase==="cta"){
     adminDrawLogo(ctx,W,20,180); adminDivider(ctx,W,220);
@@ -4053,6 +4279,188 @@ function adminRunCard11(){
   adminC11Timers.push(setTimeout(()=>adminDrawCard11("cta",0),t));
 }
 
+// ── SPACE/CAPACITY ONLY VIDEO — dogs with zero behavioral concerns, purely a space issue ──
+let adminSpaceOnlyTimers = [], adminSpaceOnlyDogs = [], adminSpaceOnlyImages = [];
+
+function hasBehavioralConcern(notes) {
+  const n = (notes || "").toLowerCase();
+  return /aggress|bite|\bbit\b|unsafe|reactive|guard(ing)?|lunge|growl|attack|bark(ing)?|not good with|needs (an )?experienced|nervous|fearful|anxious|resource/i.test(n);
+}
+function isSpaceOnlyGoodDog(dog) {
+  return isSpaceEuthanasia(dog.notes) && !hasBehavioralConcern(dog.notes);
+}
+
+async function adminLoadSpaceOnlyDogs() {
+  document.getElementById("admin-spaceonly-loading").style.display = "block";
+  try {
+    const res = await fetch("/api/dogs"), data = await res.json();
+    const today = getPacificToday(); today.setHours(0, 0, 0, 0);
+    const all = data.dogs || data || [];
+    adminSpaceOnlyDogs = all.filter(dog => {
+      const d = parseLocalDate(dog.deadline); d.setHours(0, 0, 0, 0);
+      return d >= today && isSpaceOnlyGoodDog(dog);
+    }).sort((a, b) => parseLocalDate(a.deadline) - parseLocalDate(b.deadline));
+    adminSpaceOnlyImages = await Promise.all(adminSpaceOnlyDogs.map(dog => new Promise(resolve => {
+      if (!dog.photo_url) return resolve(null);
+      const img = new Image(); img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img); img.onerror = () => resolve(null); img.src = dog.photo_url;
+    })));
+    const cap = document.getElementById("admin-copy-spaceonly");
+    if (cap) {
+      if (!adminSpaceOnlyDogs.length) {
+        cap.textContent = "No dogs currently match: space/capacity release with zero behavioral concerns.";
+      } else {
+        const list = adminSpaceOnlyDogs.map(dog => {
+          const dl = parseLocalDate(dog.deadline); dl.setHours(0, 0, 0, 0);
+          const ag = (dog.age && dog.age.trim()) ? dog.age : "Age Unknown";
+          const addr = getShelterAddress(dog.shelter);
+          const rescueObj = new Date(dl); rescueObj.setDate(rescueObj.getDate()-1);
+          const euthMD = (dl.getMonth()+1)+"/"+dl.getDate();
+          const rescueMD = (rescueObj.getMonth()+1)+"/"+rescueObj.getDate();
+          return "• " + (dog.name || dog.shelter_id) + " — " + ag + " — " + (dog.shelter || "") +
+                 (addr ? "\n  📍 " + addr : "") +
+                 "\n  DOG ID: " + (dog.shelter_id || "") + " — Euth Date " + euthMD + " — Rescue Deadline EOD " + rescueMD;
+        }).join("\n\n");
+        cap.textContent = "💔 These " + adminSpaceOnlyDogs.length + " dogs have ZERO behavioral concerns noted by shelter staff. " +
+          "They are not aggressive, not reactive, not unsafe — they are simply out of time because the shelter has run out of space.\n\n" +
+          "This is not about behavior. This is about capacity.\n\n" + list +
+          "\n\n🚨 Share to your networks NOW. Every share saves time.\n❤️ Foster · Adopt · Share → ladogdispatch.com\n@la_dog_dispatch" +
+          "\n\n#ladogdispatch #urgentdogs #spacerelease";
+      }
+    }
+  } catch (e) { adminSpaceOnlyDogs = []; adminSpaceOnlyImages = []; }
+  document.getElementById("admin-spaceonly-loading").style.display = "none";
+}
+
+function adminDrawCardSpaceOnly(phase, dogIndex) {
+  const canvas = document.getElementById("admin-spaceonly");
+  const ctx = canvas.getContext("2d");
+  const W = 1080, H = 1080; canvas.width = W; canvas.height = H;
+  const colors = getShelterColors(""); // neutral brand green for intro/CTA (multi-shelter)
+  adminDrawBase(ctx, W, H);
+
+  if (phase === "intro") {
+    adminDrawLogo(ctx, W, 20, 180); adminDivider(ctx, W, 220);
+    if (!adminSpaceOnlyDogs.length) {
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 46px Georgia,serif"; ctx.textAlign = "center";
+      ctx.fillText("NO SPACE-ONLY DOGS RIGHT NOW", W/2, 380, W-80);
+      adminFooterPillSpaceOnly(ctx, W, H); return;
+    }
+    ctx.fillStyle = "#ff8a80"; ctx.font = "900 46px Arial Black,Arial"; ctx.textAlign = "center";
+    ctx.fillText("ZERO BEHAVIORAL ISSUES", W/2, 300, W-80);
+    adminDivider(ctx, W, 335);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 36px Georgia,serif";
+    ctx.fillText("These dogs are not aggressive.", W/2, 405, W-80);
+    ctx.fillText("Not reactive. Not unsafe.", W/2, 450, W-80);
+    ctx.fillStyle = colors.light; ctx.font = "900 " + (adminSpaceOnlyDogs.length > 9 ? "120" : "150") + "px Arial Black,Arial";
+    ctx.fillText(String(adminSpaceOnlyDogs.length), W/2, 610);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 36px Georgia,serif";
+    ctx.fillText("are only out of time because", W/2, 680, W-80);
+    ctx.fillText("the shelter is out of space.", W/2, 725, W-80);
+    ctx.fillStyle = "#ff5252"; ctx.font = "bold 38px Arial";
+    ctx.fillText("This is not about behavior.", W/2, 790, W-80);
+    adminFooterPillSpaceOnly(ctx, W, H);
+  } else if (phase === "dog" && adminSpaceOnlyDogs[dogIndex]) {
+    const dog = adminSpaceOnlyDogs[dogIndex], img = adminSpaceOnlyImages[dogIndex];
+    const dogColors = getShelterColors(dog.shelter);
+    const d = parseLocalDate(dog.deadline), t = getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const dl = Math.round((d - t) / 86400000);
+    if (img) {
+      const co = parseFloat(dog.photo_crop_offset || 0);
+      const scale = Math.max(W/img.width, H/img.height);
+      const dw = img.width*scale, dh = img.height*scale, dy = (H-dh)/2;
+      ctx.drawImage(img, (W-dw)/2, dy-(co*Math.abs(dy)), dw, dh);
+    }
+    const g = ctx.createLinearGradient(0, H*0.35, 0, H);
+    g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,0.9)");
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = dogColors.primary; ctx.fillRect(0,0,W,12);
+    ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "bold 26px Arial"; ctx.textAlign = "center";
+    ctx.fillText((dog.shelter||"").toUpperCase() + " · SPACE RELEASE", W/2, 50, W-80);
+    ctx.fillStyle = "rgba(74,140,106,0.6)"; ctx.beginPath(); ctx.roundRect(W/2-55,65,110,36,18); ctx.fill();
+    ctx.fillStyle = "white"; ctx.font = "bold 20px Arial";
+    ctx.fillText((dogIndex+1)+" of "+adminSpaceOnlyDogs.length, W/2, 88);
+
+    // Space-euth banner — always true for this list, so always shown
+    ctx.fillStyle = "rgba(120,20,14,0.85)";
+    ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.fill();
+    ctx.strokeStyle = "rgba(255,120,100,0.8)"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(40,110,W-80,64,12); ctx.stroke();
+    ctx.fillStyle = "#ffb3a8"; ctx.font = "bold 26px Arial"; ctx.textAlign = "center";
+    ctx.fillText("🏠 WILL BE EUTHANIZED FOR SHELTER SPACE", W/2, 150, W-110);
+
+    let ns2 = 130; ctx.font = "900 "+ns2+"px Arial Black,Arial";
+    const nm = (dog.name||dog.shelter_id||"").toUpperCase();
+    while (ctx.measureText(nm).width > W-80 && ns2 > 60) { ns2 -= 8; ctx.font = "900 "+ns2+"px Arial Black,Arial"; }
+    ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; ctx.fillText(nm, W/2, H-195, W-80);
+
+    const { isPuppy, isSenior } = getAgeFlags(dog.age);
+    const badgeLabel = isPuppy ? "PUPPY ALERT" : isSenior ? "SENIOR ALERT" : "";
+    const ageDisplay = (dog.age && dog.age.trim()) ? dog.age : "Age Unknown";
+    const breedAgeText = (dog.breed||"Mixed") + " · " + ageDisplay;
+    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "italic 32px Georgia,serif"; ctx.textAlign = "center";
+    ctx.fillText(breedAgeText, W/2, H-148, W-80);
+
+    ctx.textAlign = "center";
+    const rescueObj = new Date(d); rescueObj.setDate(rescueObj.getDate()-1);
+    const euthMD = (d.getMonth()+1)+"/"+d.getDate();
+    const rescueMD = (rescueObj.getMonth()+1)+"/"+rescueObj.getDate();
+    ctx.fillStyle = dl<=0?"#ff5252":"#fcd34d"; ctx.font = "bold 34px Arial";
+    ctx.fillText("Euth Date: "+euthMD+"  ·  Rescue Deadline EOD "+rescueMD, W/2, H-90, W-80);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 34px monospace"; ctx.textAlign = "left";
+    ctx.fillText(dog.shelter_id?("DOG ID: "+dog.shelter_id):"", 40, H-22);
+    if (badgeLabel) {
+      ctx.textAlign = "right";
+      ctx.fillText(badgeLabel, W-40, H-22);
+    }
+    ctx.fillStyle = dogColors.primary; ctx.fillRect(0,H-12,W,12);
+  } else if (phase === "cta") {
+    adminDrawLogo(ctx, W, 20, 180); adminDivider(ctx, W, 220);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 40px Georgia,serif"; ctx.textAlign = "center";
+    ctx.fillText("These dogs are being euthanized", W/2, 300, W-80);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 40px Georgia,serif";
+    ctx.fillText("because the shelter is claiming", W/2, 355, W-80);
+    ctx.fillStyle = "#ff5252"; ctx.font = "bold 40px Georgia,serif";
+    ctx.fillText("they have run out of space.", W/2, 410, W-80);
+    adminDivider(ctx, W, 460);
+    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "32px Arial";
+    ctx.fillText("Share to your network and/or tag rescues.", W/2, 525, W-80);
+    ctx.fillStyle = "rgba(74,140,106,0.2)"; ctx.strokeStyle = "#4a8c6a"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(60,560,W-120,170,16); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = colors.light; ctx.font = "bold 28px Arial"; ctx.textAlign = "center";
+    ctx.fillText("Foster · Adopt · Share", W/2, 618);
+    ctx.fillStyle = "white"; ctx.font = "bold 32px Arial";
+    ctx.fillText("ladogdispatch.com", W/2, 663);
+    ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "22px Arial";
+    ctx.fillText("LA County Animal Shelters", W/2, 705);
+    adminFooterPillSpaceOnly(ctx, W, H);
+  }
+}
+
+function adminFooterPillSpaceOnly(ctx, W, H) {
+  const py = H-125, ph = 88;
+  ctx.fillStyle = "rgba(74,140,106,0.15)"; ctx.strokeStyle = "#4a8c6a"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(W/2-280, py, 560, ph, 20); ctx.fill(); ctx.stroke();
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#7ec8a0"; ctx.font = "bold 32px Arial";
+  ctx.fillText("@la_dog_dispatch", W/2, py+38);
+  ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "26px Arial";
+  ctx.fillText("ladogdispatch.com", W/2, py+70);
+}
+
+function adminRunCardSpaceOnly() {
+  adminSpaceOnlyTimers.forEach(t => clearTimeout(t)); adminSpaceOnlyTimers = [];
+  if (!adminSpaceOnlyDogs.length) { adminLoadSpaceOnlyDogs().then(() => adminRunCardSpaceOnly()); return; }
+  let t = 0;
+  adminSpaceOnlyTimers.push(setTimeout(() => adminDrawCardSpaceOnly("intro", 0), t)); t += 3000;
+  for (let i = 0; i < adminSpaceOnlyDogs.length; i++) {
+    const idx = i;
+    adminSpaceOnlyTimers.push(setTimeout(() => adminDrawCardSpaceOnly("dog", idx), t)); t += 3000;
+  }
+  adminSpaceOnlyTimers.push(setTimeout(() => adminDrawCardSpaceOnly("cta", 0), t));
+}
+
+
 function adminCopyText(id, btn) {
   navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
     const orig = btn.textContent;
@@ -4065,8 +4473,8 @@ function adminCopyText(id, btn) {
 
 <script>
 function adminRecordCard(cardNum) {
-  var canvasId = cardNum===1?'admin-c1':cardNum===2?'admin-c2':cardNum===3?'admin-c3':cardNum===6?'admin-c6':cardNum===7?'admin-c7':cardNum===8?'admin-c8':cardNum===9?'admin-c9':cardNum===10?'admin-c10':cardNum===11?'admin-c11':'admin-c4';
-  var now=new Date(); var wk='WeekOf_'+now.toLocaleDateString('en-US',{month:'long',day:'numeric'}).replace(' ',''); var sn={4:'AllShelters',6:'SouthLA',7:'WestLA',8:'NorthCentral',9:'EastValley',10:'WestValley',11:'Harbor'}; var filename=cardNum===1?'ladogdispatch-how-it-works':cardNum===2?'ladogdispatch-mission':cardNum===3?'ladogdispatch-how-to-help':(sn[cardNum]||'AllShelters')+'_'+wk;
+  var canvasId = cardNum===1?'admin-c1':cardNum===2?'admin-c2':cardNum===3?'admin-c3':cardNum===6?'admin-c6':cardNum===7?'admin-c7':cardNum===8?'admin-c8':cardNum===9?'admin-c9':cardNum===10?'admin-c10':cardNum===11?'admin-c11':cardNum===12?'admin-c12':'admin-c4';
+  var now=getPacificToday(); var wk='WeekOf_'+now.toLocaleDateString('en-US',{month:'long',day:'numeric'}).replace(' ',''); var sn={4:'AllShelters',6:'SouthLA',7:'WestLA',8:'NorthCentral',9:'EastValley',10:'WestValley',11:'Harbor'}; var filename=cardNum===1?'ladogdispatch-how-it-works':cardNum===2?'ladogdispatch-mission':cardNum===3?'ladogdispatch-how-to-help':cardNum===12?'ladogdispatch-space-only_'+wk:(sn[cardNum]||'AllShelters')+'_'+wk;
   var btn = document.getElementById('admin-rec-btn-' + cardNum);
   var canvas = document.getElementById(canvasId);
 
@@ -4129,6 +4537,14 @@ function adminRecordCard(cardNum) {
       setTimeout(function(){recorder.stop();},totalTime);
     };
     sDogs[cardNum].length===0?sLoadFns[cardNum]().then(goS):goS();
+  } else if (cardNum === 12) {
+    var go12 = function() {
+      recorder.start(100);
+      adminRunCardSpaceOnly();
+      var totalTime12 = 3000 + ((adminSpaceOnlyDogs.length+1)*3000) + 3000;
+      setTimeout(function() { recorder.stop(); }, totalTime12);
+    };
+    adminSpaceOnlyDogs.length === 0 ? adminLoadSpaceOnlyDogs().then(go12) : go12();
   } else {
     var go4 = function() {
       recorder.start(100);
