@@ -316,7 +316,7 @@
                             <div class="exp-dcm-body">
                                 <div class="exp-dcm-name" id="iExpDogName">RANGER</div>
                                 <div class="exp-dcm-meta" id="iExpDogMeta">German Shepherd Mix · South LA</div>
-                                <div class="exp-dcm-deadline" id="iExpDogDeadline">3 days left — rescue only</div>
+                                <div class="exp-dcm-deadline" id="iExpDogDeadline">Euthanasia Date: 8/10/26</div>
                                 <div class="exp-ladd-bubble" style="margin-bottom:6px;">🐾 LA DOG DISPATCH — card ready to share</div>
                                 <button class="exp-share-btn"><span id="iExpBtnTxt">Share to IG Story</span><div class="exp-tap-ring" id="iExpTapRing"></div></button>
                             </div>
@@ -474,8 +474,9 @@
         const daysUntil = getDaysUntil(dog.deadline);
         if (daysUntil < 0) return '';
         const formattedDeadline = formatDate(dog.deadline);
+        const rescueDeadlineDate = parseLocalDate(dog.deadline); rescueDeadlineDate.setDate(rescueDeadlineDate.getDate()-1);
+        const formattedRescueDeadline = `${rescueDeadlineDate.getMonth()+1}/${rescueDeadlineDate.getDate()}/${rescueDeadlineDate.getFullYear().toString().slice(-2)}`;
         const percentage = goalAmount > 0 ? Math.round((raisedAmount / goalAmount) * 100) : 0;
-        const daysText = daysUntil === 1 ? '1 day' : `${daysUntil} days`;
         const notesText = dog.notes_short || (dog.notes && dog.notes.length > 200 ? dog.notes.substring(0, 200) + '…' : dog.notes);
         const notesHtml = notesText ? `<div class="dog-notes"><span class="dog-notes-label">⚠️ Shelter Notes</span>${notesText}<span class="dog-notes-disclaimer">Shelter notes are snapshots written in stressful environments & may not reflect a dog's real personality. Training, love & patience needed.</span></div>` : '';
         const actionHtml = window.FUNDING_ENABLED ? `
@@ -499,10 +500,10 @@
                   const { isPuppy, isSenior } = getAgeFlags(dog.age);
                   return dog.age+(isPuppy?' (Puppy)':isSenior?' (Senior)':'');
                 })()} • ${dog.gender}</p>
-                <p style="font-size:0.72rem;color:#9ca3af;font-family:monospace;margin-top:2px;">${dog.shelter_id||''}</p>
+                <p style="font-size:0.78rem;color:#374151;font-family:monospace;font-weight:700;margin-top:2px;">${dog.shelter_id?('DOG ID: '+dog.shelter_id):''}</p>
                 <div class="dog-location">📍 ${dog.shelter}</div>
                 ${dog.intake_date ? `<div class="shelter-duration">🏠 <span>At shelter: <strong>${formatShelterDate(dog.intake_date)}</strong>${dog.list_date ? ` · Listed: <strong>${formatShelterDate(dog.list_date)}</strong>` : ''} · <strong>${getShelterDuration(dog.intake_date)}</strong></span></div>` : ''}
-                <div class="dog-deadline">⏰ <span>${formattedDeadline} (${daysText})</span></div>
+                <div class="dog-deadline">⏰ <span>Euthanasia Date: ${formattedDeadline} · Rescue Deadline: EOD ${formattedRescueDeadline}</span></div>
                 ${notesHtml}
                 ${actionHtml}
                 <div class="dog-share-btns">
@@ -590,11 +591,10 @@
             if (!allDogs.length) { setTimeout(tryPopulateAnimDog, 500); return; }
             const dog = allDogs.find(d => d.photo_url) || allDogs[0];
             if (!dog) return;
-            const daysLeft = (() => { const d = parseLocalDate(dog.deadline); const t = getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })();
             if (dog.photo_url) { document.getElementById('iExpDogImg').src = dog.photo_url; document.getElementById('iExpIgImg').src = dog.photo_url; document.getElementById('iphPhoto').src = dog.photo_url; }
             document.getElementById('iExpDogName').textContent = (dog.name || 'RANGER').toUpperCase();
             document.getElementById('iExpDogMeta').textContent = (dog.breed || 'Mixed') + ' · ' + (dog.shelter || 'South LA').replace(/SOUTH L\.A\./i,'South LA');
-            document.getElementById('iExpDogDeadline').textContent = (daysLeft <= 0 ? 'TODAY' : daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + ' left') + (dog.rescue_only ? ' — rescue only' : '');
+            document.getElementById('iExpDogDeadline').textContent = 'Euthanasia Date: ' + formatDate(dog.deadline) + (dog.rescue_only ? ' — rescue only' : '');
         }
         showStage(0); setTimeout(next, durations[0]); tryPopulateAnimDog();
     })();
@@ -730,12 +730,12 @@
         const shelter = dog.shelter || 'Los Angeles';
         const openings = [
           (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs rescue by ' + dl + '.',
-          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' is on the ' + shelter + ' euthanasia list. Deadline: ' + dl + '.',
-          (alertPrefix ? alertPrefix + ' Who will save ' : 'Who will save ') + name + '? Rescue deadline: ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' is on the ' + shelter + ' euthanasia list. Euthanasia Date: ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' Who will save ' : 'Who will save ') + name + '? Euthanasia Date: ' + dl + '.',
           (alertPrefix ? alertPrefix + ' ' : urgEmoji + ' ') + name + ' needs a foster, adopter, or rescue by ' + dl + '.',
-          (alertPrefix ? alertPrefix + ' ' : '') + name + ' has been at the shelter' + intakeLine + '. Deadline: ' + dl + '.',
-          (alertPrefix ? alertPrefix + ' ' : '') + 'This is ' + name + '. Still waiting. Deadline: ' + dl + '.',
-          (alertPrefix ? alertPrefix + ' ' : '') + 'Every dog on the euth list deserves to be seen. ' + name + '\u2019s deadline is ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + name + ' has been at the shelter' + intakeLine + '. Euthanasia Date: ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + 'This is ' + name + '. Still waiting. Euthanasia Date: ' + dl + '.',
+          (alertPrefix ? alertPrefix + ' ' : '') + 'Every dog on the euth list deserves to be seen. ' + name + '\u2019s euthanasia date is ' + dl + '.',
           (alertPrefix ? alertPrefix + ' If not now, when? ' : 'If not now, when? ') + name + ' needs rescue by ' + dl + '.',
         ];
         const idTag = '#' + (dog.shelter_id||'').replace(/[^a-zA-Z0-9]/g,'');
@@ -842,7 +842,7 @@
     }
 
     
-    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · ${(() => { const d = parseLocalDate(dog.deadline); const t = getPacificToday(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); })()} days left`; document.getElementById('fund-modal-overlay').classList.add('open'); }
+    function openFundModal(dog) { if (!window.FUNDING_ENABLED) return; fundDog = dog; document.getElementById('fund-modal-name').textContent = dog.name||dog.shelter_id; document.getElementById('fund-modal-name-inline').textContent = dog.name||'this dog'; document.getElementById('fund-modal-meta').textContent = `${dog.breed||'Mixed'} · ${dog.shelter||'Los Angeles'} · Euthanasia Date: ${formatDate(dog.deadline)}`; document.getElementById('fund-modal-overlay').classList.add('open'); }
     function closeFundModal(e) { if (e.target===document.getElementById('fund-modal-overlay')) document.getElementById('fund-modal-overlay').classList.remove('open'); }
     function donateDirect(amount) { const link = STRIPE_LINKS[amount]; if (link) { window.open(link,'_blank'); document.getElementById('fund-modal-overlay').classList.remove('open'); } }
     </script>
