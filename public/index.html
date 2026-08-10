@@ -1439,10 +1439,14 @@ function adminDivider(ctx, W, y) {
 }
 
 function adminFooterPill(ctx, W, H) {
-  ctx.fillStyle = '#4a8c6a';
-  ctx.beginPath(); ctx.roundRect(W/2 - 300, H - 105, 600, 68, 34); ctx.fill();
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 30px Arial'; ctx.textAlign = 'center';
-  ctx.fillText('@la_dog_dispatch  ·  ladogdispatch.com', W / 2, H - 62);
+  const py = H - 125, ph = 88;
+  ctx.fillStyle = 'rgba(74,140,106,0.15)'; ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(W/2 - 280, py, 560, ph, 20); ctx.fill(); ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 32px Arial';
+  ctx.fillText('@la_dog_dispatch', W/2, py + 38);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '26px Arial';
+  ctx.fillText('ladogdispatch.com', W/2, py + 70);
 }
 
 // ── CARD 1: HOW IT WORKS ──
@@ -1704,7 +1708,7 @@ function adminDrawCard4(phase, dogIndex) {
     ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.font = '26px Arial';
     ctx.fillText('We can tag YOUR rescue in automated posts', W/2, 844, W - 140);
     ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '22px Arial';
-    ctx.fillText('DM us on Instagram → @la_dog_dispatch', W/2, 878, W - 140);
+    ctx.fillText('DM us on Instagram to get started', W/2, 878, W - 140);
 
     adminFooterPill(ctx, W, H);
   }
@@ -1877,11 +1881,9 @@ function adminDrawCard3(phase, dogIndex) {
 
     // CTA box
     ctx.fillStyle = 'rgba(74,140,106,0.2)'; ctx.strokeStyle = '#4a8c6a'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.roundRect(80, 800, W - 160, 160, 16); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 28px Arial';
-    ctx.fillText('DM us to get involved', W / 2, 852);
-    ctx.fillStyle = 'white'; ctx.font = 'bold 36px Arial';
-    ctx.fillText('@la_dog_dispatch', W / 2, 910);
+    ctx.beginPath(); ctx.roundRect(80, 800, W - 160, 80, 16); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#7ec8a0'; ctx.font = 'bold 30px Arial';
+    ctx.fillText('📩  DM us to get involved', W / 2, 850);
 
     adminFooterPill(ctx, W, H);
   }
@@ -2312,7 +2314,7 @@ async function spmDownloadPhoneWrapper() {
 
   ctx.fillStyle = colors.deadline || colors.light; ctx.font = 'bold 30px Arial';
   ctx.fillText(dog.shelter, scrX + scrW/2, scrY + scrH - 178);
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 24px monospace';
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px monospace';
   ctx.fillText(dog.shelter_id ? ('DOG ID: ' + dog.shelter_id) : '', scrX + scrW/2, scrY + scrH - 138);
 
   // CTA pill
@@ -2390,36 +2392,51 @@ async function spmDownloadCountdownCalendar() {
   while (ctx.measureText(name).width > W - 80 && nameSize > 40) { nameSize -= 4; ctx.font = `900 ${nameSize}px Arial Black, Arial`; }
   ctx.fillText(name, W/2, 100);
 
-  // Urgency line — absolute dates only, never a relative day-count
-  const calRescueObj = new Date(deadline); calRescueObj.setDate(calRescueObj.getDate()-1);
-  const calEuthMD2 = (deadline.getMonth()+1) + '/' + deadline.getDate();
-  const calRescueMD2 = (calRescueObj.getMonth()+1) + '/' + calRescueObj.getDate();
+  // Dog ID — right next to the name
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('DOG ID: ' + (dog.shelter_id || ''), W/2, 128);
+
+  // Urgency line — explicit dates instead of relative day-counts
+  const rescueDlObj = new Date(deadline); rescueDlObj.setDate(rescueDlObj.getDate()-1);
+  const calEuthMD = (deadline.getMonth()+1) + '/' + deadline.getDate();
+  const calRescueMD = (rescueDlObj.getMonth()+1) + '/' + rescueDlObj.getDate();
   ctx.fillStyle = daysLeft <= 1 ? '#ff5252' : colors.deadline;
   ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center';
   ctx.fillText(
-    '⏰ Euth Date: ' + calEuthMD2 + '  ·  Rescue Deadline EOD ' + calRescueMD2,
-    W/2, 148
+    (daysLeft <= 0 ? '🚨 ' : '⏰ ') + 'Euth Date: ' + calEuthMD + '  ·  Rescue Deadline EOD ' + calRescueMD,
+    W/2, 172
   );
 
   // Month name
   ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px Arial';
-  ctx.fillText(monthName.toUpperCase(), W/2, 190);
+  ctx.fillText(monthName.toUpperCase(), W/2, 210);
 
   // ── DAY HEADERS ──
   const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
   const calLeft = 60;
-  const calTop = 210;
+  const calTop = 230;
   const cellW = (W - 120) / 7;
-  const cellH = 110;
+  const cellH = 105;
+  const totalRows = Math.ceil((firstDay + daysInMonth) / 7);
 
-  // Day headers
+  // ── WHITE CALENDAR SHEET — sits behind the header row + grid ──
+  const sheetTop = calTop - 6;
+  const lastRowCy = calTop + 68 + (totalRows - 1) * cellH;
+  const lastCellBottom = lastRowCy + cellH - 40; // matches the cell rect's own bottom edge
+  const sheetBottom = lastCellBottom + 16;
+  ctx.fillStyle = '#fafaf8';
+  ctx.beginPath(); ctx.roundRect(calLeft - 14, sheetTop, (W - calLeft*2) + 28, sheetBottom - sheetTop, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(calLeft - 14, sheetTop, (W - calLeft*2) + 28, sheetBottom - sheetTop, 16); ctx.stroke();
+
+  // Day headers — shelter color reads fine on white at bold weight
   ctx.fillStyle = colors.primary; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
   days.forEach((d, i) => {
     ctx.fillText(d, calLeft + i * cellW + cellW/2, calTop + 26);
   });
 
   // Divider under day headers
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(calLeft, calTop + 38); ctx.lineTo(W - calLeft, calTop + 38); ctx.stroke();
 
   // ── CALENDAR GRID ──
@@ -2439,44 +2456,48 @@ async function spmDownloadCountdownCalendar() {
     const isAfterDeadline = thisDate > deadline;
     const isUrgent = thisDate > today && thisDate <= deadline;
 
-    // Cell background
+    // Cell background — boosted for visibility against the white sheet
     if (isDeadline) {
-      ctx.fillStyle = 'rgba(196,40,28,0.25)';
+      ctx.fillStyle = 'rgba(196,40,28,0.30)';
       ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.fill();
+      ctx.strokeStyle = '#c4281c'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.stroke();
     } else if (isToday) {
-      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.fillStyle = 'rgba(0,0,0,0.10)';
       ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.fill();
+      ctx.strokeStyle = colors.primary; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.stroke();
     } else if (isUrgent) {
-      ctx.fillStyle = 'rgba(196,40,28,0.08)';
+      ctx.fillStyle = 'rgba(196,40,28,0.06)';
       ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 4, cy - 32, cellW - 8, cellH - 8, 10); ctx.fill();
     }
 
     // ── Draw grid cell outline ──
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.roundRect(cx - cellW/2 + 2, cy - 34, cellW - 4, cellH - 4, 6); ctx.stroke();
 
     // Day number color
     if (isDeadline) {
-      ctx.fillStyle = '#ff5252';
+      ctx.fillStyle = '#c4281c';
     } else if (isToday) {
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#111111';
     } else if (isShelterDay) {
-      ctx.fillStyle = '#ffffff'; // bright white, X will show it's past
+      ctx.fillStyle = '#111111'; // dark, X will show it's past
     } else if (isPast || isAfterDeadline) {
-      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.fillStyle = 'rgba(0,0,0,0.32)';
     } else if (isUrgent) {
-      ctx.fillStyle = '#ff5252';
+      ctx.fillStyle = '#c4281c';
     } else {
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#111111';
     }
 
-    ctx.font = `bold ${isToday || isDeadline ? '38' : '32'}px Arial`;
+    ctx.font = `bold ${isToday ? '38' : isDeadline ? '34' : '32'}px Arial`;
     ctx.textAlign = 'center';
-    ctx.fillText(day, cx, cy);
+    ctx.fillText(day, cx, isDeadline ? cy - 8 : cy);
 
     // Full-cell X for shelter days
     if (isShelterDay) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2.5;
+      ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 2.5;
       const x1 = cx - cellW/2 + 8, y1 = cy - 30;
       const x2 = cx + cellW/2 - 8, y2 = cy + cellH - 42;
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
@@ -2497,10 +2518,10 @@ async function spmDownloadCountdownCalendar() {
       ctx.fillText('ARRIVED', cx, cy + 26);
     }
 
-    // Deadline — sad face
-    if (isDeadline) {
-      ctx.font = '30px Arial'; ctx.textAlign = 'center';
-      ctx.fillText('😢', cx, cy + 26);
+    // Deadline — sad face, given more room below the (now smaller) day number
+    if (isDeadline && window._cryEmojiImg) {
+      const emojiSize = 40;
+      ctx.drawImage(window._cryEmojiImg, cx - emojiSize/2, cy + 16, emojiSize, emojiSize);
     }
 
     col++;
